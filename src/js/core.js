@@ -10,15 +10,115 @@ document.addEventListener('DOMContentLoaded', function () { /*!
  */
 
     !function () {
-        var e, t, n, i, r, o, a = {}, s = {}, c = {}, u = {}, l = {}, h = {}, p = {}, d = {}, f = {}, v = {}, g = {}, _ = {}, m = {}, y = {}, E = {}, S = {}, I = {}, C = {}, A = {}, b = {}, O = {}, T = {}, w = {}, N = {}, R = {}, D = {}, k = {}, P = {}, B = {}, L = {}, U = {}, V = {}, M = {}, F = {}, x = {}, W = {}, q = {}, K = {}, H = {}, j = {}, G = {}, Y = {}, z = {}, Q = {}, J = {}, X = {}, $ = {}, Z = {}, ee = {}, te = {}, ne = {}, ie = {}, re = {}, oe = {}, ae = {}, se = {}, ce = {}, ue = {}, le = {}, he = {}, pe = {}, de = {}, fe = {}, ve = {}, ge = {}, _e = {}, me = {}, ye = {}, Ee = {}, Se = {}, Ie = {}, Ce = {}, Ae = {}, be = {}, Oe = {}, Te = {}, we = {}, Ne = {}, Re = {}, De = {}, ke = {}, Pe = {};
+        var e,
+            t,
+            n,
+            i,
+            r,
+            o,
+            a = {},
+            s = {},
+            c = {},
+            u = {},
+            l = {},
+            h = {},
+            p = {},
+            d = {},
+            f = {},
+            v = {},
+            g = {},
+            _ = {},
+            m = {},
+            y = {},
+            E = {},
+            S = {},
+            I = {},
+            C = {},
+            A = {},
+            b = {},
+            O = {},
+            T = {},
+            w = {},
+            N = {},
+            R = {},
+            D = {},
+            k = {},
+            P = {},
+            B = {},
+            L = {},
+            U = {},
+            V = {},
+            M = {},
+            F = {},
+            x = {},
+            W = {},
+            q = {},
+            K = {},
+            H = {},
+            j = {},
+            G = {},
+            Y = {},
+            z = {},
+            Q = {},
+            J = {},
+            X = {},
+            $ = {},
+            Z = {},
+            ee = {},
+            te = {},
+            ne = {},
+            ie = {},
+            re = {},
+            oe = {},
+            ae = {},
+            se = {},
+            ce = {},
+            ue = {},
+            le = {},
+            he = {},
+            pe = {},
+            de = {},
+            fe = {},
+            ve = {},
+            ge = {},
+            _e = {},
+            me = {},
+            ye = {},
+            Ee = {},
+            Se = {},
+            Ie = {},
+            Ce = {},
+            Ae = {},
+            be = {},
+            Oe = {},
+            Te = {},
+            we = {},
+            Ne = {},
+            Re = {},
+            De = {},
+            ke = {},
+            Pe = {};
+
         (function () {
             "use strict";
-            function t(e) {
-                return "function" == typeof e || "object" == typeof e && null !== e;
+
+            /**
+             * 判断入参类型是否为Object
+             * @grammer isObject
+             * @param o
+             * @returns {boolean}
+             */
+            function isObject(o) {
+                return "function" == typeof o || "object" == typeof o && null !== o;
             }
 
-            function n(e) {
-                return "function" == typeof e;
+            /**
+             * 判断入参类型是否为Function
+             * @param o
+             * @returns {boolean}
+             */
+            function isFunction(o) {
+                return "function" == typeof o;
             }
 
             function i(e) {
@@ -43,10 +143,12 @@ document.addEventListener('DOMContentLoaded', function () { /*!
 
             function s() {
                 var e = 0, t = new $(l), n = document.createTextNode("");
-                return t.observe(n, {
+                t.observe(n, {
                     characterData: !0
-                }), function () {
-                    n.data = e = ++e % 2;
+                });
+                return  function () {
+                    e = ++e % 2;
+                    n.data = e;
                 };
             }
 
@@ -64,9 +166,11 @@ document.addEventListener('DOMContentLoaded', function () { /*!
             }
 
             function l() {
-                for (var e = 0; z > e; e += 2) {
-                    var t = te[e], n = te[e + 1];
-                    t(n), te[e] = void 0, te[e + 1] = void 0;
+                for (var i = 0; z > i; i += 2) {
+                    var t = te[i], n = te[i + 1];
+                    t(n);
+                    te[i] = undefined;
+                    te[i + 1] = undefined;
                 }
                 z = 0;
             }
@@ -74,14 +178,15 @@ document.addEventListener('DOMContentLoaded', function () { /*!
             function h() {
                 try {
                     var e = require, t = e("vertx");
-                    return H = t.runOnLoop || t.runOnContext, a();
+                    H = t.runOnLoop || t.runOnContext;
+                    return a();
                 } catch (n) {
                     return u();
                 }
             }
 
             function p(e, t) {
-                var n = this, i = new this.constructor(f);
+                var n = this, i = new this.constructor(noop);
                 void 0 === i[re] && P(i);
                 var r = n._state;
                 if (r) {
@@ -95,19 +200,22 @@ document.addEventListener('DOMContentLoaded', function () { /*!
 
             function d(e) {
                 var t = this;
-                if (e && "object" == typeof e && e.constructor === t) return e;
-                var n = new t(f);
-                return I(n, e), n;
+                if (e && "object" == typeof e && e.constructor === t){
+                    return e
+                };
+                var n = new t(noop);
+                I(n, e);
+                return n;
             }
 
-            function f() {
+            function noop() {
             }
 
-            function v() {
+            function error1() {
                 return new TypeError("You cannot resolve a promise with itself");
             }
 
-            function g() {
+            function error2() {
                 return new TypeError("A promises callback cannot return that same promise.");
             }
 
@@ -115,26 +223,32 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                 try {
                     return e.then;
                 } catch (t) {
-                    return ce.error = t, ce;
+                    ce.error = t;
+                    return ce;
                 }
             }
 
-            function m(e, t, n, i) {
+            function m(ctx, t, n, i) {
                 try {
-                    e.call(t, n, i);
-                } catch (r) {
-                    return r;
+                    ctx.call(t, n, i);
+                } catch (e) {
+                    return e;
                 }
             }
 
             function y(e, t, n) {
                 Q(function (e) {
-                    var i = !1, r = m(n, t, function (n) {
-                        i || (i = !0, t !== n ? I(e, n) : A(e, n));
-                    }, function (t) {
-                        i || (i = !0, b(e, t));
-                    }, "Settle: " + (e._label || " unknown promise"));
-                    !i && r && (i = !0, b(e, r));
+                    var i = false,
+                        r = m(n, t, function (n) {
+                                i || (i = true, t !== n ? I(e, n) : A(e, n));
+                            }, function (t) {
+                                i || (i = true, b(e, t));
+                            }, "Settle: " + (e._label || " unknown promise"));
+
+                    if(!i && r ){
+                        i = true;
+                        b(e, r)
+                    };
                 }, e);
             }
 
@@ -147,28 +261,43 @@ document.addEventListener('DOMContentLoaded', function () { /*!
             }
 
             function S(e, t, i) {
-                t.constructor === e.constructor && i === ne && constructor.resolve === ie ? E(e, t) : i === ce ? b(e, ce.error) : void 0 === i ? A(e, t) : n(i) ? y(e, t, i) : A(e, t);
+                t.constructor === e.constructor && i === ne && constructor.resolve === ie ? E(e, t) : i === ce ? b(e, ce.error) : void 0 === i ? A(e, t) : isFunction(i) ? y(e, t, i) : A(e, t);
             }
 
             function I(e, n) {
-                e === n ? b(e, v()) : t(n) ? S(e, n, _(n)) : A(e, n);
+                e === n ? b(e, error1()) : isObject(n) ? S(e, n, _(n)) : A(e, n);
             }
 
             function C(e) {
-                e._onerror && e._onerror(e._result), T(e);
+                e._onerror && e._onerror(e._result);
+                T(e);
             }
 
             function A(e, t) {
-                e._state === oe && (e._result = t, e._state = ae, 0 !== e._subscribers.length && Q(T, e));
+                if(e._state === oe ){
+                    e._result = t;
+                    e._state = ae;
+                    0 !== e._subscribers.length && Q(T, e)
+                }
             }
 
             function b(e, t) {
-                e._state === oe && (e._state = se, e._result = t, Q(C, e));
+                if(e._state === oe ) {
+                    e._state = se;
+                    e._result = t;
+                    Q(C, e)
+                }
             }
 
             function O(e, t, n, i) {
                 var r = e._subscribers, o = r.length;
-                e._onerror = null, r[o] = t, r[o + ae] = n, r[o + se] = i, 0 === o && e._state && Q(T, e);
+                e._onerror = null;
+                r[o] = t;
+                r[o + ae] = n;
+                r[o + se] = i;
+                if(0 === o && e._state ){
+                    Q(T, e);
+                }
             }
 
             function T(e) {
@@ -184,20 +313,35 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                 this.error = null;
             }
 
-            function N(e, t) {
+            function N(fn, t) {
                 try {
-                    return e(t);
-                } catch (n) {
-                    return ue.error = n, ue;
+                    return fn(t);
+                } catch (e) {
+                    ue.error = e;
+                    return ue;
                 }
             }
 
             function R(e, t, i, r) {
-                var o, a, s, c, u = n(i);
+                var o, a, s, c, u = isFunction(i);
                 if (u) {
-                    if (o = N(i, r), o === ue ? (c = !0, a = o.error, o = null) : s = !0, t === o) return void b(t, g());
-                } else o = r, s = !0;
-                t._state !== oe || (u && s ? I(t, o) : c ? b(t, a) : e === ae ? A(t, o) : e === se && b(t, o));
+                    if (o = N(i, r), o === ue ? (c = !0, a = o.error, o = null) : s = !0, t === o) {
+                        b(t, error2());
+                        return;
+                    }
+                } else {
+                    o = r;
+                    s = true;
+                }
+                if(t._state === oe ){
+                    u && s ?
+                        I(t, o) :
+                        c ?
+                            b(t, a) :
+                            e === ae ?
+                                A(t, o) :
+                            e === se && b(t, o)
+                }
             }
 
             function D(e, t) {
@@ -234,7 +378,7 @@ document.addEventListener('DOMContentLoaded', function () { /*!
             }
 
             function U(e) {
-                var t = this, n = new t(f);
+                var t = this, n = new t(noop);
                 return b(n, e), n;
             }
 
@@ -247,12 +391,12 @@ document.addEventListener('DOMContentLoaded', function () { /*!
             }
 
             function F(e) {
-                this[re] = k(), this._result = this._state = void 0, this._subscribers = [], f !== e && ("function" != typeof e && V(),
+                this[re] = k(), this._result = this._state = void 0, this._subscribers = [], noop !== e && ("function" != typeof e && V(),
                     this instanceof F ? D(this, e) : M());
             }
 
             function x(e, t) {
-                this._instanceConstructor = e, this.promise = new e(f), this.promise[re] || P(this.promise),
+                this._instanceConstructor = e, this.promise = new e(noop), this.promise[re] || P(this.promise),
                     Y(t) ? (this._input = t, this.length = t.length, this._remaining = t.length, this._result = new Array(this.length),
                         0 === this.length ? A(this.promise, this._result) : (this.length = this.length || 0,
                             this._enumerate(), 0 === this._remaining && A(this.promise, this._result))) : b(this.promise, W());
@@ -277,9 +421,20 @@ document.addEventListener('DOMContentLoaded', function () { /*!
             K = Array.isArray ? Array.isArray : function (e) {
                 return "[object Array]" === Object.prototype.toString.call(e);
             };
-            var H, j, G, Y = K, z = 0, Q = function (e, t) {
-                te[z] = e, te[z + 1] = t, z += 2, 2 === z && (j ? j(l) : G());
-            }, J = "undefined" != typeof window ? window : void 0, X = J || {}, $ = X.MutationObserver || X.WebKitMutationObserver, Z = "undefined" == typeof self && "undefined" != typeof process && "[object process]" === {}.toString.call(process), ee = "undefined" != typeof Uint8ClampedArray && "undefined" != typeof importScripts && "undefined" != typeof MessageChannel, te = new Array(1e3);
+
+            //Environment
+            var H, j, G, Y = K, z = 0,
+                Q = function (e, t) {
+                    te[z] = e, te[z + 1] = t, z += 2, 2 === z && (j ? j(l) : G());
+                },
+                //context
+                J = "undefined" != typeof window ? window : void 0,
+                X = J || {},
+                $ = X.MutationObserver || X.WebKitMutationObserver,
+                Z = "undefined" == typeof self && "undefined" != typeof process && "[object process]" === {}.toString.call(process),
+                ee = "undefined" != typeof Uint8ClampedArray && "undefined" != typeof importScripts && "undefined" != typeof MessageChannel,
+                te = new Array(1e3);
+
             G = Z ? o() : $ ? s() : ee ? c() : void 0 === J && "function" == typeof require ? h() : u();
             var ne = p, ie = d, re = Math.random().toString(36).substring(16), oe = void 0, ae = 1, se = 2, ce = new w(), ue = new w(), le = 0, he = B, pe = L, de = U, fe = F;
             F.all = he, F.race = pe, F.resolve = ie, F.reject = de, F._setScheduler = i, F._setAsap = r,
@@ -299,7 +454,7 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                     var r = _(e);
                     if (r === ne && e._state !== oe) this._settledAt(e._state, t, e._result); else if ("function" != typeof r) this._remaining--,
                         this._result[t] = e; else if (n === fe) {
-                        var o = new n(f);
+                        var o = new n(noop);
                         S(o, e, r), this._willSettleAt(o, t);
                     } else this._willSettleAt(new n(function (t) {
                         t(e);
@@ -317,20 +472,31 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                     n._settledAt(se, t, e);
                 });
             };
+
             var ge = q, _e = {
                 Promise: fe,
                 polyfill: ge
             };
+
             e = function () {
                 return _e;
-            }(), ge();
-        }).call(this), a = function (e) {
+            }();
+
+            ge();
+
+        }).call(this);
+
+        a = function (e) {
             !function (e) {
-                e[e.ANDROID = 0] = "ANDROID", e[e.IOS = 1] = "IOS", e[e.TEST = 2] = "TEST";
+                e[e.ANDROID = 0] = "ANDROID";
+                e[e.IOS = 1] = "IOS";
+                e[e.TEST = 2] = "TEST";
             }(e.Platform || (e.Platform = {}));
             e.Platform;
             return e;
-        }(a), s = function (e, t) {
+        }(a);
+
+        s = function (e, t) {
             var n = function () {
                 function e(e) {
                     this._batch = [], this._nativeBridge = e;
@@ -358,7 +524,9 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                 }, e;
             }();
             return e.BatchInvocation = n, e;
-        }(s, a), c = function (e) {
+        }(s, a);
+
+        c = function (e) {
             var t = function () {
                 function e(e, t) {
                     this._nativeBridge = e, this._apiClass = t;
@@ -370,6 +538,7 @@ document.addEventListener('DOMContentLoaded', function () { /*!
             }();
             return e.NativeApi = t, e;
         }(c);
+
         var Be = this && this.__extends || function (e, t) {
                 function n() {
                     this.constructor = e;
@@ -378,6 +547,7 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                 for (var i in t) t.hasOwnProperty(i) && (e[i] = t[i]);
                 e.prototype = null === t ? Object.create(t) : (n.prototype = t.prototype, new n());
             };
+
         u = function (e) {
             var t = function () {
                 function e() {
@@ -478,6 +648,7 @@ document.addEventListener('DOMContentLoaded', function () { /*!
             }(t);
             return e.Observable6 = c, e;
         }(u);
+
         var Be = this && this.__extends || function (e, t) {
                 function n() {
                     this.constructor = e;
