@@ -96,7 +96,7 @@ document.addEventListener('DOMContentLoaded', function () { /*!
             Ne = {},
             Re = {},
             De = {},
-            ke = {},
+            IosWebView = {},
             Pe = {};
 
         (function () {
@@ -142,13 +142,13 @@ document.addEventListener('DOMContentLoaded', function () { /*!
             }
 
             function s() {
-                var e = 0, t = new $(l), n = document.createTextNode("");
+                var i = 0, t = new MutationObserver(l), n = document.createTextNode("");
                 t.observe(n, {
-                    characterData: !0
+                    characterData: true
                 });
                 return  function () {
-                    e = ++e % 2;
-                    n.data = e;
+                    i = ++i % 2;
+                    n.data = i;
                 };
             }
 
@@ -186,21 +186,21 @@ document.addEventListener('DOMContentLoaded', function () { /*!
             }
 
             //then function
-            function p(resolveCallback, rejectCallback) {
-                var n = this,
+            function then(success, failure) {
+                var promise = this,
                     i = new this.constructor(noop);
 
                 if( void 0 === i[re] ){
                     P(i);
                 }
-                var r = n._state;
-                if (r) {
-                    var o = arguments[r - 1];
+                var state = promise._state;
+                if (state) {
+                    var callback = arguments[state - 1];
                     Q(function () {
-                        R(r, i, o, n._result);
+                        R(state, i, callback, promise._result);
                     });
                 } else {
-                    O(n, i, resolveCallback, rejectCallback);
+                    O(promise, i, success, failure);
                 }
                 return i;
             }
@@ -260,7 +260,7 @@ document.addEventListener('DOMContentLoaded', function () { /*!
             }
 
             function E(e, t) {
-                t._state === ae ? A(e, t._result) : t._state === se ? b(e, t._result) : O(t, void 0, function (t) {
+                t._state === STATE_SUCCESS ? A(e, t._result) : t._state === STATE_FAILURE ? b(e, t._result) : O(t, void 0, function (t) {
                     I(e, t);
                 }, function (t) {
                     b(e, t);
@@ -283,22 +283,22 @@ document.addEventListener('DOMContentLoaded', function () { /*!
 
             function C(e) {
                 e._onerror && e._onerror(e._result);
-                T(e);
+                notify(e);
             }
 
-            function A(e, t) {
-                if(e._state === oe ){
-                    e._result = t;
-                    e._state = ae;
-                    0 !== e._subscribers.length && Q(T, e)
+            function A(promise, result) {
+                if(promise._state === oe ){
+                    promise._result = result;
+                    promise._state = STATE_SUCCESS;
+                    0 !== promise._subscribers.length && Q(notify, promise)
                 }
             }
 
-            function b(e, t) {
-                if(e._state === oe ) {
-                    e._state = se;
-                    e._result = t;
-                    Q(C, e)
+            function b(promise, err) {
+                if(promise._state === oe ) {
+                    promise._state = STATE_FAILURE;
+                    promise._result = err;
+                    Q(C, promise)
                 }
             }
 
@@ -306,23 +306,25 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                 var r = e._subscribers, o = r.length;
                 e._onerror = null;
                 r[o] = t;
-                r[o + ae] = success;
-                r[o + se] = fail;
+                r[o + STATE_SUCCESS] = success;
+                r[o + STATE_FAILURE] = fail;
                 if(0 === o && e._state ){
-                    Q(T, e);
+                    Q(notify, e);
                 }
             }
 
-            function T(e) {
-                var subscribers = e._subscribers, state = e._state;
+            function notify(promise) {
+                var subscribers = promise._subscribers,
+                    state = promise._state;
+
                 if (0 !== subscribers.length) {
-                    var subscriber, r, o = e._result;
+                    var subscriber, callback, res = promise._result;
                     for (var i = 0; i < subscribers.length; i += 3){
                         subscriber = subscribers[i];
-                        r = subscribers[i + state];
-                        subscriber ? R(state, subscriber, r, o) : r(o);
+                        callback = subscribers[i + state];
+                        subscriber ? R(state, subscriber, callback, res) : callback(res);
                     }
-                    e._subscribers.length = 0;
+                    promise._subscribers.length = 0;
                 }
             }
 
@@ -330,34 +332,44 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                 this.error = null;
             }
 
-            function N(fn, t) {
+            function invoke(fn, arg) {
                 try {
-                    return fn(t);
+                    return fn(arg);
                 } catch (e) {
                     ue.error = e;
                     return ue;
                 }
             }
 
-            function R(e, t, i, r) {
-                var o, a, s, c, u = isFunction(i);
-                if (u) {
-                    if (o = N(i, r), o === ue ? (c = !0, a = o.error, o = null) : s = !0, t === o) {
+            function R(state, t, callback, result) {
+                var callbackResult, err, hasSuccess, hasError, isFn = isFunction(callback);
+                if (isFn) {
+                    callbackResult = invoke(callback, result);
+                    if(callbackResult === ue ) {
+                        hasError = true;
+                        err = callbackResult.error;
+                        callbackResult = null;
+                    }else{
+                        hasSuccess = true;
+                    }
+                    if (t === callbackResult) {
                         b(t, error2());
                         return;
                     }
                 } else {
-                    o = r;
-                    s = true;
+                    callbackResult = result;
+                    hasSuccess = true;
                 }
                 if(t._state === oe ){
-                    u && s ?
-                        I(t, o) :
-                        c ?
-                            b(t, a) :
-                            e === ae ?
-                                A(t, o) :
-                            e === se && b(t, o)
+                    if(isFn && hasSuccess){
+                        I(t, callbackResult)
+                    }else if(hasError){
+                        b(t, err)
+                    }else if(state === STATE_SUCCESS){
+                        A(t, callbackResult)
+                    }else{
+                        state === STATE_FAILURE && b(t, callbackResult)
+                    }
                 }
             }
 
@@ -412,7 +424,7 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                 throw new TypeError("Failed to construct 'Promise': Please use the 'new' operator, this object constructor cannot be called as a function.");
             }
 
-            function F(fn) {
+            function Promise(fn) {
                 this[re] = k();
                 this._result = this._state = void 0;
                 this._subscribers = [];
@@ -420,7 +432,7 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                     if( "function" != typeof fn ){
                         errorArg();
                     }
-                    if(this instanceof F ){
+                    if(this instanceof Promise ){
                         D(this, fn)
                     }else{
                         errorConstruct()
@@ -457,44 +469,44 @@ document.addEventListener('DOMContentLoaded', function () { /*!
 
             //Environment
             var H, j, G, Y = isArray, z = 0,
-                Q = function (e, t) {
-                    te[z] = e;
-                    te[z + 1] = t;
+                Q = function (callback, promise) {
+                    te[z] = callback;
+                    te[z + 1] = promise;
                     z += 2;
                     2 === z && (j ? j(l) : G());
                 },
                 //context
-                J = "undefined" != typeof window ? window : void 0,
-                X = J || {},
-                $ = X.MutationObserver || X.WebKitMutationObserver,
+                Context = "undefined" != typeof window ? window : void 0,
+                Global = Context || {},
+                MutationObserver = Global.MutationObserver || Global.WebKitMutationObserver,
                 Z = "undefined" == typeof self && "undefined" != typeof process && "[object process]" === {}.toString.call(process),
                 ee = "undefined" != typeof Uint8ClampedArray && "undefined" != typeof importScripts && "undefined" != typeof MessageChannel,
                 te = new Array(1e3);
 
-            G = Z ? o() : $ ? s() : ee ? c() : void 0 === J && "function" == typeof require ? h() : u();
-            var ne = p,
+            G = Z ? o() : MutationObserver ? s() : ee ? c() : void 0 === Context && "function" == typeof require ? h() : u();
+            var ne = then,
                 ie = d,
                 re = Math.random().toString(36).substring(16),
                 oe = void 0,
-                ae = 1,
-                se = 2,
+                STATE_SUCCESS = 1,
+                STATE_FAILURE = 2,
                 ce = new w(),
                 ue = new w(),
                 le = 0,
                 he = B,
                 pe = L,
                 de = U,
-                fe = F;
+                fe = Promise;
 
-            F.all = he;
-            F.race = pe;
-            F.resolve = ie;
-            F.reject = de;
-            F._setScheduler = i;
-            F._setAsap = r;
-            F._asap = Q;
-            F.prototype = {
-                constructor: F,
+            Promise.all = he;
+            Promise.race = pe;
+            Promise.resolve = ie;
+            Promise.reject = de;
+            Promise._setScheduler = i;
+            Promise._setAsap = r;
+            Promise._asap = Q;
+            Promise.prototype = {
+                constructor: Promise,
                 then: ne,
                 "catch": function (e) {
                     return this.then(null, e);
@@ -502,8 +514,13 @@ document.addEventListener('DOMContentLoaded', function () { /*!
             };
             var ve = x;
             x.prototype._enumerate = function () {
-                for (var e = this.length, t = this._input, n = 0; this._state === oe && e > n; n++) this._eachEntry(t[n], n);
-            }, x.prototype._eachEntry = function (e, t) {
+                var len = this.length,
+                    input = this._input;
+                for (var i = 0; this._state === oe && len > i; i++){
+                    this._eachEntry(input[i], i);
+                }
+            };
+            x.prototype._eachEntry = function (e, t) {
                 var n = this._instanceConstructor, i = n.resolve;
                 if (i === ie) {
                     var r = _(e);
@@ -515,16 +532,18 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                         t(e);
                     }), t);
                 } else this._willSettleAt(i(e), t);
-            }, x.prototype._settledAt = function (e, t, n) {
+            };
+            x.prototype._settledAt = function (e, t, n) {
                 var i = this.promise;
-                i._state === oe && (this._remaining--, e === se ? b(i, n) : this._result[t] = n),
+                i._state === oe && (this._remaining--, e === STATE_FAILURE ? b(i, n) : this._result[t] = n),
                 0 === this._remaining && A(i, this._result);
-            }, x.prototype._willSettleAt = function (e, t) {
+            };
+            x.prototype._willSettleAt = function (e, t) {
                 var n = this;
                 O(e, void 0, function (e) {
-                    n._settledAt(ae, t, e);
+                    n._settledAt(STATE_SUCCESS, t, e);
                 }, function (e) {
-                    n._settledAt(se, t, e);
+                    n._settledAt(STATE_FAILURE, t, e);
                 });
             };
 
@@ -1716,73 +1735,132 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                 }, t;
             }(t.NativeApi);
             return e.UrlSchemeApi = n, e;
-        }(B, c), L = function (e, t, n, i, r, o, a, s, c, u, l, h, p, d, f, v, g, _, m, y, E, S) {
-            !function (e) {
-                e[e.OK = 0] = "OK", e[e.ERROR = 1] = "ERROR";
+        }(B, c),
+
+        L = function (e, t, n, i, r, o, a, s, c, u, l, h, p, d, f, v, g, _, m, y, E, S) {
+            !function (status) {
+                status[status.OK = 0] = "OK";
+                status[status.ERROR = 1] = "ERROR";
             }(e.CallbackStatus || (e.CallbackStatus = {}));
-            var I = e.CallbackStatus, C = function () {
-                function e(e, t, s) {
-                    void 0 === t && (t = _.Platform.TEST), void 0 === s && (s = !0), this.AppSheet = null,
-                        this.AndroidAdUnit = null, this.Broadcast = null, this.Cache = null, this.Connectivity = null,
-                        this.DeviceInfo = null, this.Intent = null, this.IosAdUnit = null, this.Listener = null,
-                        this.Notification = null, this.Placement = null, this.Request = null, this.Resolve = null,
-                        this.Sdk = null, this.Storage = null, this.VideoPlayer = null, this.UrlScheme = null,
-                        this._callbackId = 1, this._callbackTable = {}, this._autoBatchInterval = 50, this._autoBatchEnabled = s,
-                        this._platform = t, this._backend = e, this.AppSheet = new v.AppSheetApi(this),
-                        t === _.Platform.IOS ? this.IosAdUnit = new y.IosAdUnitApi(this) : this.AndroidAdUnit = new m.AndroidAdUnitApi(this),
-                        this.Broadcast = new n.BroadcastApi(this), this.Cache = new i.CacheApi(this), this.Connectivity = new r.ConnectivityApi(this),
-                        this.DeviceInfo = new f.DeviceInfoApi(this), this.Intent = new u.IntentApi(this),
-                        this.Listener = new l.ListenerApi(this), this.Notification = new E.NotificationApi(this),
-                        this.Placement = new h.PlacementApi(this), this.Request = new o.RequestApi(this),
-                        this.Resolve = new c.ResolveApi(this), this.Sdk = new p.SdkApi(this), this.Storage = new d.StorageApi(this),
-                        this.VideoPlayer = new a.VideoPlayerApi(this), this.UrlScheme = new S.UrlSchemeApi(this);
+
+            var CallbackStatus = e.CallbackStatus;
+            var NativeBridge = function () {
+                function Bridge(e, t, s) {
+                    void 0 === t && (t = _.Platform.TEST);
+                    void 0 === s && (s = true);
+                    this.AppSheet = null;
+                    this.AndroidAdUnit = null;
+                    this.Broadcast = null;
+                    this.Cache = null;
+                    this.Connectivity = null;
+                    this.DeviceInfo = null;
+                    this.Intent = null;
+                    this.IosAdUnit = null;
+                    this.Listener = null;
+                    this.Notification = null;
+                    this.Placement = null;
+                    this.Request = null;
+                    this.Resolve = null;
+                    this.Sdk = null;
+                    this.Storage = null;
+                    this.VideoPlayer = null;
+                    this.UrlScheme = null;
+                    this._callbackId = 1;
+                    this._callbackTable = {};
+                    this._autoBatchInterval = 50;
+                    this._autoBatchEnabled = s;
+                    this._platform = t;
+                    this._backend = e;
+                    this.AppSheet = new v.AppSheetApi(this);
+                    t === _.Platform.IOS ? this.IosAdUnit = new y.IosAdUnitApi(this) : this.AndroidAdUnit = new m.AndroidAdUnitApi(this);
+                    this.Broadcast = new n.BroadcastApi(this);
+                    this.Cache = new i.CacheApi(this);
+                    this.Connectivity = new r.ConnectivityApi(this);
+                    this.DeviceInfo = new f.DeviceInfoApi(this);
+                    this.Intent = new u.IntentApi(this);
+                    this.Listener = new l.ListenerApi(this);
+                    this.Notification = new E.NotificationApi(this);
+                    this.Placement = new h.PlacementApi(this);
+                    this.Request = new o.RequestApi(this);
+                    this.Resolve = new c.ResolveApi(this);
+                    this.Sdk = new p.SdkApi(this);
+                    this.Storage = new d.StorageApi(this);
+                    this.VideoPlayer = new a.VideoPlayerApi(this);
+                    this.UrlScheme = new S.UrlSchemeApi(this);
                 }
 
-                return e.convertStatus = function (e) {
+                Bridge.convertStatus = function (e) {
                     switch (e) {
-                        case I[I.OK]:
-                            return I.OK;
+                        case CallbackStatus[CallbackStatus.OK]:
+                            return CallbackStatus.OK;
 
-                        case I[I.ERROR]:
-                            return I.ERROR;
+                        case CallbackStatus[CallbackStatus.ERROR]:
+                            return CallbackStatus.ERROR;
 
                         default:
                             throw new Error("Status string is not valid: " + e);
                     }
-                }, e.prototype.registerCallback = function (e, t) {
+                };
+                Bridge.prototype.registerCallback = function (e, t) {
                     var n = this._callbackId++;
-                    return this._callbackTable[n] = new g.CallbackContainer(e, t), n;
-                }, e.prototype.invoke = function (e, n, i) {
-                    var r = this;
+                    this._callbackTable[n] = new g.CallbackContainer(e, t);
+                    return n;
+                };
+                Bridge.prototype.invoke = function (e, n, i) {
+                    var me = this;
                     if (this._autoBatchEnabled) {
                         this._autoBatch || (this._autoBatch = new t.BatchInvocation(this));
                         var o = this._autoBatch.queue(e, n, i);
-                        return this._autoBatchTimer || (this._autoBatchTimer = setTimeout(function () {
-                            r.invokeBatch(r._autoBatch), r._autoBatch = null, r._autoBatchTimer = null;
-                        }, this._autoBatchInterval)), o;
+
+                        if( !this._autoBatchTimer){
+                            this._autoBatchTimer = setTimeout(function () {
+                                me.invokeBatch(me._autoBatch);
+                                me._autoBatch = null;
+                                me._autoBatchTimer = null;
+                            }, this._autoBatchInterval)
+                        }
+                        return o;
                     }
-                    var a = new t.BatchInvocation(this), o = a.queue(e, n, i);
-                    return this.invokeBatch(a), o;
-                }, e.prototype.rawInvoke = function (e, n, i) {
-                    var r = new t.BatchInvocation(this), o = r.rawQueue(e, n, i);
-                    return this.invokeBatch(r), o;
-                }, e.prototype.handleCallback = function (t) {
-                    var n = this;
+                    var a = new t.BatchInvocation(this),
+                        o = a.queue(e, n, i);
+
+                    this.invokeBatch(a);
+                    return o;
+                };
+                Bridge.prototype.rawInvoke = function (e, n, i) {
+                    var r = new t.BatchInvocation(this),
+                        o = r.rawQueue(e, n, i);
+                    this.invokeBatch(r);
+                    return o;
+                };
+                Bridge.prototype.handleCallback = function (t) {
+                    var me = this;
                     t.forEach(function (t) {
-                        var i = parseInt(t.shift(), 10), r = e.convertStatus(t.shift()), o = t.shift(), a = n._callbackTable[i];
-                        if (!a) throw new Error("Unable to find matching callback object from callback id " + i);
-                        switch (1 === o.length && (o = o[0]), r) {
-                            case I.OK:
+                        var i = parseInt(t.shift(), 10),
+                            r = Bridge.convertStatus(t.shift()),
+                            o = t.shift(),
+                            a = me._callbackTable[i];
+
+                        if (!a) {
+                            throw new Error("Unable to find matching callback object from callback id " + i);
+                        }
+                        1 === o.length && (o = o[0]);
+                        switch (r) {
+                            case CallbackStatus.OK:
                                 a.resolve(o);
                                 break;
 
-                            case I.ERROR:
+                            case CallbackStatus.ERROR:
                                 a.reject(o);
                         }
-                        delete n._callbackTable[i];
+                        delete me._callbackTable[i];
                     });
-                }, e.prototype.handleEvent = function (e) {
-                    var t = e.shift(), n = e.shift();
+                };
+
+                Bridge.prototype.handleEvent = function (e) {
+                    var t = e.shift(),
+                        n = e.shift();
+
                     switch (t) {
                         case s.EventCategory[s.EventCategory.APPSHEET]:
                             this.AppSheet.handleEvent(n, e);
@@ -1827,26 +1905,51 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                         default:
                             throw new Error("Unknown event category: " + t);
                     }
-                }, e.prototype.handleInvocation = function (e) {
-                    var t = this, n = e.shift(), i = e.shift(), r = e.shift();
-                    e.push(function (e) {
-                        for (var n = [], i = 1; i < arguments.length; i++) n[i - 1] = arguments[i];
-                        t.invokeCallback.apply(t, [r, I[e]].concat(n));
-                    }), window[n][i].apply(window[n], e);
-                }, e.prototype.setApiLevel = function (e) {
-                    this._apiLevel = e;
-                }, e.prototype.getApiLevel = function () {
+                };
+
+                Bridge.prototype.handleInvocation = function (e) {
+                    var me = this,
+                        className = e.shift(), //className
+                        methodName = e.shift(), //methodName
+                        r = e.shift();
+
+                    e.push(function (status) {
+                        for (var arr = [], i = 1; i < arguments.length; i++) {
+                            arr[i - 1] = arguments[i];
+                        }
+                        me.invokeCallback.apply(me, [r, CallbackStatus[status]].concat(arr));
+                    });
+                    window[className][methodName].apply(window[className], e);
+                };
+
+                Bridge.prototype.setApiLevel = function (level) {
+                    this._apiLevel = level;
+                };
+
+                Bridge.prototype.getApiLevel = function () {
                     return this._apiLevel;
-                }, e.prototype.getPlatform = function () {
+                };
+
+                Bridge.prototype.getPlatform = function () {
                     return this._platform;
-                }, e.prototype.invokeBatch = function (t) {
-                    this._backend.handleInvocation(JSON.stringify(t.getBatch()).replace(e._doubleRegExp, "$1"));
-                }, e.prototype.invokeCallback = function (e, t) {
-                    for (var n = [], i = 2; i < arguments.length; i++) n[i - 2] = arguments[i];
+                };
+
+                Bridge.prototype.invokeBatch = function (t) {
+                    this._backend.handleInvocation(JSON.stringify(t.getBatch()).replace(Bridge._doubleRegExp, "$1"));
+                };
+
+                Bridge.prototype.invokeCallback = function (e, t) {
+                    for (var n = [], i = 2; i < arguments.length; i++){
+                        n[i - 2] = arguments[i];
+                    }
                     this._backend.handleCallback(e, t, JSON.stringify(n));
-                }, e._doubleRegExp = /"(\d+\.\d+)=double"/g, e;
+                };
+
+                Bridge._doubleRegExp = /"(\d+\.\d+)=double"/g; //version:"1.2=double" => version:1.2
+                return Bridge;
             }();
-            return e.NativeBridge = C, e;
+            e.NativeBridge = NativeBridge;
+            return e;
         }(L, s, l, h, p, d, g, _, m, y, S, C, A, b, w, N, R, a, D, k, P, B), U = function (e) {
             !function (e) {
                 e[e.STREAM_ALARM = 4] = "STREAM_ALARM", e[e.STREAM_DTMF = 8] = "STREAM_DTMF", e[e.STREAM_MUSIC = 3] = "STREAM_MUSIC",
@@ -5635,157 +5738,294 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                 }, e.DEFAULT_MAX_WRAPPER_DEPTH = 8, e;
             }();
             return e.VastParser = a, e;
-        }(Re, be, we, Te, Ne, r), De = function (e, t, n, i, r, o, a, s, c, u, l, h, p, d, f, v, g, _, m, y, E, S, I) {
-            var C = function () {
-                function e(e) {
-                    var t = this;
-                    this._showing = !1, this._initialized = !1, this._mustReinitialize = !1, this._nativeBridge = e,
-                    window && window.addEventListener && window.addEventListener("error", function (e) {
-                        return t.onError(e);
-                    }, !1);
-                }
+        }(Re, be, we, Te, Ne, r),
 
-                return e.prototype.initialize = function () {
-                    var e = this;
-                    return this._nativeBridge.Sdk.loadComplete().then(function (t) {
-                        return e._deviceInfo = new n.DeviceInfo(e._nativeBridge), e._wakeUpManager = new m.WakeUpManager(e._nativeBridge),
-                            e._cacheManager = new a.CacheManager(e._nativeBridge, e._wakeUpManager), e._request = new c.Request(e._nativeBridge, e._wakeUpManager),
-                            e._resolve = new _.Resolve(e._nativeBridge), e._eventManager = new p.EventManager(e._nativeBridge, e._request),
-                            e._clientInfo = new l.ClientInfo(e._nativeBridge.getPlatform(), t), e._deviceInfo.fetch();
-                    }).then(function () {
-                        if (e._clientInfo.getPlatform() === v.Platform.ANDROID) document.body.classList.add("android"),
-                            e._nativeBridge.setApiLevel(e._deviceInfo.getApiLevel()); else if (e._clientInfo.getPlatform() === v.Platform.IOS) {
-                            var t = e._deviceInfo.getModel();
-                            t.match(/iphone/i) || t.match(/ipod/i) ? document.body.classList.add("iphone") : t.match(/ipad/i) && document.body.classList.add("ipad");
-                        }
-                        return e._sessionManager = new u.SessionManager(e._nativeBridge, e._clientInfo, e._deviceInfo, e._eventManager),
-                            e._initializedAt = e._configJsonCheckedAt = Date.now(), e._nativeBridge.Sdk.initComplete(),
-                            e._wakeUpManager.setListenConnectivity(!0), e._wakeUpManager.onNetworkConnected.subscribe(function () {
-                            return e.onNetworkConnected();
-                        }), e._nativeBridge.getPlatform() === v.Platform.IOS ? (e._wakeUpManager.setListenAppForeground(!0),
-                            e._wakeUpManager.onAppForeground.subscribe(function () {
-                                return e.onAppForeground();
-                            })) : (e._wakeUpManager.setListenScreen(!0), e._wakeUpManager.onScreenOn.subscribe(function () {
-                            return e.onScreenOn();
-                        })), e._cacheManager.cleanCache(), e.setupTestEnvironment();
-                    }).then(function () {
-                        return i.ConfigManager.fetch(e._nativeBridge, e._request, e._clientInfo, e._deviceInfo);
-                    }).then(function (t) {
-                        return e._configuration = t, e._sessionManager.create();
-                    }).then(function () {
-                        var t = e._configuration.getDefaultPlacement();
-                        return e._nativeBridge.Placement.setDefaultPlacement(t.getId()), e.setPlacementStates(s.PlacementState.NOT_AVAILABLE),
-                            e._campaignManager = new o.CampaignManager(e._nativeBridge, e._request, e._clientInfo, e._deviceInfo, new E.VastParser()),
-                            e._campaignManager.onCampaign.subscribe(function (t) {
-                                return e.onCampaign(t);
-                            }), e._campaignManager.onVastCampaign.subscribe(function (t) {
-                            return e.onVastCampaign(t);
-                        }), e._campaignManager.onNoFill.subscribe(function (t) {
-                            return e.onNoFill(t);
-                        }), e._campaignManager.onError.subscribe(function (t) {
-                            return e.onCampaignError(t);
-                        }), e._refillTimestamp = 0, e._campaignManager.request();
-                    }).then(function () {
-                        return e._initialized = !0, e._eventManager.sendUnsentSessions();
-                    })["catch"](function (t) {
-                        t instanceof Error && (t = {
-                            message: t.message,
-                            name: t.name,
-                            stack: t.stack
-                        }, t.message === f.UnityAdsError[f.UnityAdsError.INVALID_ARGUMENT] && e._nativeBridge.Listener.sendErrorEvent(f.UnityAdsError[f.UnityAdsError.INVALID_ARGUMENT], "Game ID is not valid")),
-                            e._nativeBridge.Sdk.logError(JSON.stringify(t)), h.Diagnostics.trigger(e._eventManager, {
-                            type: "initialization_error",
-                            error: t
-                        }, e._clientInfo, e._deviceInfo);
-                    });
-                }, e.prototype.show = function (e, n, i) {
-                    var o = this;
-                    if (i(t.CallbackStatus.OK), this._showing) return void this.showError(!1, e, "Can't show a new ad unit when ad unit is already open");
-                    var a = this._configuration.getPlacement(e);
-                    return a ? this._campaign ? (this._nativeBridge.getPlatform() !== v.Platform.IOS || this._campaign.getBypassAppSheet() || this._nativeBridge.AppSheet.prepare({
-                        id: parseInt(this._campaign.getAppStoreId(), 10)
-                    }), this._showing = !0, this.shouldReinitialize().then(function (e) {
-                        o._mustReinitialize = e;
-                    }), this._configuration.getCacheMode() === r.CacheMode.ALLOWED && this._cacheManager.stop(),
-                        void g.MetaDataManager.fetchPlayerMetaData(this._nativeBridge).then(function (e) {
-                            e && o._sessionManager.setGamerServerId(e.getServerId()), o._adUnit = y.AdUnitFactory.createAdUnit(o._nativeBridge, o._sessionManager, a, o._campaign, o._configuration),
-                                o._adUnit.setNativeOptions(n), o._adUnit.onNewAdRequestAllowed.subscribe(function () {
-                                return o.onNewAdRequestAllowed();
-                            }), o._adUnit.onClose.subscribe(function () {
-                                return o.onClose();
-                            }), o._adUnit.show().then(function () {
-                                o._sessionManager.sendShow(o._adUnit);
-                            }), o._campaign = null, o.setPlacementStates(s.PlacementState.WAITING), o._refillTimestamp = 0,
-                                o._mustRefill = !0;
-                        })) : void this.showError(!0, e, "Campaign not found") : void this.showError(!0, e, "No such placement: " + e);
-                }, e.prototype.showError = function (e, t, n) {
-                    this._nativeBridge.Sdk.logError("Show invocation failed: " + n), this._nativeBridge.Listener.sendErrorEvent(f.UnityAdsError[f.UnityAdsError.SHOW_ERROR], n),
-                    e && this._nativeBridge.Listener.sendFinishEvent(t, d.FinishState.ERROR);
-                }, e.prototype.setPlacementStates = function (e) {
-                    var t = this._configuration.getPlacements();
-                    for (var n in t) if (t.hasOwnProperty(n)) {
-                        var i = t[n];
-                        this._nativeBridge.Placement.setPlacementState(i.getId(), e), e === s.PlacementState.READY && this._nativeBridge.Listener.sendReadyEvent(i.getId());
+        De = function (e, t, n, i, r, o, a, s, c, u, l, h, p, d, f, v, g, _, m, y, E, S, I) {
+            var WebView = function () {
+                /**
+                 * @param bridge
+                 * @constructor
+                 */
+                function View(bridge) {
+                    var me = this;
+                    me._showing = false;
+                    me._initialized = false;
+                    me._mustReinitialize = false;
+                    me._nativeBridge = bridge;
+
+                    if(window && window.addEventListener) {
+                        window.addEventListener("error", function (e) {
+                            return me.onError(e);
+                        }, false);
                     }
-                }, e.prototype.onCampaign = function (e) {
-                    var t = this;
+                }
+                View.prototype.initialize = function () {
+                    var me = this;
+                    return this._nativeBridge.Sdk.loadComplete()
+                        .then(function (t) {
+                            me._deviceInfo = new n.DeviceInfo(me._nativeBridge);
+                            me._wakeUpManager = new m.WakeUpManager(me._nativeBridge);
+                            me._cacheManager = new a.CacheManager(me._nativeBridge, me._wakeUpManager);
+                            me._request = new c.Request(me._nativeBridge, me._wakeUpManager);
+                            me._resolve = new _.Resolve(me._nativeBridge);
+                            me._eventManager = new p.EventManager(me._nativeBridge, me._request);
+                            me._clientInfo = new l.ClientInfo(me._nativeBridge.getPlatform(), t);
+                            return me._deviceInfo.fetch();
+                        })
+                        .then(function () {
+                            if (me._clientInfo.getPlatform() === v.Platform.ANDROID) {
+                                document.body.classList.add("android");
+                                me._nativeBridge.setApiLevel(me._deviceInfo.getApiLevel());
+                            }else if (me._clientInfo.getPlatform() === v.Platform.IOS) {
+                                var t = me._deviceInfo.getModel();
+                                if( t.match(/iphone/i) || t.match(/ipod/i) ){
+                                    document.body.classList.add("iphone")
+                                }else if( t.match(/ipad/i) ){
+                                    document.body.classList.add("ipad");
+                                }
+                            }
+                            me._sessionManager = new u.SessionManager(me._nativeBridge, me._clientInfo, me._deviceInfo, me._eventManager);
+                            me._initializedAt = me._configJsonCheckedAt = Date.now();
+                            me._nativeBridge.Sdk.initComplete();
+                            me._wakeUpManager.setListenConnectivity(true);
+                            me._wakeUpManager.onNetworkConnected.subscribe(function () {
+                                return me.onNetworkConnected();
+                            });
+                            if( me._nativeBridge.getPlatform() === v.Platform.IOS ){
+                                me._wakeUpManager.setListenAppForeground(true);
+                                me._wakeUpManager.onAppForeground.subscribe(function () {
+                                    return me.onAppForeground();
+                                })
+                            }else{
+                                me._wakeUpManager.setListenScreen(true);
+                                me._wakeUpManager.onScreenOn.subscribe(function () {
+                                    return me.onScreenOn();
+                                })
+                            }
+                            me._cacheManager.cleanCache();
+
+                            return me.setupTestEnvironment();
+                        })
+                        .then(function () {
+                            return i.ConfigManager.fetch(me._nativeBridge, me._request, me._clientInfo, me._deviceInfo);
+                        })
+                        .then(function (t) {
+                            me._configuration = t;
+                            return me._sessionManager.create();
+                        })
+                        .then(function () {
+                            var t = me._configuration.getDefaultPlacement();
+                            me._nativeBridge.Placement.setDefaultPlacement(t.getId());
+                            me.setPlacementStates(s.PlacementState.NOT_AVAILABLE);
+                            me._campaignManager = new o.CampaignManager(me._nativeBridge, me._request, me._clientInfo, me._deviceInfo, new E.VastParser());
+                            me._campaignManager.onCampaign.subscribe(function (t) {
+                                return me.onCampaign(t);
+                            });
+                            me._campaignManager.onVastCampaign.subscribe(function (t) {
+                                return me.onVastCampaign(t);
+                            });
+                            me._campaignManager.onNoFill.subscribe(function (t) {
+                                return me.onNoFill(t);
+                            });
+                            me._campaignManager.onError.subscribe(function (t) {
+                                return me.onCampaignError(t);
+                            });
+                            me._refillTimestamp = 0;
+                            return me._campaignManager.request();
+                        })
+                        .then(function () {
+                            me._initialized = true;
+                            return me._eventManager.sendUnsentSessions();
+                        })
+                        .catch(function (t) {
+                            if(t instanceof Error ){
+                                t = {
+                                    message: t.message,
+                                    name: t.name,
+                                    stack: t.stack
+                                };
+                                if( t.message === f.UnityAdsError[f.UnityAdsError.INVALID_ARGUMENT] ){
+                                    me._nativeBridge.Listener.sendErrorEvent(f.UnityAdsError[f.UnityAdsError.INVALID_ARGUMENT], "Game ID is not valid")
+                                }
+                            }
+
+                            me._nativeBridge.Sdk.logError(JSON.stringify(t));
+                            h.Diagnostics.trigger(
+                                me._eventManager,
+                                {
+                                    type: "initialization_error",
+                                    error: t
+                                },
+                                me._clientInfo, me._deviceInfo
+                            );
+                        });
+                };
+
+                View.prototype.show = function (e, n, i) {
+                    var me = this;
+                    i(t.CallbackStatus.OK);
+                    if (this._showing) {
+                        this.showError(!1, e, "Can't show a new ad unit when ad unit is already open");
+                        return
+                    }
+                    var a = this._configuration.getPlacement(e);
+                    if(!a){
+                        this.showError(!0, e, "No such placement: " + e);
+                        return;
+                    }
+                    if(!this._campaign){
+                        this.showError(!0, e, "Campaign not found");
+                        return;
+                    }
+
+                    this._nativeBridge.getPlatform() !== v.Platform.IOS || this._campaign.getBypassAppSheet() || this._nativeBridge.AppSheet.prepare({
+                            id: parseInt(this._campaign.getAppStoreId(), 10)
+                        });
+                    this._showing = !0;
+                    this.shouldReinitialize().then(function (e) {
+                        me._mustReinitialize = e;
+                    });
+                    this._configuration.getCacheMode() === r.CacheMode.ALLOWED && this._cacheManager.stop();
+                    g.MetaDataManager.fetchPlayerMetaData(this._nativeBridge).then(function (e) {
+                        e && me._sessionManager.setGamerServerId(e.getServerId());
+                        me._adUnit = y.AdUnitFactory.createAdUnit(me._nativeBridge, me._sessionManager, a, me._campaign, me._configuration);
+                        me._adUnit.setNativeOptions(n);
+                        me._adUnit.onNewAdRequestAllowed.subscribe(function () {
+                            return me.onNewAdRequestAllowed();
+                        });
+                        me._adUnit.onClose.subscribe(function () {
+                            return me.onClose();
+                        });
+                        me._adUnit.show().then(function () {
+                            me._sessionManager.sendShow(me._adUnit);
+                        });
+                        me._campaign = null;
+                        me.setPlacementStates(s.PlacementState.WAITING);
+                        me._refillTimestamp = 0;
+                        me._mustRefill = true;
+                    });
+                };
+
+                View.prototype.showError = function (e, t, n) {
+                    this._nativeBridge.Sdk.logError("Show invocation failed: " + n);
+                    this._nativeBridge.Listener.sendErrorEvent(f.UnityAdsError[f.UnityAdsError.SHOW_ERROR], n);
+                    if( e ){
+                        this._nativeBridge.Listener.sendFinishEvent(t, d.FinishState.ERROR);
+                    }
+                };
+                View.prototype.setPlacementStates = function (e) {
+                    var placements = this._configuration.getPlacements();
+                    for (var key in placements){
+                        if (placements.hasOwnProperty(key)) {
+                            var i = placements[key];
+                            this._nativeBridge.Placement.setPlacementState(i.getId(), e);
+                            if(e === s.PlacementState.READY ){
+                                this._nativeBridge.Listener.sendReadyEvent(i.getId());
+                            }
+                        }
+                    }
+                };
+                View.prototype.onCampaign = function (e) {
+                    var me = this;
                     this._campaign = e;
-                    var n = this._configuration.getCacheMode(), i = function (e) {
-                        return t._cacheManager.cache(e, {
+                    var n = this._configuration.getCacheMode();
+                    var cache = function (e) {
+                        return me._cacheManager.cache(e, {
                             retries: 5
                         }).then(function (e) {
                             var n = e[0], i = e[1];
-                            if (n === a.CacheStatus.OK) return t._cacheManager.getFileUrl(i);
+                            if (n === a.CacheStatus.OK) {
+                                return me._cacheManager.getFileUrl(i);
+                            }
                             throw n;
-                        })["catch"](function (n) {
-                            if (n !== a.CacheStatus.STOPPED) return t.onError(n), e;
+                        }).catch(function (n) {
+                            if (n !== a.CacheStatus.STOPPED){
+                                me.onError(n);
+                                return e;
+                            }
                             throw n;
                         });
-                    }, o = function () {
-                        return i(e.getVideoUrl()).then(function (t) {
-                            e.setVideoUrl(t), e.setVideoCached(!0);
-                        }).then(function () {
-                            return i(e.getLandscapeUrl());
-                        }).then(function (t) {
-                            return e.setLandscapeUrl(t);
-                        }).then(function () {
-                            return i(e.getPortraitUrl());
-                        }).then(function (t) {
-                            return e.setPortraitUrl(t);
-                        }).then(function () {
-                            return i(e.getGameIcon());
-                        }).then(function (t) {
-                            return e.setGameIcon(t);
-                        })["catch"](function (e) {
-                            e === a.CacheStatus.STOPPED && t._nativeBridge.Sdk.logInfo("Caching was stopped, using streaming instead");
-                        });
-                    }, c = function () {
-                        t.setPlacementStates(s.PlacementState.READY);
                     };
-                    if (n === r.CacheMode.FORCED) o().then(function () {
-                        if (t._showing) var e = t._adUnit.onClose.subscribe(function () {
-                            t._adUnit.onClose.unsubscribe(e), c();
-                        }); else c();
-                    }); else if (n === r.CacheMode.ALLOWED) if (this._showing) var u = this._adUnit.onClose.subscribe(function () {
-                        t._adUnit.onClose.unsubscribe(u), o(), c();
-                    }); else o(), c(); else c();
-                }, e.prototype.onVastCampaign = function (e) {
-                    var t = this;
+                    var o = function () {
+                        return cache(e.getVideoUrl())
+                            .then(function (t) {
+                                e.setVideoUrl(t);
+                                e.setVideoCached(true);
+                            })
+                            .then(function () {
+                                return cache(e.getLandscapeUrl());
+                            })
+                            .then(function (t) {
+                                return e.setLandscapeUrl(t);
+                            })
+                            .then(function () {
+                                return cache(e.getPortraitUrl());
+                            })
+                            .then(function (t) {
+                                return e.setPortraitUrl(t);
+                            })
+                            .then(function () {
+                                return cache(e.getGameIcon());
+                            })
+                            .then(function (t) {
+                                return e.setGameIcon(t);
+                            })
+                            .catch(function (e) {
+                                if(e === a.CacheStatus.STOPPED){
+                                    me._nativeBridge.Sdk.logInfo("Caching was stopped, using streaming instead");
+                                }
+                            });
+                    };
+                    var c = function () {
+                        me.setPlacementStates(s.PlacementState.READY);
+                    };
+
+                    if (n === r.CacheMode.FORCED) {
+                        o().then(function () {
+                            if (me._showing){
+                                var e = me._adUnit.onClose.subscribe(function () {
+                                    me._adUnit.onClose.unsubscribe(e);
+                                    c();
+                                });
+                            }else {
+                                c();
+                            }
+                        });
+                    }else if (n === r.CacheMode.ALLOWED) {
+                        if (this._showing) {
+                            var u = this._adUnit.onClose.subscribe(function () {
+                                me._adUnit.onClose.unsubscribe(u);
+                                o();
+                                c();
+                            });
+                        }else {
+                            o();
+                            c();
+                        }
+                    }else{
+                        c();
+                    }
+                };
+
+                View.prototype.onVastCampaign = function (e) {
+                    var me = this;
                     this._campaign = e;
-                    var n = this._configuration.getCacheMode(), i = function (e) {
-                        return t._cacheManager.cache(e, {
+                    var n = this._configuration.getCacheMode();
+                    var i = function (e) {
+                        return me._cacheManager.cache(e, {
                             retries: 5
                         }).then(function (e) {
                             var n = e[0], i = e[1];
-                            if (n === a.CacheStatus.OK) return t._cacheManager.getFileUrl(i);
+                            if (n === a.CacheStatus.OK) return me._cacheManager.getFileUrl(i);
                             throw n;
                         })["catch"](function (n) {
-                            if (n !== a.CacheStatus.STOPPED) return t.onError(n), e;
+                            if (n !== a.CacheStatus.STOPPED) return me.onError(n), e;
                             throw n;
                         });
-                    }, o = function () {
+                    };
+                    var o = function () {
                         var n = e.getVideoUrl();
-                        return t._request.head(n, [], {
+                        return me._request.head(n, [], {
                             retries: 5,
                             retryDelay: 1e3,
                             followRedirects: !0,
@@ -5795,126 +6035,229 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                             i(o).then(function (t) {
                                 e.setVideoUrl(t), e.setVideoCached(!0);
                             })["catch"](function (e) {
-                                e === a.CacheStatus.STOPPED && t._nativeBridge.Sdk.logInfo("Caching was stopped, using streaming instead");
+                                e === a.CacheStatus.STOPPED && me._nativeBridge.Sdk.logInfo("Caching was stopped, using streaming instead");
                             });
                         })["catch"](function (e) {
-                            t._nativeBridge.Sdk.logError("Caching failed to get VAST video URL location: " + e);
+                            me._nativeBridge.Sdk.logError("Caching failed to get VAST video URL location: " + e);
                         });
-                    }, c = function () {
-                        t.setPlacementStates(s.PlacementState.READY);
                     };
-                    if (n === r.CacheMode.FORCED) o().then(function () {
-                        if (t._showing) var e = t._adUnit.onClose.subscribe(function () {
-                            t._adUnit.onClose.unsubscribe(e), c();
-                        }); else c();
-                    }); else if (n === r.CacheMode.ALLOWED) if (this._showing) var u = this._adUnit.onClose.subscribe(function () {
-                        t._adUnit.onClose.unsubscribe(u), o(), c();
-                    }); else o(), c(); else c();
-                }, e.prototype.onNoFill = function (e) {
-                    this._refillTimestamp = Date.now() + 1e3 * e, this._nativeBridge.Sdk.logInfo("Unity Ads server returned no fill, no ads to show"),
-                        this.setPlacementStates(s.PlacementState.NO_FILL);
-                }, e.prototype.onCampaignError = function (e) {
+                    var c = function () {
+                        me.setPlacementStates(s.PlacementState.READY);
+                    };
+
+                    if (n === r.CacheMode.FORCED) {
+                        o().then(function () {
+                            if (me._showing){
+                                var e = me._adUnit.onClose.subscribe(function () {
+                                    me._adUnit.onClose.unsubscribe(e), c();
+                                });
+
+                            }else{
+                                c();
+                            }
+                        });
+                    }else if (n === r.CacheMode.ALLOWED) {
+                        if (this._showing){
+                            var u = this._adUnit.onClose.subscribe(function () {
+                                me._adUnit.onClose.unsubscribe(u);
+                                o();
+                                c();
+                            });
+                        }else{
+                            o();
+                            c();
+                        }
+                    }else{
+                        c();
+                    }
+                };
+                View.prototype.onNoFill = function (e) {
+                    this._refillTimestamp = Date.now() + 1000 * e;
+                    this._nativeBridge.Sdk.logInfo("Unity Ads server returned no fill, no ads to show");
+                    this.setPlacementStates(s.PlacementState.NO_FILL);
+                };
+                View.prototype.onCampaignError = function (e) {
                     e instanceof Error && (e = {
                         message: e.message,
                         name: e.name,
                         stack: e.stack
-                    }), this._nativeBridge.Sdk.logError(JSON.stringify(e)), h.Diagnostics.trigger(this._eventManager, {
-                        type: "campaign_request_failed",
-                        error: e
-                    }, this._clientInfo, this._deviceInfo), this.onNoFill(3600);
-                }, e.prototype.onNewAdRequestAllowed = function () {
-                    this._mustRefill && (this._mustRefill = !1, this._campaignManager.request());
-                }, e.prototype.onClose = function () {
-                    this._nativeBridge.Sdk.logInfo("Closing Unity Ads ad unit"), this._showing = !1,
-                        this._mustReinitialize ? (this._nativeBridge.Sdk.logInfo("Unity Ads webapp has been updated, reinitializing Unity Ads"),
-                            this.reinitialize()) : (this._mustRefill && (this._mustRefill = !1, this._campaignManager.request()),
-                            this._sessionManager.create());
-                }, e.prototype.isShowing = function () {
-                    return this._showing;
-                }, e.prototype.onNetworkConnected = function () {
-                    var e = this;
-                    !this.isShowing() && this._initialized && this.shouldReinitialize().then(function (t) {
-                        t ? e.isShowing() ? e._mustReinitialize = !0 : (e._nativeBridge.Sdk.logInfo("Unity Ads webapp has been updated, reinitializing Unity Ads"),
-                            e.reinitialize()) : (e.checkRefill(), e._eventManager.sendUnsentSessions());
                     });
-                }, e.prototype.onScreenOn = function () {
-                    this.checkRefill();
-                }, e.prototype.onAppForeground = function () {
-                    this.checkRefill();
-                }, e.prototype.checkRefill = function () {
-                    0 !== this._refillTimestamp && Date.now() > this._refillTimestamp && (this._refillTimestamp = 0,
-                        this._campaignManager.request());
-                }, e.prototype.onError = function (e) {
-                    return h.Diagnostics.trigger(this._eventManager, {
-                        type: "js_error",
-                        message: e.message,
-                        url: e.filename,
-                        line: e.lineno,
-                        column: e.colno,
-                        object: e.error
-                    }, this._clientInfo, this._deviceInfo), !0;
-                }, e.prototype.reinitialize = function () {
-                    this._nativeBridge.Sdk.reinitialize();
-                }, e.prototype.getConfigJson = function () {
-                    return this._request.get(this._clientInfo.getConfigUrl() + "?ts=" + Date.now() + "&sdkVersion=" + this._clientInfo.getSdkVersion());
-                }, e.prototype.shouldReinitialize = function () {
-                    var e = this;
-                    return this._clientInfo.getWebviewHash() ? Date.now() - this._configJsonCheckedAt <= 9e5 ? Promise.resolve(!1) : this.getConfigJson().then(function (t) {
-                        e._configJsonCheckedAt = Date.now();
-                        var n = I.JsonParser.parse(t.response);
-                        return n.hash !== e._clientInfo.getWebviewHash();
-                    })["catch"](function (e) {
-                        return !1;
-                    }) : Promise.resolve(!1);
-                }, e.prototype.setupTestEnvironment = function () {
-                    var e = this;
-                    this._nativeBridge.Storage.get(S.StorageType.PUBLIC, "test.serverUrl.value").then(function (t) {
-                        t && (i.ConfigManager.setTestBaseUrl(t), o.CampaignManager.setTestBaseUrl(t), u.SessionManager.setTestBaseUrl(t),
-                            e._nativeBridge.Storage["delete"](S.StorageType.PUBLIC, "test.serverUrl"), e._nativeBridge.Storage.write(S.StorageType.PUBLIC));
-                    })["catch"](function (e) {
-                        var t = e[0];
-                        switch (t) {
-                            case S.StorageError[S.StorageError.COULDNT_GET_VALUE]:
-                                break;
-
-                            default:
-                                throw new Error(t);
-                        }
-                    }), this._nativeBridge.Storage.get(S.StorageType.PUBLIC, "test.kafkaUrl.value").then(function (t) {
-                        t && (h.Diagnostics.setTestBaseUrl(t), e._nativeBridge.Storage["delete"](S.StorageType.PUBLIC, "test.kafkaUrl"),
-                            e._nativeBridge.Storage.write(S.StorageType.PUBLIC));
-                    })["catch"](function (e) {
-                        var t = e[0];
-                        switch (t) {
-                            case S.StorageError[S.StorageError.COULDNT_GET_VALUE]:
-                                break;
-
-                            default:
-                                throw new Error(t);
-                        }
-                    });
-                }, e;
-            }();
-            return e.WebView = C, e;
-        }(De, L, M, Y, x, J, X, I, $, ee, ne, ie, re, E, te, a, j, oe, ae, Ae, Re, b, G),
-            ke = function (e) {
-                var t = function () {
-                    function e() {
+                    this._nativeBridge.Sdk.logError(JSON.stringify(e));
+                    h.Diagnostics.trigger(
+                        this._eventManager,
+                        {
+                            type: "campaign_request_failed",
+                            error: e
+                        },
+                        this._clientInfo,
+                        this._deviceInfo
+                    );
+                    this.onNoFill(3600);
+                };
+                View.prototype.onNewAdRequestAllowed = function () {
+                    if(this._mustRefill){
+                        this._mustRefill = false;
+                        this._campaignManager.request()
                     }
+                };
+                View.prototype.onClose = function () {
+                    this._nativeBridge.Sdk.logInfo("Closing Unity Ads ad unit");
+                    this._showing = false;
+                    if(this._mustReinitialize){
+                        this._nativeBridge.Sdk.logInfo("Unity Ads webapp has been updated, reinitializing Unity Ads");
+                        this.reinitialize();
+                    }else{
+                        if(this._mustRefill ){
+                            this._mustRefill = false;
+                            this._campaignManager.request()
+                        }
+                        this._sessionManager.create();
+                    }
+                };
+                View.prototype.isShowing = function () {
+                    return this._showing;
+                };
+                View.prototype.onNetworkConnected = function () {
+                    var me = this;
+                    if(!this.isShowing() && this._initialized ){
+                        this.shouldReinitialize().then(function (t) {
+                            if(t){
+                                if(me.isShowing()){
+                                    me._mustReinitialize = true
+                                }else{
+                                    me._nativeBridge.Sdk.logInfo("Unity Ads webapp has been updated, reinitializing Unity Ads");
+                                    me.reinitialize()
+                                }
+                            }else{
+                                me.checkRefill();
+                                me._eventManager.sendUnsentSessions();
+                            }
+                        });
+                    }
+                };
+                View.prototype.onScreenOn = function () {
+                    this.checkRefill();
+                };
+                View.prototype.onAppForeground = function () {
+                    this.checkRefill();
+                };
+                View.prototype.checkRefill = function () {
+                    if(0 !== this._refillTimestamp && Date.now() > this._refillTimestamp ){
+                        this._refillTimestamp = 0;
+                        this._campaignManager.request();
+                    }
+                };
+                View.prototype.onError = function (e) {
+                    h.Diagnostics.trigger(
+                        this._eventManager,
+                        {
+                            type: "js_error",
+                            message: e.message,
+                            url: e.filename,
+                            line: e.lineno,
+                            column: e.colno,
+                            object: e.error
+                        },
+                        this._clientInfo,
+                        this._deviceInfo);
+                    return true;
+                };
+                View.prototype.reinitialize = function () {
+                    this._nativeBridge.Sdk.reinitialize();
+                };
+                View.prototype.getConfigJson = function () {
+                    return this._request.get(this._clientInfo.getConfigUrl() + "?ts=" + Date.now() + "&sdkVersion=" + this._clientInfo.getSdkVersion());
+                };
+                View.prototype.shouldReinitialize = function () {
+                    var e = this;
 
-                    return e.prototype.handleInvocation = function (t) {
-                        var n = new XMLHttpRequest();
-                        n.open("POST", e._nativeUrl + "/handleInvocation", !1), n.send(t);
-                    }, e.prototype.handleCallback = function (t, n, i) {
-                        var r = new XMLHttpRequest();
-                        r.open("POST", e._nativeUrl + "/handleCallback", !1), r.send('{"id":"' + t + '","status":"' + n + '","parameters":' + i + "}");
-                    }, e._nativeUrl = "https://webviewbridge.unityads.unity3d.com", e;
-                }();
-                return e.IosWebViewBridge = t, e;
-            }(ke), Array.prototype.forEach || (Array.prototype.forEach = function (e, t) {
+                    if(this._clientInfo.getWebviewHash() ){
+                        if(Date.now() - this._configJsonCheckedAt <= 9e5 ){
+                            return Promise.resolve(false)
+                        }else{
+                            return this.getConfigJson().then(function (t) {
+                                e._configJsonCheckedAt = Date.now();
+                                var n = I.JsonParser.parse(t.response);
+                                return n.hash !== e._clientInfo.getWebviewHash();
+                            })["catch"](function (e) {
+                                return false;
+                            })
+                        }
+                    }else{
+                        return Promise.resolve(false);
+                    }
+                };
+                View.prototype.setupTestEnvironment = function () {
+                    var me = this;
+                    this._nativeBridge.Storage.get(S.StorageType.PUBLIC, "test.serverUrl.value").then(function (t) {
+                        if(t){
+                            i.ConfigManager.setTestBaseUrl(t);
+                            o.CampaignManager.setTestBaseUrl(t);
+                            u.SessionManager.setTestBaseUrl(t);
+                            me._nativeBridge.Storage["delete"](S.StorageType.PUBLIC, "test.serverUrl");
+                            me._nativeBridge.Storage.write(S.StorageType.PUBLIC)
+                        }
+                    }).catch(function (e) {
+                        var t = e[0];
+                        switch (t) {
+                            case S.StorageError[S.StorageError.COULDNT_GET_VALUE]:
+                                break;
+
+                            default:
+                                throw new Error(t);
+                        }
+                    });
+
+                    this._nativeBridge.Storage.get(S.StorageType.PUBLIC, "test.kafkaUrl.value").then(function (t) {
+                        if(t){
+                            h.Diagnostics.setTestBaseUrl(t);
+                            me._nativeBridge.Storage["delete"](S.StorageType.PUBLIC, "test.kafkaUrl");
+                            me._nativeBridge.Storage.write(S.StorageType.PUBLIC)
+                        }
+                    }).catch(function (e) {
+                        var t = e[0];
+                        switch (t) {
+                            case S.StorageError[S.StorageError.COULDNT_GET_VALUE]:
+                                break;
+
+                            default:
+                                throw new Error(t);
+                        }
+                    });
+                };
+                return View;
+            }();
+            e.WebView = WebView;
+            return e;
+        }(De, L, M, Y, x, J, X, I, $, ee, ne, ie, re, E, te, a, j, oe, ae, Ae, Re, b, G);
+
+        IosWebView = function (exports) {
+            var Bridge = function () {
+                function Bridge() {
+                }
+                Bridge.prototype.handleInvocation = function (t) {
+                    var xhr = new XMLHttpRequest();
+                    xhr.open("POST", Bridge._nativeUrl + "/handleInvocation", false);
+                    xhr.send(t);
+                };
+                Bridge.prototype.handleCallback = function (id, status, parameters) {
+                    var xhr = new XMLHttpRequest();
+                    xhr.open("POST", Bridge._nativeUrl + "/handleCallback", false);
+                    xhr.send('{"id":"' + id + '","status":"' + status + '","parameters":' + parameters + "}");
+                };
+                Bridge._nativeUrl = "https://webviewbridge.unityads.unity3d.com";
+                return  Bridge;
+            }();
+            exports.IosWebViewBridge = Bridge;
+            return exports;
+        }(ke);
+
+        Array.prototype.forEach || (Array.prototype.forEach = function (e, t) {
             if ("function" != typeof e) throw new TypeError(e + " is not a function!");
             for (var n = this.length, i = 0; n > i; i++) e.call(t, this[i], i, this);
-        }), "classList" in document.documentElement || !Object.defineProperty || "undefined" == typeof HTMLElement || Object.defineProperty(HTMLElement.prototype, "classList", {
+        });
+
+        "classList" in document.documentElement || !Object.defineProperty || "undefined" == typeof HTMLElement || Object.defineProperty(HTMLElement.prototype, "classList", {
             get: function () {
                 function e(e) {
                     return function (n) {
@@ -5940,15 +6283,18 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                         return t.className.split(/\s+/)[e] || null;
                     }
                 };
-                return Object.defineProperty(n, "length", {
+                Object.defineProperty(n, "length", {
                     get: function () {
                         return t.className.split(/\s+/).length;
                     }
-                }), n;
+                });
+                return n;
             }
-        }),
-        o = undefined,
-        Pe = function (e, t, n, i, r, o) {
+        });
+
+        o = undefined;
+
+        Pe = function (exports, t, n, i, r, o) {
             var getOrientation = function (e) {
                 var orientation = document.body.classList.contains("landscape") ? "landscape" :
                     document.body.classList.contains("portrait") ? "portrait" : null,
@@ -5966,22 +6312,25 @@ document.addEventListener('DOMContentLoaded', function () { /*!
             getOrientation(null);
             window.addEventListener("resize", getOrientation, false);
 
-            var s = null;
+            var nativeBridge = null;
             switch (o.Url.getQueryParameter(location.search, "platform")) {
                 case "android":
-                    s = new t.NativeBridge(window.webviewbridge, r.Platform.ANDROID);
+                    //JS 调用 Android API: 提供webviewbridge接口
+                    nativeBridge = new t.NativeBridge(window.webviewbridge, r.Platform.ANDROID);
                     break;
 
                 case "ios":
-                    s = new t.NativeBridge(new i.IosWebViewBridge(), r.Platform.IOS, !1);
+                    nativeBridge = new t.NativeBridge(new i.IosWebViewBridge(), r.Platform.IOS, false);
                     break;
 
                 default:
                     throw new Error("Unity Ads webview init failure: no platform defined, unable to initialize native bridge");
             }
-            var c = window;
-            return c.nativebridge = s, c.webview = new n.WebView(s), c.webview.initialize(),
-                e;
-        }(Pe, L, De, ke, a, F);
+            var win = window;
+            win.nativebridge = nativeBridge;
+            win.webview = new n.WebView(nativeBridge);
+            win.webview.initialize();
+            return exports;
+        }(Pe, L, De, IosWebView, a, F);
     }();
 }, false);
