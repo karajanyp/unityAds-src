@@ -185,16 +185,23 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                 }
             }
 
-            function p(e, t) {
-                var n = this, i = new this.constructor(noop);
-                void 0 === i[re] && P(i);
+            //then function
+            function p(resolveCallback, rejectCallback) {
+                var n = this,
+                    i = new this.constructor(noop);
+
+                if( void 0 === i[re] ){
+                    P(i);
+                }
                 var r = n._state;
                 if (r) {
                     var o = arguments[r - 1];
                     Q(function () {
                         R(r, i, o, n._result);
                     });
-                } else O(n, i, e, t);
+                } else {
+                    O(n, i, resolveCallback, rejectCallback);
+                }
                 return i;
             }
 
@@ -202,7 +209,7 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                 var t = this;
                 if (e && "object" == typeof e && e.constructor === t){
                     return e
-                };
+                }
                 var n = new t(noop);
                 I(n, e);
                 return n;
@@ -228,9 +235,9 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                 }
             }
 
-            function m(ctx, t, n, i) {
+            function m(fn, ctx, n, i) {
                 try {
-                    ctx.call(t, n, i);
+                    fn.call(ctx, n, i);
                 } catch (e) {
                     return e;
                 }
@@ -248,7 +255,7 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                     if(!i && r ){
                         i = true;
                         b(e, r)
-                    };
+                    }
                 }, e);
             }
 
@@ -265,7 +272,13 @@ document.addEventListener('DOMContentLoaded', function () { /*!
             }
 
             function I(e, n) {
-                e === n ? b(e, error1()) : isObject(n) ? S(e, n, _(n)) : A(e, n);
+                if(e === n ){
+                    b(e, error1())
+                }else if(isObject(n)) {
+                    S(e, n, _(n))
+                }else{
+                    A(e, n);
+                }
             }
 
             function C(e) {
@@ -289,22 +302,26 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                 }
             }
 
-            function O(e, t, n, i) {
+            function O(e, t, success, fail) {
                 var r = e._subscribers, o = r.length;
                 e._onerror = null;
                 r[o] = t;
-                r[o + ae] = n;
-                r[o + se] = i;
+                r[o + ae] = success;
+                r[o + se] = fail;
                 if(0 === o && e._state ){
                     Q(T, e);
                 }
             }
 
             function T(e) {
-                var t = e._subscribers, n = e._state;
-                if (0 !== t.length) {
-                    for (var i, r, o = e._result, a = 0; a < t.length; a += 3) i = t[a], r = t[a + n],
-                        i ? R(n, i, r, o) : r(o);
+                var subscribers = e._subscribers, state = e._state;
+                if (0 !== subscribers.length) {
+                    var subscriber, r, o = e._result;
+                    for (var i = 0; i < subscribers.length; i += 3){
+                        subscriber = subscribers[i];
+                        r = subscribers[i + state];
+                        subscriber ? R(state, subscriber, r, o) : r(o);
+                    }
                     e._subscribers.length = 0;
                 }
             }
@@ -344,15 +361,15 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                 }
             }
 
-            function D(e, t) {
+            function D(ctx, fn) {
                 try {
-                    t(function (t) {
-                        I(e, t);
+                    fn(function (t) {
+                        I(ctx, t);
                     }, function (t) {
-                        b(e, t);
+                        b(ctx, t);
                     });
-                } catch (n) {
-                    b(e, n);
+                } catch (e) {
+                    b(ctx, e);
                 }
             }
 
@@ -360,8 +377,12 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                 return le++;
             }
 
+            //clear
             function P(e) {
-                e[re] = le++, e._state = void 0, e._result = void 0, e._subscribers = [];
+                e[re] = le++;
+                e._state = undefined;
+                e._result = undefined;
+                e._subscribers = [];
             }
 
             function B(e) {
@@ -379,20 +400,32 @@ document.addEventListener('DOMContentLoaded', function () { /*!
 
             function U(e) {
                 var t = this, n = new t(noop);
-                return b(n, e), n;
+                b(n, e);
+                return n;
             }
 
-            function V() {
+            function errorArg() {
                 throw new TypeError("You must pass a resolver function as the first argument to the promise constructor");
             }
 
-            function M() {
+            function errorConstruct() {
                 throw new TypeError("Failed to construct 'Promise': Please use the 'new' operator, this object constructor cannot be called as a function.");
             }
 
-            function F(e) {
-                this[re] = k(), this._result = this._state = void 0, this._subscribers = [], noop !== e && ("function" != typeof e && V(),
-                    this instanceof F ? D(this, e) : M());
+            function F(fn) {
+                this[re] = k();
+                this._result = this._state = void 0;
+                this._subscribers = [];
+                if(noop !== fn ){
+                    if( "function" != typeof fn ){
+                        errorArg();
+                    }
+                    if(this instanceof F ){
+                        D(this, fn)
+                    }else{
+                        errorConstruct()
+                    }
+                }
             }
 
             function x(e, t) {
@@ -417,15 +450,18 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                 (!n || "[object Promise]" !== Object.prototype.toString.call(n.resolve()) || n.cast) && (e.Promise = fe);
             }
 
-            var K;
-            K = Array.isArray ? Array.isArray : function (e) {
+            var isArray;
+            isArray = Array.isArray ? Array.isArray : function (e) {
                 return "[object Array]" === Object.prototype.toString.call(e);
             };
 
             //Environment
-            var H, j, G, Y = K, z = 0,
+            var H, j, G, Y = isArray, z = 0,
                 Q = function (e, t) {
-                    te[z] = e, te[z + 1] = t, z += 2, 2 === z && (j ? j(l) : G());
+                    te[z] = e;
+                    te[z + 1] = t;
+                    z += 2;
+                    2 === z && (j ? j(l) : G());
                 },
                 //context
                 J = "undefined" != typeof window ? window : void 0,
@@ -436,9 +472,28 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                 te = new Array(1e3);
 
             G = Z ? o() : $ ? s() : ee ? c() : void 0 === J && "function" == typeof require ? h() : u();
-            var ne = p, ie = d, re = Math.random().toString(36).substring(16), oe = void 0, ae = 1, se = 2, ce = new w(), ue = new w(), le = 0, he = B, pe = L, de = U, fe = F;
-            F.all = he, F.race = pe, F.resolve = ie, F.reject = de, F._setScheduler = i, F._setAsap = r,
-                F._asap = Q, F.prototype = {
+            var ne = p,
+                ie = d,
+                re = Math.random().toString(36).substring(16),
+                oe = void 0,
+                ae = 1,
+                se = 2,
+                ce = new w(),
+                ue = new w(),
+                le = 0,
+                he = B,
+                pe = L,
+                de = U,
+                fe = F;
+
+            F.all = he;
+            F.race = pe;
+            F.resolve = ie;
+            F.reject = de;
+            F._setScheduler = i;
+            F._setAsap = r;
+            F._asap = Q;
+            F.prototype = {
                 constructor: F,
                 then: ne,
                 "catch": function (e) {
@@ -2097,30 +2152,43 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                 }, n;
             }(n.Model);
             return e.DeviceInfo = o, e;
-        }(M, U, V, a, O), F = function (e) {
-            var t = function () {
-                function e() {
-                }
+        }(M, U, V, a, O);
 
-                return e.addParameters = function (e, t) {
-                    var n = e.toString();
-                    n += -1 !== n.indexOf("?") ? "&" : "?";
-                    var i = [];
-                    for (var r in t) if (t.hasOwnProperty(r)) {
-                        var o = t[r];
-                        void 0 !== o && i.push(encodeURIComponent(r) + "=" + encodeURIComponent(o));
+        F = function (exports) {
+            var Url = function () {
+                function Url() {
+                }
+                Url.addParameters = function (baseUrl, params) {
+                    var url = baseUrl.toString();
+                    url += -1 !== url.indexOf("?") ? "&" : "?";
+                    var paramArr = [];
+                    for (var key in params) {
+                        if (params.hasOwnProperty(key)) {
+                            var val = params[key];
+                            if(void 0 !== val){
+                                paramArr.push(encodeURIComponent(key) + "=" + encodeURIComponent(val));
+                            }
+                        }
                     }
-                    return n += i.join("&");
-                }, e.getQueryParameter = function (e, t) {
-                    for (var n = e.split("?")[1].split("&"), i = 0; i < n.length; i++) {
-                        var r = n[i].split("=");
-                        if (r[0] === t) return r[1];
+                    return url += paramArr.join("&");
+                };
+                Url.getQueryParameter = function (url, paramName) {
+                    var params = url.split("?")[1].split("&");
+                    for (var i = 0; i < params.length; i++) {
+                        var r = params[i].split("=");
+                        if (r[0] === paramName){
+                            return r[1];
+                        }
                     }
                     return null;
-                }, e;
+                };
+                return Url;
             }();
-            return e.Url = t, e;
-        }(F), x = function (e, t) {
+            exports.Url = Url;
+            return exports;
+        }(F);
+
+        x = function (e, t) {
             !function (e) {
                 e[e.FORCED = 0] = "FORCED", e[e.ALLOWED = 1] = "ALLOWED", e[e.DISABLED = 2] = "DISABLED";
             }(e.CacheMode || (e.CacheMode = {}));
@@ -2174,6 +2242,7 @@ document.addEventListener('DOMContentLoaded', function () { /*!
             }();
             return e.Configuration = i, e;
         }(x, I);
+
         var Be = this && this.__extends || function (e, t) {
                 function n() {
                     this.constructor = e;
@@ -5877,12 +5946,26 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                     }
                 }), n;
             }
-        }), o = void 0, Pe = function (e, t, n, i, r, o) {
-            var a = function (e) {
-                var t = document.body.classList.contains("landscape") ? "landscape" : document.body.classList.contains("portrait") ? "portrait" : null, n = window.innerWidth / window.innerHeight >= 1 ? "landscape" : "portrait";
-                t ? t !== n && (document.body.classList.remove(t), document.body.classList.add(n)) : document.body.classList.add(n);
+        }),
+        o = undefined,
+        Pe = function (e, t, n, i, r, o) {
+            var getOrientation = function (e) {
+                var orientation = document.body.classList.contains("landscape") ? "landscape" :
+                    document.body.classList.contains("portrait") ? "portrait" : null,
+                    calculatedOrientation = window.innerWidth / window.innerHeight >= 1 ? "landscape" : "portrait";
+
+                if(orientation){
+                    if(orientation !== calculatedOrientation){
+                        document.body.classList.remove(orientation);
+                        document.body.classList.add(calculatedOrientation)
+                    }
+                }else{
+                    document.body.classList.add(calculatedOrientation)
+                }
             };
-            a(null), window.addEventListener("resize", a, !1);
+            getOrientation(null);
+            window.addEventListener("resize", getOrientation, false);
+
             var s = null;
             switch (o.Url.getQueryParameter(location.search, "platform")) {
                 case "android":
