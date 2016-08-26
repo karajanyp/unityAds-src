@@ -49,7 +49,7 @@ document.addEventListener('DOMContentLoaded', function () { /*!
             U = {},
             V = {},
             M = {},
-            F = {},
+            UrlKit = {},
             x = {},
             W = {},
             q = {},
@@ -90,7 +90,7 @@ document.addEventListener('DOMContentLoaded', function () { /*!
             Ce = {},
             Ae = {},
             be = {},
-            Oe = {},
+            Creative = {},
             Te = {},
             we = {},
             Ne = {},
@@ -613,13 +613,22 @@ document.addEventListener('DOMContentLoaded', function () { /*!
             return e.NativeApi = t, e;
         }(c);
 
-        var Be = this && this.__extends || function (e, t) {
-                function n() {
-                    this.constructor = e;
+        var extend = this && this.__extends || function (constructor, superClass) {
+                function cls() {
+                    this.constructor = constructor;
                 }
 
-                for (var i in t) t.hasOwnProperty(i) && (e[i] = t[i]);
-                e.prototype = null === t ? Object.create(t) : (n.prototype = t.prototype, new n());
+                for (var key in superClass){
+                    if(superClass.hasOwnProperty(key) ){
+                        constructor[key] = superClass[key];
+                    }
+                }
+                if(null === superClass){
+                    constructor.prototype = Object.create(superClass);
+                }else{
+                    cls.prototype = superClass.prototype;
+                    constructor.prototype = new cls();
+                }
             };
 
         u = function (e) {
@@ -642,7 +651,7 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                     e.apply(this, arguments);
                 }
 
-                return Be(t, e), t.prototype.trigger = function () {
+                return extend(t, e), t.prototype.trigger = function () {
                     this._observers.forEach(function (e) {
                         return e();
                     });
@@ -654,7 +663,7 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                     e.apply(this, arguments);
                 }
 
-                return Be(t, e), t.prototype.trigger = function (e) {
+                return extend(t, e), t.prototype.trigger = function (e) {
                     this._observers.forEach(function (t) {
                         return t(e);
                     });
@@ -666,7 +675,7 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                     e.apply(this, arguments);
                 }
 
-                return Be(t, e), t.prototype.trigger = function (e, t) {
+                return extend(t, e), t.prototype.trigger = function (e, t) {
                     this._observers.forEach(function (n) {
                         return n(e, t);
                     });
@@ -678,7 +687,7 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                     e.apply(this, arguments);
                 }
 
-                return Be(t, e), t.prototype.trigger = function (e, t, n) {
+                return extend(t, e), t.prototype.trigger = function (e, t, n) {
                     this._observers.forEach(function (i) {
                         return i(e, t, n);
                     });
@@ -690,7 +699,7 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                     e.apply(this, arguments);
                 }
 
-                return Be(t, e), t.prototype.trigger = function (e, t, n, i) {
+                return extend(t, e), t.prototype.trigger = function (e, t, n, i) {
                     this._observers.forEach(function (r) {
                         return r(e, t, n, i);
                     });
@@ -702,7 +711,7 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                     e.apply(this, arguments);
                 }
 
-                return Be(t, e), t.prototype.trigger = function (e, t, n, i, r) {
+                return extend(t, e), t.prototype.trigger = function (e, t, n, i, r) {
                     this._observers.forEach(function (o) {
                         return o(e, t, n, i, r);
                     });
@@ -714,7 +723,7 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                     e.apply(this, arguments);
                 }
 
-                return Be(t, e), t.prototype.trigger = function (e, t, n, i, r, o) {
+                return extend(t, e), t.prototype.trigger = function (e, t, n, i, r, o) {
                     this._observers.forEach(function (a) {
                         return a(e, t, n, i, r, o);
                     });
@@ -723,14 +732,6 @@ document.addEventListener('DOMContentLoaded', function () { /*!
             return e.Observable6 = c, e;
         }(u);
 
-        var Be = this && this.__extends || function (e, t) {
-                function n() {
-                    this.constructor = e;
-                }
-
-                for (var i in t) t.hasOwnProperty(i) && (e[i] = t[i]);
-                e.prototype = null === t ? Object.create(t) : (n.prototype = t.prototype, new n());
-            };
         l = function (e, t, n) {
             var i;
             !function (e) {
@@ -741,7 +742,7 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                     e.call(this, t, "Broadcast"), this.onBroadcastAction = new n.Observable4();
                 }
 
-                return Be(t, e), t.prototype.addBroadcastListener = function (e, t) {
+                return extend(t, e), t.prototype.addBroadcastListener = function (e, t) {
                     return this._nativeBridge.invoke(this._apiClass, "addBroadcastListener", [e, t]);
                 }, t.prototype.addDataSchemeBroadcastListener = function (e, t, n) {
                     return this._nativeBridge.invoke(this._apiClass, "addBroadcastListener", [e, t, n]);
@@ -755,14 +756,7 @@ document.addEventListener('DOMContentLoaded', function () { /*!
             }(t.NativeApi);
             return e.BroadcastApi = r, e;
         }(l, c, u);
-        var Be = this && this.__extends || function (e, t) {
-                function n() {
-                    this.constructor = e;
-                }
 
-                for (var i in t) t.hasOwnProperty(i) && (e[i] = t[i]);
-                e.prototype = null === t ? Object.create(t) : (n.prototype = t.prototype, new n());
-            };
         h = function (e, t, n) {
             !function (e) {
                 e[e.FILE_IO_ERROR = 0] = "FILE_IO_ERROR", e[e.FILE_NOT_FOUND = 1] = "FILE_NOT_FOUND",
@@ -782,7 +776,7 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                         this.onDownloadError = new t.Observable3();
                 }
 
-                return Be(n, e), n.prototype.download = function (e, t) {
+                return extend(n, e), n.prototype.download = function (e, t) {
                     return this._nativeBridge.invoke(this._apiClass, "download", [e, t]);
                 }, n.prototype.stop = function () {
                     return this._nativeBridge.invoke(this._apiClass, "stop");
@@ -839,14 +833,7 @@ document.addEventListener('DOMContentLoaded', function () { /*!
             }(n.NativeApi);
             return e.CacheApi = r, e;
         }(h, u, c);
-        var Be = this && this.__extends || function (e, t) {
-                function n() {
-                    this.constructor = e;
-                }
 
-                for (var i in t) t.hasOwnProperty(i) && (e[i] = t[i]);
-                e.prototype = null === t ? Object.create(t) : (n.prototype = t.prototype, new n());
-            };
         p = function (e, t, n) {
             var i;
             !function (e) {
@@ -857,7 +844,7 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                     e.call(this, n, "Connectivity"), this.onConnected = new t.Observable2(), this.onDisconnected = new t.Observable0();
                 }
 
-                return Be(n, e), n.prototype.setListeningStatus = function (e) {
+                return extend(n, e), n.prototype.setListeningStatus = function (e) {
                     return this._nativeBridge.invoke(this._apiClass, "setConnectionMonitoring", [e]);
                 }, n.prototype.handleEvent = function (t, n) {
                     switch (t) {
@@ -879,14 +866,7 @@ document.addEventListener('DOMContentLoaded', function () { /*!
             }(n.NativeApi);
             return e.ConnectivityApi = r, e;
         }(p, u, c);
-        var Be = this && this.__extends || function (e, t) {
-                function n() {
-                    this.constructor = e;
-                }
 
-                for (var i in t) t.hasOwnProperty(i) && (e[i] = t[i]);
-                e.prototype = null === t ? Object.create(t) : (n.prototype = t.prototype, new n());
-            };
         d = function (e, t, n, i) {
             !function (e) {
                 e[e.COMPLETE = 0] = "COMPLETE", e[e.FAILED = 1] = "FAILED";
@@ -896,7 +876,7 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                     e.call(this, n, "Request"), this.onComplete = new t.Observable5(), this.onFailed = new t.Observable3();
                 }
 
-                return Be(n, e), n.prototype.get = function (e, t, n, r, o) {
+                return extend(n, e), n.prototype.get = function (e, t, n, r, o) {
                     return this._nativeBridge.getPlatform() === i.Platform.IOS ? this._nativeBridge.invoke(this._apiClass, "get", [e, t, n, r]) : this._nativeBridge.invoke(this._apiClass, "get", [e, t, n, r, o]);
                 }, n.prototype.post = function (e, t, n, r, o, a) {
                     return this._nativeBridge.getPlatform() === i.Platform.IOS ? this._nativeBridge.invoke(this._apiClass, "post", [e, t, n, r, o]) : this._nativeBridge.invoke(this._apiClass, "post", [e, t, n, r, o, a]);
@@ -927,14 +907,7 @@ document.addEventListener('DOMContentLoaded', function () { /*!
             }(n.NativeApi);
             return e.RequestApi = o, e;
         }(d, u, c, a);
-        var Be = this && this.__extends || function (e, t) {
-                function n() {
-                    this.constructor = e;
-                }
 
-                for (var i in t) t.hasOwnProperty(i) && (e[i] = t[i]);
-                e.prototype = null === t ? Object.create(t) : (n.prototype = t.prototype, new n());
-            };
         f = function (e, t, n) {
             var i;
             !function (e) {
@@ -947,7 +920,7 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                         this.onBufferFull = new t.Observable2();
                 }
 
-                return Be(n, e), n.prototype.handleEvent = function (e, t) {
+                return extend(n, e), n.prototype.handleEvent = function (e, t) {
                     switch (e) {
                         case i[i.LIKELY_TO_KEEP_UP]:
                             this.onLikelyToKeepUp.trigger(t[0], t[1]);
@@ -968,14 +941,7 @@ document.addEventListener('DOMContentLoaded', function () { /*!
             }(n.NativeApi);
             return e.IosVideoPlayerApi = r, e;
         }(f, u, c);
-        var Be = this && this.__extends || function (e, t) {
-                function n() {
-                    this.constructor = e;
-                }
 
-                for (var i in t) t.hasOwnProperty(i) && (e[i] = t[i]);
-                e.prototype = null === t ? Object.create(t) : (n.prototype = t.prototype, new n());
-            };
         v = function (e, t, n) {
             var i;
             !function (e) {
@@ -986,7 +952,7 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                     e.call(this, t, "VideoPlayer"), this.onInfo = new n.Observable3();
                 }
 
-                return Be(t, e), t.prototype.setInfoListenerEnabled = function (e) {
+                return extend(t, e), t.prototype.setInfoListenerEnabled = function (e) {
                     return this._nativeBridge.invoke(this._apiClass, "setInfoListenerEnabled", [e]);
                 }, t.prototype.handleEvent = function (e, t) {
                     switch (e) {
@@ -1001,14 +967,7 @@ document.addEventListener('DOMContentLoaded', function () { /*!
             }(t.NativeApi);
             return e.AndroidVideoPlayerApi = r, e;
         }(v, c, u);
-        var Be = this && this.__extends || function (e, t) {
-                function n() {
-                    this.constructor = e;
-                }
 
-                for (var i in t) t.hasOwnProperty(i) && (e[i] = t[i]);
-                e.prototype = null === t ? Object.create(t) : (n.prototype = t.prototype, new n());
-            };
         g = function (e, t, n, i, r, o) {
             var a;
             !function (e) {
@@ -1025,7 +984,7 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                         n.getPlatform() === i.Platform.IOS ? this.Ios = new r.IosVideoPlayerApi(n) : n.getPlatform() === i.Platform.ANDROID && (this.Android = new o.AndroidVideoPlayerApi(n));
                 }
 
-                return Be(n, e), n.prototype.setProgressEventInterval = function (e) {
+                return extend(n, e), n.prototype.setProgressEventInterval = function (e) {
                     return this._nativeBridge.invoke(this._apiClass, "setProgressEventInterval", [e]);
                 }, n.prototype.getProgressEventInterval = function () {
                     return this._nativeBridge.invoke(this._apiClass, "getProgressEventInterval");
@@ -1095,14 +1054,7 @@ document.addEventListener('DOMContentLoaded', function () { /*!
             e.EventCategory;
             return e;
         }(_);
-        var Be = this && this.__extends || function (e, t) {
-                function n() {
-                    this.constructor = e;
-                }
 
-                for (var i in t) t.hasOwnProperty(i) && (e[i] = t[i]);
-                e.prototype = null === t ? Object.create(t) : (n.prototype = t.prototype, new n());
-            };
         m = function (e, t, n) {
             !function (e) {
                 e[e.COMPLETE = 0] = "COMPLETE", e[e.FAILED = 1] = "FAILED";
@@ -1112,7 +1064,7 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                     e.call(this, n, "Resolve"), this.onComplete = new t.Observable3(), this.onFailed = new t.Observable4();
                 }
 
-                return Be(n, e), n.prototype.resolve = function (e, t) {
+                return extend(n, e), n.prototype.resolve = function (e, t) {
                     return this._nativeBridge.invoke(this._apiClass, "resolve", [e, t]);
                 }, n.prototype.handleEvent = function (t, n) {
                     switch (t) {
@@ -1131,21 +1083,14 @@ document.addEventListener('DOMContentLoaded', function () { /*!
             }(n.NativeApi);
             return e.ResolveApi = r, e;
         }(m, u, c);
-        var Be = this && this.__extends || function (e, t) {
-                function n() {
-                    this.constructor = e;
-                }
 
-                for (var i in t) t.hasOwnProperty(i) && (e[i] = t[i]);
-                e.prototype = null === t ? Object.create(t) : (n.prototype = t.prototype, new n());
-            };
         y = function (e, t) {
             var n = function (e) {
                 function t(t) {
                     e.call(this, t, "Intent");
                 }
 
-                return Be(t, e), t.prototype.launch = function (e) {
+                return extend(t, e), t.prototype.launch = function (e) {
                     return this._nativeBridge.invoke(this._apiClass, "launch", [e]);
                 }, t;
             }(t.NativeApi);
@@ -1157,21 +1102,14 @@ document.addEventListener('DOMContentLoaded', function () { /*!
             e.FinishState;
             return e;
         }(E);
-        var Be = this && this.__extends || function (e, t) {
-                function n() {
-                    this.constructor = e;
-                }
 
-                for (var i in t) t.hasOwnProperty(i) && (e[i] = t[i]);
-                e.prototype = null === t ? Object.create(t) : (n.prototype = t.prototype, new n());
-            };
         S = function (e, t, n) {
             var i = function (e) {
                 function n(t) {
                     e.call(this, t, "Listener");
                 }
 
-                return Be(n, e), n.prototype.sendReadyEvent = function (e) {
+                return extend(n, e), n.prototype.sendReadyEvent = function (e) {
                     return this._nativeBridge.invoke(this._apiClass, "sendReadyEvent", [e]);
                 }, n.prototype.sendStartEvent = function (e) {
                     return this._nativeBridge.invoke(this._apiClass, "sendStartEvent", [e]);
@@ -1214,21 +1152,14 @@ document.addEventListener('DOMContentLoaded', function () { /*!
             }());
             return e.Placement = t, e;
         }(I);
-        var Be = this && this.__extends || function (e, t) {
-                function n() {
-                    this.constructor = e;
-                }
 
-                for (var i in t) t.hasOwnProperty(i) && (e[i] = t[i]);
-                e.prototype = null === t ? Object.create(t) : (n.prototype = t.prototype, new n());
-            };
         C = function (e, t, n) {
             var i = function (e) {
                 function n(t) {
                     e.call(this, t, "Placement");
                 }
 
-                return Be(n, e), n.prototype.setDefaultPlacement = function (e) {
+                return extend(n, e), n.prototype.setDefaultPlacement = function (e) {
                     return this._nativeBridge.invoke(this._apiClass, "setDefaultPlacement", [e]);
                 }, n.prototype.setPlacementState = function (e, n) {
                     return this._nativeBridge.invoke(this._apiClass, "setPlacementState", [e, t.PlacementState[n]]);
@@ -1238,21 +1169,14 @@ document.addEventListener('DOMContentLoaded', function () { /*!
             }(n.NativeApi);
             return e.PlacementApi = i, e;
         }(C, I, c);
-        var Be = this && this.__extends || function (e, t) {
-                function n() {
-                    this.constructor = e;
-                }
 
-                for (var i in t) t.hasOwnProperty(i) && (e[i] = t[i]);
-                e.prototype = null === t ? Object.create(t) : (n.prototype = t.prototype, new n());
-            };
         A = function (e, t) {
             var n = function (e) {
                 function t(t) {
                     e.call(this, t, "Sdk");
                 }
 
-                return Be(t, e), t.prototype.loadComplete = function () {
+                return extend(t, e), t.prototype.loadComplete = function () {
                     return this._nativeBridge.invoke(this._apiClass, "loadComplete");
                 }, t.prototype.initComplete = function () {
                     return this._nativeBridge.invoke(this._apiClass, "initComplete");
@@ -1276,14 +1200,7 @@ document.addEventListener('DOMContentLoaded', function () { /*!
             }(t.NativeApi);
             return e.SdkApi = n, e;
         }(A, c);
-        var Be = this && this.__extends || function (e, t) {
-                function n() {
-                    this.constructor = e;
-                }
 
-                for (var i in t) t.hasOwnProperty(i) && (e[i] = t[i]);
-                e.prototype = null === t ? Object.create(t) : (n.prototype = t.prototype, new n());
-            };
         b = function (e, t) {
             !function (e) {
                 e[e.PRIVATE = 0] = "PRIVATE", e[e.PUBLIC = 1] = "PUBLIC";
@@ -1299,7 +1216,7 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                     e.call(this, t, "Storage");
                 }
 
-                return Be(t, e), t.prototype.read = function (e) {
+                return extend(t, e), t.prototype.read = function (e) {
                     return this._nativeBridge.invoke(this._apiClass, "read", [n[e]]);
                 }, t.prototype.write = function (e) {
                     return this._nativeBridge.invoke(this._apiClass, "write", [n[e]]);
@@ -1320,14 +1237,7 @@ document.addEventListener('DOMContentLoaded', function () { /*!
             }(t.NativeApi));
             return e.StorageApi = i, e;
         }(b, c);
-        var Be = this && this.__extends || function (e, t) {
-                function n() {
-                    this.constructor = e;
-                }
 
-                for (var i in t) t.hasOwnProperty(i) && (e[i] = t[i]);
-                e.prototype = null === t ? Object.create(t) : (n.prototype = t.prototype, new n());
-            };
         O = function (e, t) {
             !function (e) {
                 e[e.EXTERNAL = 0] = "EXTERNAL", e[e.INTERNAL = 1] = "INTERNAL";
@@ -1337,7 +1247,7 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                     e.call(this, t, "DeviceInfo");
                 }
 
-                return Be(t, e), t.prototype.getAndroidId = function () {
+                return extend(t, e), t.prototype.getAndroidId = function () {
                     return this._nativeBridge.invoke(this._apiClass, "getAndroidId");
                 }, t.prototype.getApiLevel = function () {
                     return this._nativeBridge.invoke(this._apiClass, "getApiLevel");
@@ -1365,21 +1275,14 @@ document.addEventListener('DOMContentLoaded', function () { /*!
             }(t.NativeApi);
             return e.AndroidDeviceInfoApi = i, e;
         }(O, c);
-        var Be = this && this.__extends || function (e, t) {
-                function n() {
-                    this.constructor = e;
-                }
 
-                for (var i in t) t.hasOwnProperty(i) && (e[i] = t[i]);
-                e.prototype = null === t ? Object.create(t) : (n.prototype = t.prototype, new n());
-            };
         T = function (e, t) {
             var n = function (e) {
                 function t(t) {
                     e.call(this, t, "DeviceInfo");
                 }
 
-                return Be(t, e), t.prototype.getScreenScale = function () {
+                return extend(t, e), t.prototype.getScreenScale = function () {
                     return this._nativeBridge.invoke(this._apiClass, "getScreenScale");
                 }, t.prototype.getUserInterfaceIdiom = function () {
                     return this._nativeBridge.invoke(this._apiClass, "getUserInterfaceIdiom");
@@ -1397,21 +1300,14 @@ document.addEventListener('DOMContentLoaded', function () { /*!
             }(t.NativeApi);
             return e.IosDeviceInfoApi = n, e;
         }(T, c);
-        var Be = this && this.__extends || function (e, t) {
-                function n() {
-                    this.constructor = e;
-                }
 
-                for (var i in t) t.hasOwnProperty(i) && (e[i] = t[i]);
-                e.prototype = null === t ? Object.create(t) : (n.prototype = t.prototype, new n());
-            };
         w = function (e, t, n, i, r) {
             var o = function (e) {
                 function t(t) {
                     e.call(this, t, "DeviceInfo"), t.getPlatform() === r.Platform.IOS ? this.Ios = new i.IosDeviceInfoApi(t) : this.Android = new n.AndroidDeviceInfoApi(t);
                 }
 
-                return Be(t, e), t.prototype.getAdvertisingTrackingId = function () {
+                return extend(t, e), t.prototype.getAdvertisingTrackingId = function () {
                     return this._nativeBridge.invoke(this._apiClass, "getAdvertisingTrackingId");
                 }, t.prototype.getLimitAdTrackingFlag = function () {
                     return this._nativeBridge.invoke(this._apiClass, "getLimitAdTrackingFlag");
@@ -1455,14 +1351,7 @@ document.addEventListener('DOMContentLoaded', function () { /*!
             }(t.NativeApi);
             return e.DeviceInfoApi = o, e;
         }(w, c, O, T, a);
-        var Be = this && this.__extends || function (e, t) {
-                function n() {
-                    this.constructor = e;
-                }
 
-                for (var i in t) t.hasOwnProperty(i) && (e[i] = t[i]);
-                e.prototype = null === t ? Object.create(t) : (n.prototype = t.prototype, new n());
-            };
         N = function (e, t, n) {
             !function (e) {
                 e[e.PREPARED = 0] = "PREPARED", e[e.OPENED = 1] = "OPENED", e[e.CLOSED = 2] = "CLOSED",
@@ -1474,7 +1363,7 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                         this.onClose = new n.Observable1(), this.onError = new n.Observable2();
                 }
 
-                return Be(t, e), t.prototype.canOpen = function () {
+                return extend(t, e), t.prototype.canOpen = function () {
                     return this._nativeBridge.invoke(this._apiClass, "canOpen");
                 }, t.prototype.prepare = function (e, t) {
                     return void 0 === t && (t = 3e4), this._nativeBridge.invoke(this._apiClass, "prepare", [e, t]);
@@ -1520,14 +1409,7 @@ document.addEventListener('DOMContentLoaded', function () { /*!
             }();
             return e.CallbackContainer = t, e;
         }(R);
-        var Be = this && this.__extends || function (e, t) {
-                function n() {
-                    this.constructor = e;
-                }
 
-                for (var i in t) t.hasOwnProperty(i) && (e[i] = t[i]);
-                e.prototype = null === t ? Object.create(t) : (n.prototype = t.prototype, new n());
-            };
         D = function (e, t, n) {
             var i;
             !function (e) {
@@ -1542,7 +1424,7 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                         this.onKeyDown = new t.Observable5(), this.onRestore = new t.Observable1(), this.onStop = new t.Observable1();
                 }
 
-                return Be(n, e), n.prototype.open = function (e, t, n, i, r, o) {
+                return extend(n, e), n.prototype.open = function (e, t, n, i, r, o) {
                     return void 0 === i && (i = null), void 0 === r && (r = 0), void 0 === o && (o = !0),
                         this._nativeBridge.invoke(this._apiClass, "open", [e, t, n, i, r, o]);
                 }, n.prototype.close = function () {
@@ -1602,14 +1484,7 @@ document.addEventListener('DOMContentLoaded', function () { /*!
             }(n.NativeApi);
             return e.AndroidAdUnitApi = r, e;
         }(D, u, c);
-        var Be = this && this.__extends || function (e, t) {
-                function n() {
-                    this.constructor = e;
-                }
 
-                for (var i in t) t.hasOwnProperty(i) && (e[i] = t[i]);
-                e.prototype = null === t ? Object.create(t) : (n.prototype = t.prototype, new n());
-            };
         k = function (e, t, n) {
             var i;
             !function (e) {
@@ -1624,7 +1499,7 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                         this.onViewControllerDidDisappear = new t.Observable0(), this.onViewControllerDidReceiveMemoryWarning = new t.Observable0();
                 }
 
-                return Be(n, e), n.prototype.open = function (e, t, n, i) {
+                return extend(n, e), n.prototype.open = function (e, t, n, i) {
                     return this._nativeBridge.invoke(this._apiClass, "open", [e, t, n, i]);
                 }, n.prototype.close = function () {
                     return this._nativeBridge.invoke(this._apiClass, "close");
@@ -1679,14 +1554,7 @@ document.addEventListener('DOMContentLoaded', function () { /*!
             }(n.NativeApi);
             return e.IosAdUnitApi = r, e;
         }(k, u, c);
-        var Be = this && this.__extends || function (e, t) {
-                function n() {
-                    this.constructor = e;
-                }
 
-                for (var i in t) t.hasOwnProperty(i) && (e[i] = t[i]);
-                e.prototype = null === t ? Object.create(t) : (n.prototype = t.prototype, new n());
-            };
         P = function (e, t, n) {
             var i;
             !function (e) {
@@ -1697,7 +1565,7 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                     e.call(this, t, "Notification"), this.onNotification = new n.Observable2();
                 }
 
-                return Be(t, e), t.prototype.addNotificationObserver = function (e, t) {
+                return extend(t, e), t.prototype.addNotificationObserver = function (e, t) {
                     return this._nativeBridge.invoke(this._apiClass, "addNotificationObserver", [e, t]);
                 }, t.prototype.removeNotificationObserver = function (e) {
                     return this._nativeBridge.invoke(this._apiClass, "removeNotificationObserver", [e]);
@@ -1716,21 +1584,14 @@ document.addEventListener('DOMContentLoaded', function () { /*!
             }(t.NativeApi);
             return e.NotificationApi = r, e;
         }(P, c, u);
-        var Be = this && this.__extends || function (e, t) {
-                function n() {
-                    this.constructor = e;
-                }
 
-                for (var i in t) t.hasOwnProperty(i) && (e[i] = t[i]);
-                e.prototype = null === t ? Object.create(t) : (n.prototype = t.prototype, new n());
-            };
         B = function (e, t) {
             var n = function (e) {
                 function t(t) {
                     e.call(this, t, "UrlScheme");
                 }
 
-                return Be(t, e), t.prototype.open = function (e) {
+                return extend(t, e), t.prototype.open = function (e) {
                     return this._nativeBridge.invoke(this._apiClass, "open", [e]);
                 }, t;
             }(t.NativeApi);
@@ -1967,222 +1828,334 @@ document.addEventListener('DOMContentLoaded', function () { /*!
             }();
             return e.Model = t, e;
         }(V);
-        var Be = this && this.__extends || function (e, t) {
-                function n() {
-                    this.constructor = e;
-                }
 
-                for (var i in t) t.hasOwnProperty(i) && (e[i] = t[i]);
-                e.prototype = null === t ? Object.create(t) : (n.prototype = t.prototype, new n());
-            };
-        M = function (e, t, n, i, r) {
-            var o = function (e) {
-                function n(t) {
-                    e.call(this), this._nativeBridge = t;
+        M = function (exports, t, n, i, r) {
+            var DeviceInfo = function (Model) {
+                function DeviceInfo(nativeBridge) {
+                    Model.call(this);
+                    this._nativeBridge = nativeBridge;
                 }
-
-                return Be(n, e), n.prototype.fetch = function () {
+                extend(DeviceInfo, Model);
+                DeviceInfo.prototype.fetch = function () {
                     var e = this, t = [];
-                    return t.push(this._nativeBridge.DeviceInfo.getAdvertisingTrackingId().then(function (t) {
+                    t.push(this._nativeBridge.DeviceInfo.getAdvertisingTrackingId().then(function (t) {
                         return e._advertisingIdentifier = t;
-                    })["catch"](function (t) {
+                    }).catch(function (t) {
                         return e.handleDeviceInfoError(t);
-                    })), t.push(this._nativeBridge.DeviceInfo.getLimitAdTrackingFlag().then(function (t) {
+                    }));
+
+                    t.push(this._nativeBridge.DeviceInfo.getLimitAdTrackingFlag().then(function (t) {
                         e._nativeBridge.getPlatform() === i.Platform.IOS ? e._limitAdTracking = !t : e._limitAdTracking = t;
                     })["catch"](function (t) {
                         return e.handleDeviceInfoError(t);
-                    })), t.push(this._nativeBridge.DeviceInfo.getOsVersion().then(function (t) {
+                    }));
+
+                    t.push(this._nativeBridge.DeviceInfo.getOsVersion().then(function (t) {
                         return e._osVersion = t;
                     })["catch"](function (t) {
                         return e.handleDeviceInfoError(t);
-                    })), t.push(this._nativeBridge.DeviceInfo.getModel().then(function (t) {
+                    }));
+
+                    t.push(this._nativeBridge.DeviceInfo.getModel().then(function (t) {
                         return e._model = t;
                     })["catch"](function (t) {
                         return e.handleDeviceInfoError(t);
-                    })), t.push(this._nativeBridge.DeviceInfo.getScreenWidth().then(function (t) {
+                    }));
+
+                    t.push(this._nativeBridge.DeviceInfo.getScreenWidth().then(function (t) {
                         return e._screenWidth = t;
                     })["catch"](function (t) {
                         return e.handleDeviceInfoError(t);
-                    })), t.push(this._nativeBridge.DeviceInfo.getScreenHeight().then(function (t) {
+                    }));
+
+                    t.push(this._nativeBridge.DeviceInfo.getScreenHeight().then(function (t) {
                         return e._screenHeight = t;
                     })["catch"](function (t) {
                         return e.handleDeviceInfoError(t);
-                    })), t.push(this._nativeBridge.DeviceInfo.getSystemLanguage().then(function (t) {
+                    }));
+
+                    t.push(this._nativeBridge.DeviceInfo.getSystemLanguage().then(function (t) {
                         return e._language = t;
                     })["catch"](function (t) {
                         return e.handleDeviceInfoError(t);
-                    })), t.push(this._nativeBridge.DeviceInfo.isRooted().then(function (t) {
+                    }));
+
+                    t.push(this._nativeBridge.DeviceInfo.isRooted().then(function (t) {
                         return e._rooted = t;
                     })["catch"](function (t) {
                         return e.handleDeviceInfoError(t);
-                    })), t.push(this._nativeBridge.DeviceInfo.getTimeZone(!1).then(function (t) {
+                    }));
+
+                    t.push(this._nativeBridge.DeviceInfo.getTimeZone(!1).then(function (t) {
                         return e._timeZone = t;
                     })["catch"](function (t) {
                         return e.handleDeviceInfoError(t);
-                    })), t.push(this._nativeBridge.DeviceInfo.getTotalMemory().then(function (t) {
+                    }));
+
+                    t.push(this._nativeBridge.DeviceInfo.getTotalMemory().then(function (t) {
                         return e._totalMemory = t;
                     })["catch"](function (t) {
                         return e.handleDeviceInfoError(t);
-                    })), this._nativeBridge.getPlatform() === i.Platform.IOS ? (t.push(this._nativeBridge.DeviceInfo.Ios.getUserInterfaceIdiom().then(function (t) {
-                        return e._userInterfaceIdiom = t;
-                    })["catch"](function (t) {
-                        return e.handleDeviceInfoError(t);
-                    })), t.push(this._nativeBridge.DeviceInfo.Ios.getScreenScale().then(function (t) {
-                        return e._screenScale = t;
-                    })["catch"](function (t) {
-                        return e.handleDeviceInfoError(t);
-                    })), t.push(this._nativeBridge.DeviceInfo.Ios.isSimulator().then(function (t) {
-                        return e._simulator = t;
-                    })["catch"](function (t) {
-                        return e.handleDeviceInfoError(t);
-                    })), t.push(this._nativeBridge.DeviceInfo.Ios.getTotalSpace().then(function (t) {
-                        return e._totalInternalSpace = t;
-                    })["catch"](function (t) {
-                        return e.handleDeviceInfoError(t);
-                    }))) : this._nativeBridge.getPlatform() === i.Platform.ANDROID && (t.push(this._nativeBridge.DeviceInfo.Android.getAndroidId().then(function (t) {
-                        return e._androidId = t;
-                    })["catch"](function (t) {
-                        return e.handleDeviceInfoError(t);
-                    })), t.push(this._nativeBridge.DeviceInfo.Android.getApiLevel().then(function (t) {
-                        return e._apiLevel = t;
-                    })["catch"](function (t) {
-                        return e.handleDeviceInfoError(t);
-                    })), t.push(this._nativeBridge.DeviceInfo.Android.getTotalSpace(r.StorageType.INTERNAL).then(function (t) {
-                        return e._totalInternalSpace = t;
-                    })["catch"](function (t) {
-                        return e.handleDeviceInfoError(t);
-                    })), t.push(this._nativeBridge.DeviceInfo.Android.getTotalSpace(r.StorageType.EXTERNAL).then(function (t) {
-                        return e._totalExternalSpace = t;
-                    })["catch"](function (t) {
-                        return e.handleDeviceInfoError(t);
-                    })), t.push(this._nativeBridge.DeviceInfo.Android.getManufacturer().then(function (t) {
-                        return e._manufacturer = t;
-                    })["catch"](function (t) {
-                        return e.handleDeviceInfoError(t);
-                    })), t.push(this._nativeBridge.DeviceInfo.Android.getScreenDensity().then(function (t) {
-                        return e._screenDensity = t;
-                    })["catch"](function (t) {
-                        return e.handleDeviceInfoError(t);
-                    })), t.push(this._nativeBridge.DeviceInfo.Android.getScreenLayout().then(function (t) {
-                        return e._screenLayout = t;
-                    })["catch"](function (t) {
-                        return e.handleDeviceInfoError(t);
-                    }))), Promise.all(t);
-                }, n.prototype.getAndroidId = function () {
+                    }));
+
+                    if(this._nativeBridge.getPlatform() === i.Platform.IOS ){
+                        t.push(this._nativeBridge.DeviceInfo.Ios.getUserInterfaceIdiom().then(function (t) {
+                            return e._userInterfaceIdiom = t;
+                        })["catch"](function (t) {
+                            return e.handleDeviceInfoError(t);
+                        }));
+
+                        t.push(this._nativeBridge.DeviceInfo.Ios.getScreenScale().then(function (t) {
+                            return e._screenScale = t;
+                        })["catch"](function (t) {
+                            return e.handleDeviceInfoError(t);
+                        }));
+
+                        t.push(this._nativeBridge.DeviceInfo.Ios.isSimulator().then(function (t) {
+                            return e._simulator = t;
+                        })["catch"](function (t) {
+                            return e.handleDeviceInfoError(t);
+                        }));
+
+                        t.push(this._nativeBridge.DeviceInfo.Ios.getTotalSpace().then(function (t) {
+                            return e._totalInternalSpace = t;
+                        })["catch"](function (t) {
+                            return e.handleDeviceInfoError(t);
+                        }))
+                    } else if(this._nativeBridge.getPlatform() === i.Platform.ANDROID){
+                        t.push(this._nativeBridge.DeviceInfo.Android.getAndroidId().then(function (t) {
+                            return e._androidId = t;
+                        })["catch"](function (t) {
+                            return e.handleDeviceInfoError(t);
+                        }));
+
+                        t.push(this._nativeBridge.DeviceInfo.Android.getApiLevel().then(function (t) {
+                            return e._apiLevel = t;
+                        })["catch"](function (t) {
+                            return e.handleDeviceInfoError(t);
+                        }));
+
+                        t.push(this._nativeBridge.DeviceInfo.Android.getTotalSpace(r.StorageType.INTERNAL).then(function (t) {
+                            return e._totalInternalSpace = t;
+                        })["catch"](function (t) {
+                            return e.handleDeviceInfoError(t);
+                        }));
+
+                        t.push(this._nativeBridge.DeviceInfo.Android.getTotalSpace(r.StorageType.EXTERNAL).then(function (t) {
+                            return e._totalExternalSpace = t;
+                        })["catch"](function (t) {
+                            return e.handleDeviceInfoError(t);
+                        }));
+
+                        t.push(this._nativeBridge.DeviceInfo.Android.getManufacturer().then(function (t) {
+                            return e._manufacturer = t;
+                        })["catch"](function (t) {
+                            return e.handleDeviceInfoError(t);
+                        }));
+
+                        t.push(this._nativeBridge.DeviceInfo.Android.getScreenDensity().then(function (t) {
+                            return e._screenDensity = t;
+                        })["catch"](function (t) {
+                            return e.handleDeviceInfoError(t);
+                        }));
+
+                        t.push(this._nativeBridge.DeviceInfo.Android.getScreenLayout().then(function (t) {
+                            return e._screenLayout = t;
+                        })["catch"](function (t) {
+                            return e.handleDeviceInfoError(t);
+                        }))
+                    }
+
+                    return Promise.all(t);
+                };
+                DeviceInfo.prototype.getAndroidId = function () {
                     return this._androidId;
-                }, n.prototype.getAdvertisingIdentifier = function () {
+                };
+                DeviceInfo.prototype.getAdvertisingIdentifier = function () {
                     return this._advertisingIdentifier;
-                }, n.prototype.getLimitAdTracking = function () {
+                };
+                DeviceInfo.prototype.getLimitAdTracking = function () {
                     return this._limitAdTracking;
-                }, n.prototype.getApiLevel = function () {
+                };
+                DeviceInfo.prototype.getApiLevel = function () {
                     return this._apiLevel;
-                }, n.prototype.getManufacturer = function () {
+                };
+                DeviceInfo.prototype.getManufacturer = function () {
                     return this._manufacturer;
-                }, n.prototype.getModel = function () {
+                };
+                DeviceInfo.prototype.getModel = function () {
                     return this._model;
-                }, n.prototype.getNetworkType = function () {
-                    var e = this;
-                    return this._nativeBridge.DeviceInfo.getNetworkType().then(function (t) {
-                        return e._networkType = t, e._networkType;
+                };
+                DeviceInfo.prototype.getNetworkType = function () {
+                    var me = this;
+                    return this._nativeBridge.DeviceInfo.getNetworkType().then(function (type) {
+                        me._networkType = type;
+                        return me._networkType;
                     });
-                }, n.prototype.getNetworkOperator = function () {
-                    var e = this;
-                    return this._nativeBridge.getPlatform() === i.Platform.IOS || this._nativeBridge.getPlatform() === i.Platform.ANDROID ? this._nativeBridge.DeviceInfo.getNetworkOperator().then(function (t) {
-                        return e._networkOperator = t, e._networkOperator;
-                    }) : Promise.resolve(this._networkOperator);
-                }, n.prototype.getNetworkOperatorName = function () {
-                    var e = this;
-                    return this._nativeBridge.getPlatform() === i.Platform.IOS || this._nativeBridge.getPlatform() === i.Platform.ANDROID ? this._nativeBridge.DeviceInfo.getNetworkOperatorName().then(function (t) {
-                        return e._networkOperatorName = t, e._networkOperatorName;
-                    }) : Promise.resolve(this._networkOperatorName);
-                }, n.prototype.getOsVersion = function () {
+                };
+                DeviceInfo.prototype.getNetworkOperator = function () {
+                    var me = this;
+                    if(this._nativeBridge.getPlatform() === i.Platform.IOS || this._nativeBridge.getPlatform() === i.Platform.ANDROID){
+                        return this._nativeBridge.DeviceInfo.getNetworkOperator().then(function (t) {
+                            return me._networkOperator = t, me._networkOperator;
+                        })
+                    }else{
+                        return Promise.resolve(this._networkOperator);
+                    }
+                };
+                DeviceInfo.prototype.getNetworkOperatorName = function () {
+                    var me = this;
+                    if(this._nativeBridge.getPlatform() === i.Platform.IOS || this._nativeBridge.getPlatform() === i.Platform.ANDROID){
+                        return this._nativeBridge.DeviceInfo.getNetworkOperatorName().then(function (t) {
+                            return me._networkOperatorName = t, me._networkOperatorName;
+                        });
+                    }else{
+                        return Promise.resolve(this._networkOperatorName);
+                    }
+                };
+                DeviceInfo.prototype.getOsVersion = function () {
                     return this._osVersion;
-                }, n.prototype.getScreenLayout = function () {
+                };
+                DeviceInfo.prototype.getScreenLayout = function () {
                     return this._screenLayout;
-                }, n.prototype.getScreenDensity = function () {
+                };
+                DeviceInfo.prototype.getScreenDensity = function () {
                     return this._screenDensity;
-                }, n.prototype.getScreenWidth = function () {
+                };
+                DeviceInfo.prototype.getScreenWidth = function () {
                     return this._screenWidth;
-                }, n.prototype.getScreenHeight = function () {
+                };
+                DeviceInfo.prototype.getScreenHeight = function () {
                     return this._screenHeight;
-                }, n.prototype.getScreenScale = function () {
+                };
+                DeviceInfo.prototype.getScreenScale = function () {
                     return this._screenScale;
-                }, n.prototype.getUserInterfaceIdiom = function () {
+                };
+                DeviceInfo.prototype.getUserInterfaceIdiom = function () {
                     return this._userInterfaceIdiom;
-                }, n.prototype.isRooted = function () {
+                };
+                DeviceInfo.prototype.isRooted = function () {
                     return this._rooted;
-                }, n.prototype.getConnectionType = function () {
-                    var e = this;
-                    return this._nativeBridge.DeviceInfo.getConnectionType().then(function (t) {
-                        return e._connectionType = t, e._connectionType;
+                };
+                DeviceInfo.prototype.getConnectionType = function () {
+                    var me = this;
+                    return this._nativeBridge.DeviceInfo.getConnectionType().then(function (type) {
+                        me._connectionType = type;
+                        return me._connectionType;
                     });
-                }, n.prototype.getTimeZone = function () {
+                };
+                DeviceInfo.prototype.getTimeZone = function () {
                     return this._timeZone;
-                }, n.prototype.getFreeSpace = function () {
-                    var e = this;
-                    return this._nativeBridge.getPlatform() === i.Platform.IOS ? this._nativeBridge.DeviceInfo.Ios.getFreeSpace().then(function (t) {
-                        return e._freeInternalSpace = t, e._freeInternalSpace;
-                    }) : this._nativeBridge.getPlatform() === i.Platform.ANDROID ? this._nativeBridge.DeviceInfo.Android.getFreeSpace(r.StorageType.INTERNAL).then(function (t) {
-                        return e._freeInternalSpace = t, e._freeInternalSpace;
-                    }) : Promise.resolve(this._freeInternalSpace);
-                }, n.prototype.getFreeSpaceExternal = function () {
-                    var e = this;
-                    return this._nativeBridge.getPlatform() === i.Platform.ANDROID ? this._nativeBridge.DeviceInfo.Android.getFreeSpace(r.StorageType.EXTERNAL).then(function (t) {
-                        return e._freeExternalSpace = t, e._freeExternalSpace;
-                    }) : Promise.resolve(this._freeExternalSpace);
-                }, n.prototype.getTotalSpace = function () {
+                };
+                DeviceInfo.prototype.getFreeSpace = function () {
+                    var me = this;
+                    if(this._nativeBridge.getPlatform() === i.Platform.IOS){
+                        return this._nativeBridge.DeviceInfo.Ios.getFreeSpace().then(function (t) {
+                            return me._freeInternalSpace = t, me._freeInternalSpace;
+                        });
+                    }else if(this._nativeBridge.getPlatform() === i.Platform.ANDROID){
+                        return this._nativeBridge.DeviceInfo.Android.getFreeSpace(r.StorageType.INTERNAL).then(function (t) {
+                            return me._freeInternalSpace = t, me._freeInternalSpace;
+                        });
+                    }else{
+                        return Promise.resolve(this._freeInternalSpace);
+                    }
+                };
+                DeviceInfo.prototype.getFreeSpaceExternal = function () {
+                    var me = this;
+                    if(this._nativeBridge.getPlatform() === i.Platform.ANDROID){
+                        return this._nativeBridge.DeviceInfo.Android.getFreeSpace(r.StorageType.EXTERNAL).then(function (t) {
+                            return me._freeExternalSpace = t, me._freeExternalSpace;
+                        })
+                    }else{
+                        return Promise.resolve(this._freeExternalSpace);
+                    }
+                };
+                DeviceInfo.prototype.getTotalSpace = function () {
                     return this._totalInternalSpace;
-                }, n.prototype.getTotalSpaceExternal = function () {
+                };
+                DeviceInfo.prototype.getTotalSpaceExternal = function () {
                     return this._totalExternalSpace;
-                }, n.prototype.getLanguage = function () {
+                };
+                DeviceInfo.prototype.getLanguage = function () {
                     return this._language;
-                }, n.prototype.isSimulator = function () {
+                };
+                DeviceInfo.prototype.isSimulator = function () {
                     return this._simulator;
-                }, n.prototype.isAppleWatchPaired = function () {
-                    var e = this;
-                    return this._nativeBridge.getPlatform() === i.Platform.IOS ? this._nativeBridge.DeviceInfo.Ios.isAppleWatchPaired().then(function (t) {
-                        return e._appleWatchPaired = t, e._appleWatchPaired;
-                    }) : Promise.resolve(this._appleWatchPaired);
-                }, n.prototype.getHeadset = function () {
-                    var e = this;
+                };
+                DeviceInfo.prototype.isAppleWatchPaired = function () {
+                    var me = this;
+                    if(this._nativeBridge.getPlatform() === i.Platform.IOS){
+                        return this._nativeBridge.DeviceInfo.Ios.isAppleWatchPaired().then(function (t) {
+                            me._appleWatchPaired = t;
+                            return me._appleWatchPaired;
+                        });
+                    }else{
+                        return Promise.resolve(this._appleWatchPaired);
+                    }
+                };
+                DeviceInfo.prototype.getHeadset = function () {
+                    var me = this;
                     return this._nativeBridge.DeviceInfo.getHeadset().then(function (t) {
-                        return e._headset = t, e._headset;
+                        me._headset = t;
+                        return me._headset;
                     });
-                }, n.prototype.getRingerMode = function () {
-                    var e = this;
-                    return this._nativeBridge.getPlatform() === i.Platform.ANDROID ? this._nativeBridge.DeviceInfo.Android.getRingerMode().then(function (t) {
-                        return e._ringerMode = t, e._ringerMode;
-                    }) : Promise.resolve(this._ringerMode);
-                }, n.prototype.getDeviceVolume = function () {
-                    var e = this;
-                    return this._nativeBridge.getPlatform() === i.Platform.IOS ? this._nativeBridge.DeviceInfo.Ios.getDeviceVolume().then(function (t) {
-                        return e._volume = t, e._volume;
-                    }) : this._nativeBridge.getPlatform() === i.Platform.ANDROID ? this._nativeBridge.DeviceInfo.Android.getDeviceVolume(t.StreamType.STREAM_SYSTEM).then(function (t) {
-                        return e._volume = t, e._volume;
-                    }) : Promise.resolve(this._volume);
-                }, n.prototype.getScreenBrightness = function () {
+                };
+                DeviceInfo.prototype.getRingerMode = function () {
+                    var me = this;
+                    if(this._nativeBridge.getPlatform() === i.Platform.ANDROID){
+                        return this._nativeBridge.DeviceInfo.Android.getRingerMode().then(function (t) {
+                            me._ringerMode = t;
+                            return me._ringerMode;
+                        });
+                    }else{
+                        return Promise.resolve(this._ringerMode);
+                    }
+                };
+                DeviceInfo.prototype.getDeviceVolume = function () {
+                    var me = this;
+                    if(this._nativeBridge.getPlatform() === i.Platform.IOS){
+                        return this._nativeBridge.DeviceInfo.Ios.getDeviceVolume().then(function (t) {
+                            me._volume = t;
+                            return me._volume;
+                        });
+                    }else if(this._nativeBridge.getPlatform() === i.Platform.ANDROID){
+                        return this._nativeBridge.DeviceInfo.Android.getDeviceVolume(t.StreamType.STREAM_SYSTEM).then(function (t) {
+                            me._volume = t;
+                            return me._volume;
+                        });
+                    }else{
+                        return Promise.resolve(this._volume);
+                    }
+                };
+                DeviceInfo.prototype.getScreenBrightness = function () {
                     var e = this;
                     return this._nativeBridge.DeviceInfo.getScreenBrightness().then(function (t) {
                         return e._screenBrightness = t, e._screenBrightness;
                     });
-                }, n.prototype.getBatteryLevel = function () {
+                };
+                DeviceInfo.prototype.getBatteryLevel = function () {
                     var e = this;
                     return this._nativeBridge.DeviceInfo.getBatteryLevel().then(function (t) {
                         return e._batteryLevel = t, e._batteryLevel;
                     });
-                }, n.prototype.getBatteryStatus = function () {
+                };
+                DeviceInfo.prototype.getBatteryStatus = function () {
                     var e = this;
                     return this._nativeBridge.DeviceInfo.getBatteryStatus().then(function (t) {
                         return e._batteryStatus = t, e._batteryStatus;
                     });
-                }, n.prototype.getFreeMemory = function () {
+                };
+                DeviceInfo.prototype.getFreeMemory = function () {
                     var e = this;
                     return this._nativeBridge.DeviceInfo.getFreeMemory().then(function (t) {
                         return e._freeMemory = t, e._freeMemory;
                     });
-                }, n.prototype.getTotalMemory = function () {
+                };
+                DeviceInfo.prototype.getTotalMemory = function () {
                     return this._totalMemory;
-                }, n.prototype.getDTO = function () {
+                };
+                DeviceInfo.prototype.getDTO = function () {
                     var e = this, t = [];
                     return t.push(this.getConnectionType()["catch"](function (t) {
                         return e.handleDeviceInfoError(t);
@@ -2250,14 +2223,17 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                             appleWatchPaired: e._appleWatchPaired
                         };
                     });
-                }, n.prototype.handleDeviceInfoError = function (e) {
+                };
+                DeviceInfo.prototype.handleDeviceInfoError = function (e) {
                     this._nativeBridge.Sdk.logWarning(JSON.stringify(e));
-                }, n;
+                };
+                return DeviceInfo;
             }(n.Model);
-            return e.DeviceInfo = o, e;
+            exports.DeviceInfo = DeviceInfo;
+            return exports;
         }(M, U, V, a, O);
 
-        F = function (exports) {
+        UrlKit = function (exports) {
             var Url = function () {
                 function Url() {
                 }
@@ -2289,7 +2265,7 @@ document.addEventListener('DOMContentLoaded', function () { /*!
             }();
             exports.Url = Url;
             return exports;
-        }(F);
+        }(UrlKit);
 
         x = function (e, t) {
             !function (e) {
@@ -2346,21 +2322,13 @@ document.addEventListener('DOMContentLoaded', function () { /*!
             return e.Configuration = i, e;
         }(x, I);
 
-        var Be = this && this.__extends || function (e, t) {
-                function n() {
-                    this.constructor = e;
-                }
-
-                for (var i in t) t.hasOwnProperty(i) && (e[i] = t[i]);
-                e.prototype = null === t ? Object.create(t) : (n.prototype = t.prototype, new n());
-            };
         W = function (e, t) {
             var n = function (e) {
                 function t(t) {
                     e.call(this), this._name = t[0], this._version = t[1];
                 }
 
-                return Be(t, e), t.getCategory = function () {
+                return extend(t, e), t.getCategory = function () {
                     return "framework";
                 }, t.getKeys = function () {
                     return ["name.value", "version.value"];
@@ -2377,21 +2345,14 @@ document.addEventListener('DOMContentLoaded', function () { /*!
             }(t.Model);
             return e.FrameworkMetaData = n, e;
         }(W, V);
-        var Be = this && this.__extends || function (e, t) {
-                function n() {
-                    this.constructor = e;
-                }
 
-                for (var i in t) t.hasOwnProperty(i) && (e[i] = t[i]);
-                e.prototype = null === t ? Object.create(t) : (n.prototype = t.prototype, new n());
-            };
         q = function (e, t) {
             var n = function (e) {
                 function t(t) {
                     e.call(this), this._name = t[0], this._version = t[1];
                 }
 
-                return Be(t, e), t.getCategory = function () {
+                return extend(t, e), t.getCategory = function () {
                     return "adapter";
                 }, t.getKeys = function () {
                     return ["name.value", "version.value"];
@@ -2408,21 +2369,14 @@ document.addEventListener('DOMContentLoaded', function () { /*!
             }(t.Model);
             return e.AdapterMetaData = n, e;
         }(q, V);
-        var Be = this && this.__extends || function (e, t) {
-                function n() {
-                    this.constructor = e;
-                }
 
-                for (var i in t) t.hasOwnProperty(i) && (e[i] = t[i]);
-                e.prototype = null === t ? Object.create(t) : (n.prototype = t.prototype, new n());
-            };
         K = function (e, t) {
             var n = function (e) {
                 function t(t) {
                     e.call(this), this._name = t[0], this._version = t[1], this._ordinal = parseInt(t[2], 10);
                 }
 
-                return Be(t, e), t.getCategory = function () {
+                return extend(t, e), t.getCategory = function () {
                     return "mediation";
                 }, t.getKeys = function () {
                     return ["name.value", "version.value", "ordinal.value"];
@@ -2442,21 +2396,14 @@ document.addEventListener('DOMContentLoaded', function () { /*!
             }(t.Model);
             return e.MediationMetaData = n, e;
         }(K, V);
-        var Be = this && this.__extends || function (e, t) {
-                function n() {
-                    this.constructor = e;
-                }
 
-                for (var i in t) t.hasOwnProperty(i) && (e[i] = t[i]);
-                e.prototype = null === t ? Object.create(t) : (n.prototype = t.prototype, new n());
-            };
         H = function (e, t) {
             var n = function (e) {
                 function t(t) {
                     e.call(this), this._serverId = t[0];
                 }
 
-                return Be(t, e), t.getCategory = function () {
+                return extend(t, e), t.getCategory = function () {
                     return "player";
                 }, t.getKeys = function () {
                     return ["server_id.value"];
@@ -2543,21 +2490,14 @@ document.addEventListener('DOMContentLoaded', function () { /*!
             }();
             return e.MetaDataManager = a, e;
         }(j, b, W, q, K, H);
-        var Be = this && this.__extends || function (e, t) {
-                function n() {
-                    this.constructor = e;
-                }
 
-                for (var i in t) t.hasOwnProperty(i) && (e[i] = t[i]);
-                e.prototype = null === t ? Object.create(t) : (n.prototype = t.prototype, new n());
-            };
         G = function (e) {
             var t = function (e) {
                 function t() {
                     e.apply(this, arguments);
                 }
 
-                return Be(t, e), t;
+                return extend(t, e), t;
             }(SyntaxError);
             e.JsonSyntaxError = t;
             var n = function () {
@@ -2609,7 +2549,7 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                 }, e.ConfigBaseUrl = "https://adserver.unityads.unity3d.com/games", e;
             }();
             return e.ConfigManager = o, e;
-        }(Y, F, x, j, G), z = function (e) {
+        }(Y, UrlKit, x, j, G), z = function (e) {
             var t = function () {
                 function e(e, t, n) {
                     this._isVideoCached = !1, this._id = e.id, this._appStoreId = e.appStoreId, this._appStoreCountry = e.appStoreCountry,
@@ -2669,21 +2609,14 @@ document.addEventListener('DOMContentLoaded', function () { /*!
             }();
             return e.Campaign = t, e;
         }(z);
-        var Be = this && this.__extends || function (e, t) {
-                function n() {
-                    this.constructor = e;
-                }
 
-                for (var i in t) t.hasOwnProperty(i) && (e[i] = t[i]);
-                e.prototype = null === t ? Object.create(t) : (n.prototype = t.prototype, new n());
-            };
         Q = function (e, t) {
             var n = function (e) {
                 function t(t, n, i, r) {
                     e.call(this, {}, i, r), this._campaignId = n, this._vast = t;
                 }
 
-                return Be(t, e), t.prototype.getId = function () {
+                return extend(t, e), t.prototype.getId = function () {
                     return this._campaignId;
                 }, t.prototype.getVast = function () {
                     return this._vast;
@@ -2787,7 +2720,7 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                 }, e.CampaignBaseUrl = "https://adserver.unityads.unity3d.com/games", e;
             }();
             return e.CampaignManager = c, e;
-        }(J, u, F, z, Q, a, j, G), X = function (e, t, n, i) {
+        }(J, u, UrlKit, z, Q, a, j, G), X = function (e, t, n, i) {
             !function (e) {
                 e[e.OK = 0] = "OK", e[e.STOPPED = 1] = "STOPPED";
             }(e.CacheStatus || (e.CacheStatus = {}));
@@ -3074,234 +3007,324 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                 }, e;
             }();
             return e.Session = t, e;
-        }(Z), ee = function (e, t, n, i) {
-            var r = function () {
-                function e(e, t, n) {
-                    this._eventManager = e, this._deviceInfo = t, this._nativeBridge = n;
+        }(Z), ee = function (exports, t, n, i) {
+            var SessionManagerEventMetadataCreator = function () {
+                function SessionManagerEventMetadataCreator(eventManager, deviceInfo, nativeBridge) {
+                    this._eventManager = eventManager;
+                    this._deviceInfo = deviceInfo;
+                    this._nativeBridge = nativeBridge;
                 }
-
-                return e.prototype.createUniqueEventMetadata = function (e, t, n) {
-                    var i = this;
-                    return this._eventManager.getUniqueEventId().then(function (r) {
-                        return i.getInfoJson(e, r, t, n);
+                SessionManagerEventMetadataCreator.prototype.createUniqueEventMetadata = function (adUnit, t, sid) {
+                    var me = this;
+                    return this._eventManager.getUniqueEventId().then(function (e) {
+                        return me.getInfoJson(adUnit, e, t, sid);
                     });
-                }, e.prototype.getInfoJson = function (e, t, n, r) {
-                    var o = this, a = {
-                        eventId: t,
+                };
+                SessionManagerEventMetadataCreator.prototype.getInfoJson = function (adUnit, eventId, n, sid) {
+                    var me = this;
+                    var a = {
+                        eventId: eventId,
                         sessionId: n.getId(),
-                        gamerId: e.getCampaign().getGamerId(),
-                        campaignId: e.getCampaign().getId(),
-                        placementId: e.getPlacement().getId(),
+                        gamerId: adUnit.getCampaign().getGamerId(),
+                        campaignId: adUnit.getCampaign().getId(),
+                        placementId: adUnit.getPlacement().getId(),
                         apiLevel: this._deviceInfo.getApiLevel(),
-                        cached: !0,
+                        cached: true,
                         advertisingId: this._deviceInfo.getAdvertisingIdentifier(),
                         trackingEnabled: this._deviceInfo.getLimitAdTracking(),
                         osVersion: this._deviceInfo.getOsVersion(),
-                        sid: r,
+                        sid: sid,
                         deviceMake: this._deviceInfo.getManufacturer(),
                         deviceModel: this._deviceInfo.getModel()
-                    }, s = [];
-                    return s.push(this._deviceInfo.getNetworkType()), s.push(this._deviceInfo.getConnectionType()),
-                        Promise.all(s).then(function (e) {
-                            var n = e[0], r = e[1];
-                            return a.networkType = n, a.connectionType = r, i.MetaDataManager.fetchMediationMetaData(o._nativeBridge).then(function (e) {
-                                return e && (a.mediationName = e.getName(), a.mediationVersion = e.getVersion(),
-                                    a.mediationOrdinal = e.getOrdinal()), [t, a];
+                    };
+                    var s = [];
+                    s.push(this._deviceInfo.getNetworkType());
+                    s.push(this._deviceInfo.getConnectionType());
+
+                    return Promise.all(s).then(function (e) {
+                        a.networkType = e[0];
+                        a.connectionType = e[1];
+                        return i.MetaDataManager.fetchMediationMetaData(me._nativeBridge).then(function (e) {
+                                if(e){
+                                    a.mediationName = e.getName();
+                                    a.mediationVersion = e.getVersion();
+                                    a.mediationOrdinal = e.getOrdinal();
+                                }
+                                return [eventId, a];
                             });
                         });
-                }, e;
+                };
+                return SessionManagerEventMetadataCreator;
             }();
-            e.SessionManagerEventMetadataCreator = r;
-            var o = function () {
-                function e(e, t, n, i, o) {
-                    this._nativeBridge = e, this._clientInfo = t, this._deviceInfo = n, this._eventManager = i,
-                        this._eventMetadataCreator = o || new r(this._eventManager, this._deviceInfo, this._nativeBridge);
-                }
+            exports.SessionManagerEventMetadataCreator = SessionManagerEventMetadataCreator;
 
-                return e.setTestBaseUrl = function (t) {
-                    e.VideoEventBaseUrl = t + "/mobile/gamers", e.ClickEventBaseUrl = t + "/mobile/campaigns";
-                }, e.prototype.create = function () {
-                    var e = this;
+            var SessionManager = function () {
+                function SessionManager(nativeBridge, clientInfo, deviceInfo, eventManager, eventMetadataCreator) {
+                    this._nativeBridge = nativeBridge;
+                    this._clientInfo = clientInfo;
+                    this._deviceInfo = deviceInfo;
+                    this._eventManager = eventManager;
+                    this._eventMetadataCreator = eventMetadataCreator || new SessionManagerEventMetadataCreator(this._eventManager, this._deviceInfo, this._nativeBridge);
+                }
+                SessionManager.setTestBaseUrl = function (baseUrl) {
+                    SessionManager.VideoEventBaseUrl = baseUrl + "/mobile/gamers";
+                    SessionManager.ClickEventBaseUrl = baseUrl + "/mobile/campaigns";
+                };
+                SessionManager.prototype.create = function () {
+                    var me = this;
                     return this._eventManager.getUniqueEventId().then(function (n) {
-                        return e._currentSession = new t.Session(n), e._eventManager.startNewSession(n);
+                        me._currentSession = new t.Session(n);
+                        return me._eventManager.startNewSession(n);
                     });
-                }, e.prototype.getSession = function () {
+                };
+                SessionManager.prototype.getSession = function () {
                     return this._currentSession;
-                }, e.prototype.setSession = function (e) {
-                    this._currentSession = e;
-                }, e.prototype.sendShow = function (e) {
-                    var t = this;
+                };
+                SessionManager.prototype.setSession = function (session) {
+                    this._currentSession = session;
+                };
+                SessionManager.prototype.sendShow = function (e) {
+                    var me = this;
                     if (this._currentSession) {
-                        if (this._currentSession.showSent) return;
-                        this._currentSession.showSent = !0;
+                        if (this._currentSession.showSent){
+                            return;
+                        }
+                        this._currentSession.showSent = true;
                     }
                     var n = function (n) {
                         var i = n[0], r = n[1];
-                        t._eventManager.operativeEvent("show", i, r.sessionId, t.createShowEventUrl(e), JSON.stringify(r));
+                        me._eventManager.operativeEvent("show", i, r.sessionId, me.createShowEventUrl(e), JSON.stringify(r));
                     };
                     return this._eventMetadataCreator.createUniqueEventMetadata(e, this._currentSession, this._gamerServerId).then(n);
-                }, e.prototype.sendImpressionEvent = function (e) {
+                };
+                SessionManager.prototype.sendImpressionEvent = function (e) {
                     if (this._currentSession) {
-                        if (this._currentSession.impressionSent) return;
-                        this._currentSession.impressionSent = !0;
+                        if (this._currentSession.impressionSent){
+                            return;
+                        }
+                        this._currentSession.impressionSent = true;
                     }
-                    e.sendImpressionEvent(this._eventManager, this._currentSession.getId()), e.sendTrackingEvent(this._eventManager, "creativeView", this._currentSession.getId());
-                }, e.prototype.sendStart = function (e) {
-                    var t = this;
+                    e.sendImpressionEvent(this._eventManager, this._currentSession.getId());
+                    e.sendTrackingEvent(this._eventManager, "creativeView", this._currentSession.getId());
+                };
+                SessionManager.prototype.sendStart = function (e) {
+                    var me = this;
                     if (this._currentSession) {
-                        if (this._currentSession.startSent) return;
-                        this._currentSession.startSent = !0;
+                        if (this._currentSession.startSent) {
+                            return;
+                        }
+                        this._currentSession.startSent = true;
                     }
                     var n = function (n) {
                         var i = n[0], r = n[1];
-                        t._eventManager.operativeEvent("start", i, r.sessionId, t.createVideoEventUrl(e, "video_start"), JSON.stringify(r)),
-                            e.sendTrackingEvent(t._eventManager, "start", r.sessionId);
+                        me._eventManager.operativeEvent("start", i, r.sessionId, me.createVideoEventUrl(e, "video_start"), JSON.stringify(r));
+                        e.sendTrackingEvent(me._eventManager, "start", r.sessionId);
                     };
                     return this._eventMetadataCreator.createUniqueEventMetadata(e, this._currentSession, this._gamerServerId).then(n);
-                }, e.prototype.sendProgress = function (e, t, n, i) {
+                };
+                SessionManager.prototype.sendProgress = function (e, t, n, i) {
                     t && e.sendProgressEvents(this._eventManager, t.getId(), n, i);
-                }, e.prototype.sendFirstQuartile = function (e) {
-                    var t = this;
+                };
+                SessionManager.prototype.sendFirstQuartile = function (e) {
+                    var me = this;
                     if (this._currentSession) {
-                        if (this._currentSession.firstQuartileSent) return;
-                        this._currentSession.firstQuartileSent = !0;
+                        if (this._currentSession.firstQuartileSent){
+                            return;
+                        }
+                        this._currentSession.firstQuartileSent = true;
                     }
                     var n = function (n) {
                         var i = n[0], r = n[1];
-                        t._eventManager.operativeEvent("first_quartile", i, r.sessionId, t.createVideoEventUrl(e, "first_quartile"), JSON.stringify(r));
+                        me._eventManager.operativeEvent("first_quartile", i, r.sessionId, me.createVideoEventUrl(e, "first_quartile"), JSON.stringify(r));
                     };
                     return this._eventMetadataCreator.createUniqueEventMetadata(e, this._currentSession, this._gamerServerId).then(n);
-                }, e.prototype.sendMidpoint = function (e) {
-                    var t = this;
+                };
+                SessionManager.prototype.sendMidpoint = function (e) {
+                    var me = this;
                     if (this._currentSession) {
-                        if (this._currentSession.midpointSent) return;
-                        this._currentSession.midpointSent = !0;
+                        if (this._currentSession.midpointSent) {
+                            return;
+                        }
+                        this._currentSession.midpointSent = true;
                     }
                     var n = function (n) {
                         var i = n[0], r = n[1];
-                        t._eventManager.operativeEvent("midpoint", i, r.sessionId, t.createVideoEventUrl(e, "midpoint"), JSON.stringify(r));
+                        me._eventManager.operativeEvent("midpoint", i, r.sessionId, me.createVideoEventUrl(e, "midpoint"), JSON.stringify(r));
                     };
                     return this._eventMetadataCreator.createUniqueEventMetadata(e, this._currentSession, this._gamerServerId).then(n);
-                }, e.prototype.sendThirdQuartile = function (e) {
-                    var t = this;
+                };
+                SessionManager.prototype.sendThirdQuartile = function (e) {
+                    var me = this;
                     if (this._currentSession) {
-                        if (this._currentSession.thirdQuartileSent) return;
-                        this._currentSession.thirdQuartileSent = !0;
+                        if (this._currentSession.thirdQuartileSent){
+                            return;
+                        }
+                        this._currentSession.thirdQuartileSent = true;
                     }
                     var n = function (n) {
                         var i = n[0], r = n[1];
-                        t._eventManager.operativeEvent("third_quartile", i, r.sessionId, t.createVideoEventUrl(e, "third_quartile"), JSON.stringify(r));
+                        me._eventManager.operativeEvent("third_quartile", i, r.sessionId, me.createVideoEventUrl(e, "third_quartile"), JSON.stringify(r));
                     };
                     return this._eventMetadataCreator.createUniqueEventMetadata(e, this._currentSession, this._gamerServerId).then(n);
-                }, e.prototype.sendSkip = function (e, t) {
-                    var n = this;
+                };
+                SessionManager.prototype.sendSkip = function (e, t) {
+                    var me = this;
                     if (this._currentSession) {
-                        if (this._currentSession.skipSent) return;
-                        this._currentSession.skipSent = !0;
+                        if (this._currentSession.skipSent){
+                            return;
+                        }
+                        this._currentSession.skipSent = true;
                     }
                     var i = function (i) {
                         var r = i[0], o = i[1];
-                        t && (o.skippedAt = t), n._eventManager.operativeEvent("skip", r, n._currentSession.getId(), n.createVideoEventUrl(e, "video_skip"), JSON.stringify(o));
+                        t && (o.skippedAt = t);
+                        me._eventManager.operativeEvent("skip", r, me._currentSession.getId(), me.createVideoEventUrl(e, "video_skip"), JSON.stringify(o));
                     };
                     this._eventMetadataCreator.createUniqueEventMetadata(e, this._currentSession, this._gamerServerId).then(i);
-                }, e.prototype.sendView = function (e) {
-                    var t = this;
+                };
+                SessionManager.prototype.sendView = function (e) {
+                    var me = this;
                     if (this._currentSession) {
-                        if (this._currentSession.viewSent) return;
-                        this._currentSession.viewSent = !0;
+                        if (this._currentSession.viewSent) {
+                            return;
+                        }
+                        this._currentSession.viewSent = true;
                     }
                     var n = function (n) {
                         var i = n[0], r = n[1];
-                        t._eventManager.operativeEvent("view", i, r.sessionId, t.createVideoEventUrl(e, "video_end"), JSON.stringify(r)),
-                            e.sendTrackingEvent(t._eventManager, "complete", r.sessionId);
+                        me._eventManager.operativeEvent("view", i, r.sessionId, me.createVideoEventUrl(e, "video_end"), JSON.stringify(r));
+                        e.sendTrackingEvent(me._eventManager, "complete", r.sessionId);
                     };
                     return this._eventMetadataCreator.createUniqueEventMetadata(e, this._currentSession, this._gamerServerId).then(n);
-                }, e.prototype.sendClick = function (e) {
-                    var t = this, n = e.getCampaign(), i = function (n) {
-                        var i = n[0], r = n[1];
-                        t._eventManager.operativeEvent("click", i, t._currentSession.getId(), t.createClickEventUrl(e), JSON.stringify(r));
-                    };
-                    return this._eventMetadataCreator.createUniqueEventMetadata(e, this._currentSession, this._gamerServerId).then(i),
-                        n.getClickAttributionUrl() ? this._eventManager.clickAttributionEvent(this._currentSession.getId(), n.getClickAttributionUrl(), n.getClickAttributionUrlFollowsRedirects()) : Promise.reject("Missing click attribution url");
-                }, e.prototype.sendMute = function (e, t, n) {
-                    n ? e.sendTrackingEvent(this._eventManager, "mute", t.getId()) : e.sendTrackingEvent(this._eventManager, "unmute", t.getId());
-                }, e.prototype.sendVideoClickTracking = function (e, t) {
+                };
+                SessionManager.prototype.sendClick = function (e) {
+                    var t = this,
+                        n = e.getCampaign(),
+                        i = function (n) {
+                            var i = n[0], r = n[1];
+                            t._eventManager.operativeEvent("click", i, t._currentSession.getId(), t.createClickEventUrl(e), JSON.stringify(r));
+                        };
+                    this._eventMetadataCreator.createUniqueEventMetadata(e, this._currentSession, this._gamerServerId).then(i);
+                    if(n.getClickAttributionUrl()){
+                        return this._eventManager.clickAttributionEvent(this._currentSession.getId(), n.getClickAttributionUrl(), n.getClickAttributionUrlFollowsRedirects())
+                    }else{
+                        return Promise.reject("Missing click attribution url");
+                    }
+                };
+                SessionManager.prototype.sendMute = function (e, t, n) {
+                    if(n){
+                        e.sendTrackingEvent(this._eventManager, "mute", t.getId())
+                    }else{
+                        e.sendTrackingEvent(this._eventManager, "unmute", t.getId());
+                    }
+                };
+                SessionManager.prototype.sendVideoClickTracking = function (e, t) {
                     e.sendVideoClickTrackingEvent(this._eventManager, t.getId());
-                }, e.prototype.setGamerServerId = function (e) {
+                };
+                SessionManager.prototype.setGamerServerId = function (e) {
                     this._gamerServerId = e;
-                }, e.prototype.createShowEventUrl = function (t) {
-                    var n = t.getCampaign();
-                    return [e.VideoEventBaseUrl, n.getGamerId(), "show", n.getId(), this._clientInfo.getGameId()].join("/");
-                }, e.prototype.createVideoEventUrl = function (t, n) {
-                    var i = t.getCampaign();
-                    return [e.VideoEventBaseUrl, i.getGamerId(), "video", n, i.getId(), this._clientInfo.getGameId()].join("/");
-                }, e.prototype.createClickEventUrl = function (t) {
-                    var i = t.getCampaign(), r = [e.ClickEventBaseUrl, i.getId(), "click", i.getGamerId()].join("/");
+                };
+                SessionManager.prototype.createShowEventUrl = function (adUnit) {
+                    var campaign = adUnit.getCampaign();
+                    return [SessionManager.VideoEventBaseUrl, campaign.getGamerId(), "show", campaign.getId(), this._clientInfo.getGameId()].join("/");
+                };
+                SessionManager.prototype.createVideoEventUrl = function (adUnit, n) {
+                    var campaign = adUnit.getCampaign();
+                    return [SessionManager.VideoEventBaseUrl, campaign.getGamerId(), "video", n, campaign.getId(), this._clientInfo.getGameId()].join("/");
+                };
+                SessionManager.prototype.createClickEventUrl = function (adUnit) {
+                    var campaign = adUnit.getCampaign(),
+                        r = [SessionManager.ClickEventBaseUrl, campaign.getId(), "click", campaign.getGamerId()].join("/");
                     return n.Url.addParameters(r, {
                         gameId: this._clientInfo.getGameId(),
                         redirect: !1
                     });
-                }, e.VideoEventBaseUrl = "https://adserver.unityads.unity3d.com/mobile/gamers",
-                    e.ClickEventBaseUrl = "https://adserver.unityads.unity3d.com/mobile/campaigns",
-                    e;
+                };
+                SessionManager.VideoEventBaseUrl = "https://adserver.unityads.unity3d.com/mobile/gamers";
+                SessionManager.ClickEventBaseUrl = "https://adserver.unityads.unity3d.com/mobile/campaigns";
+                return SessionManager;
             }();
-            return e.SessionManager = o, e;
-        }(ee, Z, F, j), te = function (e) {
-            !function (e) {
-                e[e.NOT_INITIALIZED = 0] = "NOT_INITIALIZED", e[e.INITIALIZE_FAILED = 1] = "INITIALIZE_FAILED",
-                    e[e.INVALID_ARGUMENT = 2] = "INVALID_ARGUMENT", e[e.VIDEO_PLAYER_ERROR = 3] = "VIDEO_PLAYER_ERROR",
-                    e[e.INIT_SANITY_CHECK_FAIL = 4] = "INIT_SANITY_CHECK_FAIL", e[e.AD_BLOCKER_DETECTED = 5] = "AD_BLOCKER_DETECTED",
-                    e[e.FILE_IO_ERROR = 6] = "FILE_IO_ERROR", e[e.DEVICE_ID_ERROR = 7] = "DEVICE_ID_ERROR",
-                    e[e.SHOW_ERROR = 8] = "SHOW_ERROR", e[e.INTERNAL_ERROR = 9] = "INTERNAL_ERROR";
-            }(e.UnityAdsError || (e.UnityAdsError = {}));
-            e.UnityAdsError;
-            return e;
+            exports.SessionManager = SessionManager;
+            return exports;
+        }(ee, Z, UrlKit, j),
+
+        te = function (exports) {
+            !function (status) {
+                status[
+                    status.NOT_INITIALIZED = 0] = "NOT_INITIALIZED",
+                    status[status.INITIALIZE_FAILED = 1] = "INITIALIZE_FAILED",
+                    status[status.INVALID_ARGUMENT = 2] = "INVALID_ARGUMENT",
+                    status[status.VIDEO_PLAYER_ERROR = 3] = "VIDEO_PLAYER_ERROR",
+                    status[status.INIT_SANITY_CHECK_FAIL = 4] = "INIT_SANITY_CHECK_FAIL",
+                    status[status.AD_BLOCKER_DETECTED = 5] = "AD_BLOCKER_DETECTED",
+                    status[status.FILE_IO_ERROR = 6] = "FILE_IO_ERROR",
+                    status[status.DEVICE_ID_ERROR = 7] = "DEVICE_ID_ERROR",
+                    status[status.SHOW_ERROR = 8] = "SHOW_ERROR",
+                    status[status.INTERNAL_ERROR = 9] = "INTERNAL_ERROR";
+            }(exports.UnityAdsError || (exports.UnityAdsError = {}));
+            exports.UnityAdsError;
+            return exports;
         }(te);
-        var Be = this && this.__extends || function (e, t) {
-                function n() {
-                    this.constructor = e;
-                }
 
-                for (var i in t) t.hasOwnProperty(i) && (e[i] = t[i]);
-                e.prototype = null === t ? Object.create(t) : (n.prototype = t.prototype, new n());
-            };
-        ne = function (e, t, n, i) {
-            var r = function (e) {
-                function t(t, n) {
-                    e.call(this), this._platform = t;
+        ne = function (exports, t, n, i) {
+            var ClientInfo = function (Model) {
+                function ClientInfo(platform, n) {
+                    Model.call(this);
+                    this._platform = platform;
                     var r = n.shift();
-                    if ("string" != typeof r || !/^\d+$/.test(r)) throw new Error(i.UnityAdsError[i.UnityAdsError.INVALID_ARGUMENT]);
-                    this._gameId = r, this._testMode = n.shift(), this._applicationName = n.shift(),
-                        this._applicationVersion = n.shift(), this._sdkVersion = n.shift(), this._sdkVersionName = n.shift(),
-                        this._debuggable = n.shift(), this._configUrl = n.shift(), this._webviewUrl = n.shift(),
-                        this._webviewHash = n.shift(), this._webviewVersion = n.shift();
+                    if ("string" != typeof r || !/^\d+$/.test(r)){
+                        throw new Error(i.UnityAdsError[i.UnityAdsError.INVALID_ARGUMENT]);
+                    }
+                    this._gameId = r;
+                    this._testMode = n.shift();
+                    this._applicationName = n.shift();
+                    this._applicationVersion = n.shift();
+                    this._sdkVersion = n.shift();
+                    this._sdkVersionName = n.shift();
+                    this._debuggable = n.shift();
+                    this._configUrl = n.shift();
+                    this._webviewUrl = n.shift();
+                    this._webviewHash = n.shift();
+                    this._webviewVersion = n.shift();
                 }
-
-                return Be(t, e), t.prototype.getGameId = function () {
+                extend(ClientInfo, Model);
+                ClientInfo.prototype.getGameId = function () {
                     return this._gameId;
-                }, t.prototype.getTestMode = function () {
+                };
+                ClientInfo.prototype.getTestMode = function () {
                     return this._testMode;
-                }, t.prototype.getApplicationVersion = function () {
+                };
+                ClientInfo.prototype.getApplicationVersion = function () {
                     return this._applicationVersion;
-                }, t.prototype.getApplicationName = function () {
+                };
+                ClientInfo.prototype.getApplicationName = function () {
                     return this._applicationName;
-                }, t.prototype.getSdkVersion = function () {
+                };
+                ClientInfo.prototype.getSdkVersion = function () {
                     return this._sdkVersion;
-                }, t.prototype.getSdkVersionName = function () {
+                };
+                ClientInfo.prototype.getSdkVersionName = function () {
                     return this._sdkVersionName;
-                }, t.prototype.getPlatform = function () {
+                };
+                ClientInfo.prototype.getPlatform = function () {
                     return this._platform;
-                }, t.prototype.isDebuggable = function () {
+                };
+                ClientInfo.prototype.isDebuggable = function () {
                     return this._debuggable;
-                }, t.prototype.getConfigUrl = function () {
+                };
+                ClientInfo.prototype.getConfigUrl = function () {
                     return this._configUrl;
-                }, t.prototype.getWebviewUrl = function () {
+                };
+                ClientInfo.prototype.getWebviewUrl = function () {
                     return this._webviewUrl;
-                }, t.prototype.getWebviewHash = function () {
+                };
+                ClientInfo.prototype.getWebviewHash = function () {
                     return this._webviewHash;
-                }, t.prototype.getWebviewVersion = function () {
+                };
+                ClientInfo.prototype.getWebviewVersion = function () {
                     return this._webviewVersion;
-                }, t.prototype.getDTO = function () {
+                };
+                ClientInfo.prototype.getDTO = function () {
                     return {
                         gameId: this._gameId,
                         testMode: this._testMode,
@@ -3316,10 +3339,14 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                         webviewHash: this._webviewHash,
                         webviewVersion: this._webviewVersion
                     };
-                }, t;
+                };
+                return ClientInfo;
             }(t.Model);
-            return e.ClientInfo = r, e;
-        }(ne, V, a, te), ie = function (e) {
+            exports.ClientInfo = ClientInfo;
+            return exports;
+        }(ne, V, a, te),
+
+        ie = function (e) {
             var t = function () {
                 function e() {
                 }
@@ -3573,14 +3600,7 @@ document.addEventListener('DOMContentLoaded', function () { /*!
             e.UIInterfaceOrientationMask;
             return e;
         }(le);
-        var Be = this && this.__extends || function (e, t) {
-                function n() {
-                    this.constructor = e;
-                }
 
-                for (var i in t) t.hasOwnProperty(i) && (e[i] = t[i]);
-                e.prototype = null === t ? Object.create(t) : (n.prototype = t.prototype, new n());
-            };
         he = function (e, t, n, i, r, o, a) {
             var s = function (e) {
                 function i(t, n, r, a, s) {
@@ -3597,7 +3617,7 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                         this._overlay = a, this._endScreen = s;
                 }
 
-                return Be(i, e), i.prototype.show = function () {
+                return extend(i, e), i.prototype.show = function () {
                     var e = this;
                     if (this._showing = !0, this.onStart.trigger(), this.setVideoActive(!0), this._nativeBridge.getPlatform() === o.Platform.IOS) {
                         var n = this._iosOptions.supportedOrientations;
@@ -3701,21 +3721,14 @@ document.addEventListener('DOMContentLoaded', function () { /*!
             }(i.AbstractAdUnit);
             return e.VideoAdUnit = s, e;
         }(he, se, E, ce, ue, a, le);
-        var Be = this && this.__extends || function (e, t) {
-                function n() {
-                    this.constructor = e;
-                }
 
-                for (var i in t) t.hasOwnProperty(i) && (e[i] = t[i]);
-                e.prototype = null === t ? Object.create(t) : (n.prototype = t.prototype, new n());
-            };
         pe = function (e, t) {
             var n = function (e) {
                 function t(t, n, i, r) {
                     e.call(this, t, n, i, r, null);
                 }
 
-                return Be(t, e), t.prototype.hideChildren = function () {
+                return extend(t, e), t.prototype.hideChildren = function () {
                     var e = this.getOverlay();
                     e.container().parentElement.removeChild(e.container());
                 }, t.prototype.getVast = function () {
@@ -3780,21 +3793,14 @@ document.addEventListener('DOMContentLoaded', function () { /*!
             }();
             return e.OverlayEventHandlers = a, e;
         }(de, ue, E, a, le, se);
-        var Be = this && this.__extends || function (e, t) {
-                function n() {
-                    this.constructor = e;
-                }
 
-                for (var i in t) t.hasOwnProperty(i) && (e[i] = t[i]);
-                e.prototype = null === t ? Object.create(t) : (n.prototype = t.prototype, new n());
-            };
         fe = function (e, t) {
             var n = function (e) {
                 function t() {
                     e.apply(this, arguments);
                 }
 
-                return Be(t, e), t.afterSkip = function (e) {
+                return extend(t, e), t.afterSkip = function (e) {
                     e.hide();
                 }, t;
             }(t.OverlayEventHandlers);
@@ -3903,21 +3909,14 @@ document.addEventListener('DOMContentLoaded', function () { /*!
             }();
             return e.VideoEventHandlers = c, e;
         }(ge, ue, E, b, a, te, se, le);
-        var Be = this && this.__extends || function (e, t) {
-                function n() {
-                    this.constructor = e;
-                }
 
-                for (var i in t) t.hasOwnProperty(i) && (e[i] = t[i]);
-                e.prototype = null === t ? Object.create(t) : (n.prototype = t.prototype, new n());
-            };
         _e = function (e, t) {
             var n = function (e) {
                 function t() {
                     e.apply(this, arguments);
                 }
 
-                return Be(t, e), t.afterVideoCompleted = function (e, t) {
+                return extend(t, e), t.afterVideoCompleted = function (e, t) {
                     t.hide();
                 }, t;
             }(t.VideoEventHandlers);
@@ -3963,117 +3962,147 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                     }, e._moveTolerance = 10, e;
                 }();
                 return e.Tap = t, e;
-            }(me), ye = function (e, t) {
-            var n = function () {
-                function e(e) {
-                    this._id = e;
-                }
+            }(me),
 
-                return e.prototype.render = function () {
+        ye = function (exports, t) {
+            var View = function () {
+                function View(id) {
+                    this._id = id;
+                }
+                View.prototype.render = function () {
                     var e = this;
-                    this._container = document.createElement("div"), this._container.id = this._id,
-                        this._container.innerHTML = this._template.render(this._templateData), this._bindings.forEach(function (n) {
-                        for (var i = e._container.querySelectorAll(n.selector), r = 0; r < i.length; ++r) {
+                    this._container = document.createElement("div");
+                    this._container.id = this._id;
+                    this._container.innerHTML = this._template.render(this._templateData);
+                    this._bindings.forEach(function (interaction) {
+                        var i = e._container.querySelectorAll(interaction.selector);
+                        for (var r = 0; r < i.length; ++r) {
                             var o = i[r];
-                            "click" === n.event && (n.tap = new t.Tap(o)), o.addEventListener(n.event, n.listener, !1);
+                            if("click" === interaction.event ){
+                                interaction.tap = new t.Tap(o);
+                            }
+                            o.addEventListener(interaction.event, interaction.listener, false);
                         }
                     });
-                }, e.prototype.container = function () {
+                };
+                View.prototype.container = function () {
                     return this._container;
-                }, e.prototype.show = function () {
+                };
+                View.prototype.show = function () {
                     this._container.style.visibility = "visible";
-                }, e.prototype.hide = function () {
+                };
+                View.prototype.hide = function () {
                     this._container.style.visibility = "hidden";
-                }, e;
+                };
+                return View;
             }();
-            return e.View = n, e;
-        }(ye, me), Ee = function (e) {
-            var t = function () {
-                function e(t) {
-                    var n = this, i = 0, r = "__p+='";
-                    t.replace(e._matcher, function (n, o, a, s) {
-                        return r += t.slice(i, s).replace(e._escapeRegExp, e._escapeChar), i = s + n.length,
-                            o ? r += "'+\n((__t=(" + o + "))==null?'':__t)+\n'" : a && (r += "';\n" + a + "\n__p+='"),
-                            n;
-                    }), r += "';\n", r = "var __t,__p='',__j=Array.prototype.join,print=function(){__p+=__j.call(arguments,'');};\n" + r + "return __p;\n";
-                    try {
-                        var o = new Function("data", r);
-                        this._templateFunction = function (e) {
-                            return o.call(n, e);
-                        };
-                    } catch (a) {
-                        throw a.source = r, a;
+            exports.View = View;
+            return exports;
+        }(ye, me),
+
+        Ee = function (exports) {
+            function Template(str) {
+                var me = this,
+                    i = 0,
+                    body = "__p+='";
+
+                str.replace(Template._matcher, function (matchText, subText, index, s) {
+                    body += str.slice(i, s).replace(Template._escapeRegExp, Template._escapeChar);
+                    i = s + matchText.length;
+                    if(subText){
+                        body += "'+\n((__t=(" + subText + "))==null?'':__t)+\n'"
+                    }else if(index){
+                        body += "';\n" + index + "\n__p+='";
                     }
+                    return matchText;
+                });
+                body += "';\n";
+                body = "var __t,__p='',__j=Array.prototype.join,print=function(){__p+=__j.call(arguments,'');};\n" + body + "return __p;\n";
+                try {
+                    var fn = new Function("data", body);
+                    this._templateFunction = function (data) {
+                        return fn.call(me, data);
+                    };
+                } catch (e) {
+                    e.source = body;
+                    throw e;
                 }
-
-                return e.prototype.render = function (e) {
-                    return this._templateFunction(e);
-                }, e._matcher = /<%=([\s\S]+?)%>|<%([\s\S]+?)%>|$/g, e._escapes = {
-                    "'": "'",
-                    "\\": "\\",
-                    "\r": "r",
-                    "\n": "n",
-                    "\u2028": "u2028",
-                    "\u2029": "u2029"
-                }, e._escapeRegExp = /\\|'|\r|\n|\u2028|\u2029/g, e._escapeChar = function (t) {
-                    return "\\" + e._escapes[t];
-                }, e;
-            }();
-            return e.Template = t, e;
-        }(Ee), n = '<div class="pop-up">\n  <% if(!data.isCoppaCompliant) { %>\n  <div class="privacy-text">\n    This advertisement has been served by Unity Ads.\n    Unity Ads collects and uses information gathered through your use of your apps in order to create an individualized and more relevant user experience, to predict your preferences, and to show you ads that are more likely to interest you (“personalized ads”).\n    Please read our <a href="https://unity3d.com/legal/privacy-policy">Privacy Policy</a> for a full description of our data practices.\n    You may be able to opt-out of Unity Ads’ collection and use of your mobile app data for personalized ads through your device settings.\n  </div>\n  <% } else { %>\n  <div class="privacy-simple-text">\n    This advertisement has been served by Unity Ads. Please read our <a href="https://unity3d.com/legal/privacy-policy">Privacy Policy</a> for a full description of our data practices.\n  </div>\n  <% } %>\n  <div class="ok-button">Ok</div>\n</div>\n';
-        var Be = this && this.__extends || function (e, t) {
-                function n() {
-                    this.constructor = e;
-                }
-
-                for (var i in t) t.hasOwnProperty(i) && (e[i] = t[i]);
-                e.prototype = null === t ? Object.create(t) : (n.prototype = t.prototype, new n());
+            }
+            Template.prototype.render = function (data) {
+                return this._templateFunction(data);
             };
-        Se = function (e, t, n, i, r) {
-            var o = function (e) {
-                function n(n) {
-                    var o = this;
-                    e.call(this, "privacy"), this.onPrivacy = new r.Observable1(), this.onClose = new r.Observable0(),
-                        this._template = new i.Template(t), this._templateData = {
+            Template._matcher = /<%=([\s\S]+?)%>|<%([\s\S]+?)%>|$/g;
+            Template._escapes = {
+                "'": "'",
+                "\\": "\\",
+                "\r": "r",
+                "\n": "n",
+                "\u2028": "u2028",
+                "\u2029": "u2029"
+            };
+            Template._escapeRegExp = /\\|'|\r|\n|\u2028|\u2029/g;
+            Template._escapeChar = function (char) {
+                return "\\" + Template._escapes[char];
+            };
+
+            exports.Template = Template;
+            return exports;
+        }(Ee),
+
+        n = '<div class="pop-up">\n  <% if(!data.isCoppaCompliant) { %>\n  <div class="privacy-text">\n    This advertisement has been served by Unity Ads.\n    Unity Ads collects and uses information gathered through your use of your apps in order to create an individualized and more relevant user experience, to predict your preferences, and to show you ads that are more likely to interest you (“personalized ads”).\n    Please read our <a href="https://unity3d.com/legal/privacy-policy">Privacy Policy</a> for a full description of our data practices.\n    You may be able to opt-out of Unity Ads’ collection and use of your mobile app data for personalized ads through your device settings.\n  </div>\n  <% } else { %>\n  <div class="privacy-simple-text">\n    This advertisement has been served by Unity Ads. Please read our <a href="https://unity3d.com/legal/privacy-policy">Privacy Policy</a> for a full description of our data practices.\n  </div>\n  <% } %>\n  <div class="ok-button">Ok</div>\n</div>\n';
+
+        Se = function (exports, t, n, i, r) {
+            var Privacy = function (View) {
+                function Privacy(n) {
+                    var me = this;
+                    View.call(this, "privacy");
+                    this.onPrivacy = new r.Observable1();
+                    this.onClose = new r.Observable0();
+                    this._template = new i.Template(t);
+                    this._templateData = {
                         isCoppaCompliant: n
-                    }, this._bindings = [{
+                    };
+                    this._bindings = [{
                         event: "click",
                         listener: function (e) {
-                            return o.onOkEvent(e);
+                            return me.onOkEvent(e);
                         },
                         selector: ".ok-button"
                     }, {
                         event: "click",
                         listener: function (e) {
-                            return o.onPrivacyEvent(e);
+                            return me.onPrivacyEvent(e);
                         },
                         selector: "a"
                     }];
                 }
-
-                return Be(n, e), n.prototype.onPrivacyEvent = function (e) {
-                    e.preventDefault(), this.onPrivacy.trigger(e.target.href);
-                }, n.prototype.onOkEvent = function (e) {
-                    e.preventDefault(), this.onClose.trigger();
-                }, n;
+                extend(Privacy, View);
+                Privacy.prototype.onPrivacyEvent = function (e) {
+                    e.preventDefault();
+                    this.onPrivacy.trigger(e.target.href);
+                };
+                Privacy.prototype.onOkEvent = function (e) {
+                    e.preventDefault();
+                    this.onClose.trigger();
+                };
+                return Privacy;
             }(n.View);
-            return e.Privacy = o, e;
+            exports.Privacy = Privacy;
+            return exports;
         }(Se, n, ye, Ee, u);
-        var Be = this && this.__extends || function (e, t) {
-                function n() {
-                    this.constructor = e;
-                }
 
-                for (var i in t) t.hasOwnProperty(i) && (e[i] = t[i]);
-                e.prototype = null === t ? Object.create(t) : (n.prototype = t.prototype, new n());
-            };
-        Ie = function (e, t, n, i, r, o) {
-            var a = function (e) {
-                function n(n, o) {
+        Ie = function (exports, t, n, i, r, o) {
+            var EndScreen = function (View) {
+                function EndScreen(n, o) {
                     var a = this;
-                    if (e.call(this, "end-screen"), this.onDownload = new r.Observable0(), this.onPrivacy = new r.Observable1(),
-                            this.onClose = new r.Observable0(), this._coppaCompliant = o, this._gameName = n.getGameName(),
-                            this._template = new i.Template(t), n) {
+                    View.call(this, "end-screen");
+                    this.onDownload = new r.Observable0();
+                    this.onPrivacy = new r.Observable1();
+                    this.onClose = new r.Observable0();
+                    this._coppaCompliant = o;
+                    this._gameName = n.getGameName();
+                    this._template = new i.Template(t);
+                    if (n) {
                         var s = 20 * n.getRating();
                         this._templateData = {
                             gameName: n.getGameName(),
@@ -4104,261 +4133,435 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                         selector: ".privacy-button"
                     }];
                 }
-
-                return Be(n, e), n.prototype.show = function () {
-                    e.prototype.show.call(this);
+                extend(EndScreen, View);
+                EndScreen.prototype.show = function () {
+                    View.prototype.show.call(this);
                     var t = this._container.querySelector(".name-container");
                     t.innerHTML = this._gameName + " ";
-                }, n.prototype.onDownloadEvent = function (e) {
-                    e.preventDefault(), this.onDownload.trigger();
-                }, n.prototype.onCloseEvent = function (e) {
-                    e.preventDefault(), this.onClose.trigger();
-                }, n.prototype.onPrivacyEvent = function (e) {
+                };
+                EndScreen.prototype.onDownloadEvent = function (e) {
+                    e.preventDefault();
+                    this.onDownload.trigger();
+                };
+                EndScreen.prototype.onCloseEvent = function (e) {
+                    e.preventDefault();
+                    this.onClose.trigger();
+                };
+                EndScreen.prototype.onPrivacyEvent = function (e) {
                     var t = this;
                     e.preventDefault();
                     var n = new o.Privacy(this._coppaCompliant);
-                    n.render(), document.body.appendChild(n.container()), n.onPrivacy.subscribe(function (e) {
+                    n.render();
+                    document.body.appendChild(n.container());
+                    n.onPrivacy.subscribe(function (e) {
                         t.onPrivacy.trigger(e);
-                    }), n.onClose.subscribe(function () {
-                        n.hide(), n.container().parentElement.removeChild(n.container());
                     });
-                }, n;
+                    n.onClose.subscribe(function () {
+                        n.hide();
+                        n.container().parentElement.removeChild(n.container());
+                    });
+                };
+                return EndScreen;
             }(n.View);
-            return e.EndScreen = a, e;
-        }(Ie, t, ye, Ee, u, Se), i = '<div class="skip-button">You can skip this video in <span class="skip-duration">0</span> seconds</div>\n<div class="buffering-spinner">\n    <div class="spinner-animation"></div>\n    <div class="spinner-text">Buffering</div>\n</div>\n<div class="mute-button <%= data.muted ? \'muted\' : \'\' %>">\n    <div class="mute-icon"><span class="icon-volume"></span></div>\n    <div class="unmute-icon"><span class="icon-volume-mute"></span></div>\n</div>\n<div class="video-duration-text">This video ends in <span class="video-duration">0</span> seconds</div>\n<div class="call-button">Learn More</div>\n<div class="debug-message-text"></div>';
-        var Be = this && this.__extends || function (e, t) {
-                function n() {
-                    this.constructor = e;
-                }
+            exports.EndScreen = EndScreen;
+            return exports;
+        }(Ie, t, ye, Ee, u, Se),
 
-                for (var i in t) t.hasOwnProperty(i) && (e[i] = t[i]);
-                e.prototype = null === t ? Object.create(t) : (n.prototype = t.prototype, new n());
-            };
+        i = '<div class="skip-button">You can skip this video in <span class="skip-duration">0</span> seconds</div>\n<div class="buffering-spinner">\n    <div class="spinner-animation"></div>\n    <div class="spinner-text">Buffering</div>\n</div>\n<div class="mute-button <%= data.muted ? \'muted\' : \'\' %>">\n    <div class="mute-icon"><span class="icon-volume"></span></div>\n    <div class="unmute-icon"><span class="icon-volume-mute"></span></div>\n</div>\n<div class="video-duration-text">This video ends in <span class="video-duration">0</span> seconds</div>\n<div class="call-button">Learn More</div>\n<div class="debug-message-text"></div>';
+
         Ce = function (e, t, n, i, r) {
-            var o = function (e) {
-                function n(n) {
-                    var o = this;
-                    e.call(this, "overlay"), this.onSkip = new r.Observable1(), this.onMute = new r.Observable1(),
-                        this.onCallButton = new r.Observable1(), this._spinnerEnabled = !1, this._skipVisible = !1,
-                        this._videoDurationEnabled = !1, this._muteEnabled = !1, this._debugMessageVisible = !1,
-                        this._callButtonVisible = !1, this._template = new i.Template(t), this._muted = n,
-                        this._templateData = {
-                            muted: this._muted
-                        }, this._bindings = [{
+            var Overlay = function (View) {
+                function Layer(n) {
+                    var me = this;
+                    View.call(this, "overlay");
+                    this.onSkip = new r.Observable1();
+                    this.onMute = new r.Observable1();
+                    this.onCallButton = new r.Observable1();
+                    this._spinnerEnabled = false;
+                    this._skipVisible = false,
+                    this._videoDurationEnabled = false;
+                    this._muteEnabled = false;
+                    this._debugMessageVisible = false;
+                    this._callButtonVisible = false;
+                    this._template = new i.Template(t);
+                    this._muted = n;
+                    this._templateData = {
+                        muted: this._muted
+                    };
+                    this._bindings = [{
                         event: "click",
                         listener: function (e) {
-                            return o.onSkipEvent(e);
+                            return me.onSkipEvent(e);
                         },
                         selector: ".skip-button"
                     }, {
                         event: "click",
                         listener: function (e) {
-                            return o.onMuteEvent(e);
+                            return me.onMuteEvent(e);
                         },
                         selector: ".mute-button"
                     }, {
                         event: "click",
                         listener: function (e) {
-                            return o.onCallButtonEvent(e);
+                            return me.onCallButtonEvent(e);
                         },
                         selector: ".call-button"
                     }];
                 }
-
-                return Be(n, e), n.prototype.render = function () {
-                    e.prototype.render.call(this), this._skipElement = this._container.querySelector(".skip-button"),
-                        this._spinnerElement = this._container.querySelector(".buffering-spinner"), this._skipDurationElement = this._container.querySelector(".skip-duration"),
-                        this._videoDurationElement = this._container.querySelector(".video-duration-text"),
-                        this._videoDurationCounterElement = this._container.querySelector(".video-duration"),
-                        this._muteButtonElement = this._container.querySelector(".mute-button"), this._debugMessageElement = this._container.querySelector(".debug-message-text"),
-                        this._callButtonElement = this._container.querySelector(".call-button");
-                }, n.prototype.setSpinnerEnabled = function (e) {
-                    this._spinnerEnabled !== e && (this._spinnerEnabled = e, this._spinnerElement.style.display = e ? "block" : "none");
-                }, n.prototype.setSkipVisible = function (e) {
-                    this._skipVisible !== e && (this._skipElement.style.display = e ? "block" : "none");
-                }, n.prototype.setSkipEnabled = function (e) {
-                    this._skipEnabled !== e && (this._skipEnabled = e);
-                }, n.prototype.setSkipDuration = function (e) {
-                    this._skipDuration = this._skipRemaining = 1e3 * e, this.setSkipText(e);
-                }, n.prototype.setVideoDurationEnabled = function (e) {
-                    this._videoDurationEnabled !== e && (this._videoDurationEnabled = e, this._videoDurationElement.style.display = e ? "block" : "none");
-                }, n.prototype.setVideoDuration = function (e) {
-                    this._videoDuration = e, this._videoDurationCounterElement.innerHTML = Math.round(e / 1e3).toString();
-                }, n.prototype.setVideoProgress = function (e) {
-                    this._videoProgress = e, this._skipEnabled && this._skipRemaining > 0 && (this._skipRemaining = Math.round((this._skipDuration - e) / 1e3),
-                        this.setSkipText(this._skipRemaining)), this._videoDuration > e ? this._videoDurationCounterElement.innerHTML = Math.round((this._videoDuration - e) / 1e3).toString() : this._videoDurationCounterElement.innerHTML = "0";
-                }, n.prototype.setMuteEnabled = function (e) {
-                    this._muteEnabled !== e && (this._muteEnabled = e, this._muteButtonElement.style.display = e ? "block" : "none");
-                }, n.prototype.setDebugMessage = function (e) {
-                    this._debugMessageElement.innerHTML = e;
-                }, n.prototype.setDebugMessageVisible = function (e) {
-                    this._debugMessageVisible !== e && (this._debugMessageElement.style.display = e ? "block" : "none");
-                }, n.prototype.setCallButtonVisible = function (e) {
-                    this._callButtonVisible !== e && (this._callButtonElement.style.display = e ? "block" : "none");
-                }, n.prototype.isMuted = function () {
+                extend(Layer, View);
+                Layer.prototype.render = function () {
+                    View.prototype.render.call(this);
+                    this._skipElement = this._container.querySelector(".skip-button");
+                    this._spinnerElement = this._container.querySelector(".buffering-spinner");
+                    this._skipDurationElement = this._container.querySelector(".skip-duration");
+                    this._videoDurationElement = this._container.querySelector(".video-duration-text");
+                    this._videoDurationCounterElement = this._container.querySelector(".video-duration");
+                    this._muteButtonElement = this._container.querySelector(".mute-button");
+                    this._debugMessageElement = this._container.querySelector(".debug-message-text");
+                    this._callButtonElement = this._container.querySelector(".call-button");
+                };
+                Layer.prototype.setSpinnerEnabled = function (spinnerEnabled) {
+                    if(this._spinnerEnabled !== spinnerEnabled){
+                        this._spinnerEnabled = spinnerEnabled;
+                        this._spinnerElement.style.display = spinnerEnabled ? "block" : "none";
+                    }
+                };
+                Layer.prototype.setSkipVisible = function (skipVisible) {
+                    if(this._skipVisible !== skipVisible){
+                        this._skipElement.style.display = skipVisible ? "block" : "none";
+                    }
+                };
+                Layer.prototype.setSkipEnabled = function (skipEnabled) {
+                    if(this._skipEnabled !== skipEnabled ){
+                        this._skipEnabled = skipEnabled;
+                    }
+                };
+                Layer.prototype.setSkipDuration = function (duration) {
+                    this._skipDuration = this._skipRemaining = 1000 * duration;
+                    this.setSkipText(duration);
+                };
+                Layer.prototype.setVideoDurationEnabled = function (durationEnabled) {
+                    if(this._videoDurationEnabled !== durationEnabled ){
+                        this._videoDurationEnabled = durationEnabled;
+                        this._videoDurationElement.style.display = durationEnabled ? "block" : "none";
+                    }
+                };
+                Layer.prototype.setVideoDuration = function (millisconds) {
+                    this._videoDuration = millisconds;
+                    this._videoDurationCounterElement.innerHTML = Math.round(millisconds / 1000).toString();
+                };
+                Layer.prototype.setVideoProgress = function (playedMillisconds) {
+                    this._videoProgress = playedMillisconds;
+                    if(this._skipEnabled && this._skipRemaining > 0 ){
+                        this._skipRemaining = Math.round((this._skipDuration - playedMillisconds) / 1000);
+                        this.setSkipText(this._skipRemaining);
+                    }
+                    if(this._videoDuration > playedMillisconds ){
+                        this._videoDurationCounterElement.innerHTML = Math.round((this._videoDuration - playedMillisconds) / 1000).toString();
+                    }else{
+                        this._videoDurationCounterElement.innerHTML = "0";
+                    }
+                };
+                Layer.prototype.setMuteEnabled = function (muteEnabled) {
+                    if(this._muteEnabled !== muteEnabled ){
+                        this._muteEnabled = muteEnabled;
+                        this._muteButtonElement.style.display = muteEnabled ? "block" : "none";
+                    }
+                };
+                Layer.prototype.setDebugMessage = function (msg) {
+                    this._debugMessageElement.innerHTML = msg;
+                };
+                Layer.prototype.setDebugMessageVisible = function (isVisible) {
+                    if(this._debugMessageVisible !== isVisible ){
+                        this._debugMessageElement.style.display = isVisible ? "block" : "none";
+                    }
+                };
+                Layer.prototype.setCallButtonVisible = function (isVisible) {
+                    if(this._callButtonVisible !== isVisible ){
+                        this._callButtonElement.style.display = isVisible ? "block" : "none";
+                    }
+                };
+                Layer.prototype.isMuted = function () {
                     return this._muted;
-                }, n.prototype.setSkipText = function (e) {
-                    0 >= e ? this._skipElement.innerHTML = "Skip Video" : this._skipDurationElement.innerHTML = e.toString();
-                }, n.prototype.onSkipEvent = function (e) {
-                    e.preventDefault(), this._skipEnabled && this._videoProgress > this._skipDuration && this.onSkip.trigger(this._videoProgress);
-                }, n.prototype.onMuteEvent = function (e) {
-                    e.preventDefault(), this._muted ? (this._muteButtonElement.classList.remove("muted"),
-                        this._muted = !1) : (this._muteButtonElement.classList.add("muted"), this._muted = !0),
-                        this.onMute.trigger(this._muted);
-                }, n.prototype.onCallButtonEvent = function (e) {
-                    e.preventDefault(), this.onCallButton.trigger(!0);
-                }, n;
+                };
+                Layer.prototype.setSkipText = function (e) {
+                    if(0 >= e ){
+                        this._skipElement.innerHTML = "Skip Video"
+                    }else{
+                        this._skipDurationElement.innerHTML = e.toString();
+                    }
+                };
+                Layer.prototype.onSkipEvent = function (e) {
+                    e.preventDefault();
+                    if(this._skipEnabled && this._videoProgress > this._skipDuration ){
+                        this.onSkip.trigger(this._videoProgress);
+                    }
+                };
+                Layer.prototype.onMuteEvent = function (e) {
+                    e.preventDefault();
+                    if(this._muted){
+                        this._muteButtonElement.classList.remove("muted");
+                        this._muted = false;
+                    }else{
+                        this._muteButtonElement.classList.add("muted");
+                        this._muted = true;
+                    }
+                    this.onMute.trigger(this._muted);
+                };
+                Layer.prototype.onCallButtonEvent = function (e) {
+                    e.preventDefault();
+                    this.onCallButton.trigger(true);
+                };
+                return Layer;
             }(n.View);
-            return e.Overlay = o, e;
-        }(Ce, i, ye, Ee, u), Ae = function (e, t, n, i, r, o, a, s, c, u, l, h) {
-            var p = function () {
-                function e() {
-                }
+            e.Overlay = Overlay;
+            return e;
+        }(Ce, i, ye, Ee, u),
 
-                return e.createAdUnit = function (e, t, n, r, o) {
+        Ae = function (AdUnit, t, n, i, r, o, a, s, c, u, l, h) {
+            var AdUnitFactory = function () {
+                function AdUnitFactory() {
+                }
+                AdUnitFactory.createAdUnit = function (e, t, n, r, o) {
                     return r instanceof i.VastCampaign ? this.createVastAdUnit(e, t, n, r, o) : this.createVideoAdUnit(e, t, n, r, o);
-                }, e.createVideoAdUnit = function (e, n, i, r, o) {
-                    var a = new l.Overlay(i.muteVideo()), s = new u.EndScreen(r, o.isCoppaCompliant()), c = new t.VideoAdUnit(e, i, r, a, s);
-                    return this.prepareOverlay(a, e, n, c, i, r), this.prepareEndScreen(s, e, n, c),
-                        this.prepareVideoPlayer(e, n, c), c;
-                }, e.createVastAdUnit = function (e, t, i, r, o) {
-                    var a = new l.Overlay(i.muteVideo()), s = new n.VastAdUnit(e, i, r, a);
-                    return this.prepareOverlay(a, e, t, s, i, r), this.prepareVideoPlayer(e, t, s),
-                        s;
-                }, e.prepareOverlay = function (e, t, n, i, r, o) {
-                    e.render(), document.body.appendChild(e.container()), this.prepareOverlayEventHandlers(e, t, n, i),
-                        e.setSpinnerEnabled(!o.isVideoCached()), r.allowSkip() ? (e.setSkipEnabled(!0),
-                        e.setSkipDuration(r.allowSkipInSeconds())) : e.setSkipEnabled(!1);
-                }, e.prepareOverlayEventHandlers = function (e, t, i, a) {
-                    a instanceof n.VastAdUnit ? (e.onSkip.subscribe(function (e) {
-                        return o.VastOverlayEventHandlers.onSkip(t, i, a);
-                    }), e.onMute.subscribe(function (e) {
-                        return o.VastOverlayEventHandlers.onMute(t, i, a, e);
-                    }), e.onCallButton.subscribe(function () {
-                        return o.VastOverlayEventHandlers.onCallButton(t, i, a);
-                    })) : (e.onSkip.subscribe(function (e) {
-                        return r.OverlayEventHandlers.onSkip(t, i, a);
-                    }), e.onMute.subscribe(function (e) {
-                        return r.OverlayEventHandlers.onMute(t, i, a, e);
-                    }));
-                }, e.prepareEndScreen = function (e, t, n, i) {
-                    e.render(), e.hide(), document.body.appendChild(e.container()), e.onDownload.subscribe(function () {
+                };
+                AdUnitFactory.createVideoAdUnit = function (e, n, i, r, o) {
+                    var a = new l.Overlay(i.muteVideo()),
+                        s = new u.EndScreen(r, o.isCoppaCompliant()),
+                        c = new t.VideoAdUnit(e, i, r, a, s);
+
+                    this.prepareOverlay(a, e, n, c, i, r);
+                    this.prepareEndScreen(s, e, n, c);
+                    this.prepareVideoPlayer(e, n, c);
+                    return c;
+                };
+                AdUnitFactory.createVastAdUnit = function (e, t, i, r, o) {
+                    var a = new l.Overlay(i.muteVideo()),
+                        s = new n.VastAdUnit(e, i, r, a);
+
+                    this.prepareOverlay(a, e, t, s, i, r);
+                    this.prepareVideoPlayer(e, t, s);
+                    return s;
+                };
+                AdUnitFactory.prepareOverlay = function (e, t, n, i, r, o) {
+                    e.render();
+                    document.body.appendChild(e.container());
+                    this.prepareOverlayEventHandlers(e, t, n, i);
+                    e.setSpinnerEnabled(!o.isVideoCached());
+                    if( r.allowSkip() ){
+                        e.setSkipEnabled(!0);
+                        e.setSkipDuration(r.allowSkipInSeconds())
+                    }else{
+                        e.setSkipEnabled(false);
+                    }
+                };
+                AdUnitFactory.prepareOverlayEventHandlers = function (e, t, i, a) {
+                    if(a instanceof n.VastAdUnit){
+                        e.onSkip.subscribe(function (e) {
+                            return o.VastOverlayEventHandlers.onSkip(t, i, a);
+                        });
+                        e.onMute.subscribe(function (e) {
+                            return o.VastOverlayEventHandlers.onMute(t, i, a, e);
+                        });
+                        e.onCallButton.subscribe(function () {
+                            return o.VastOverlayEventHandlers.onCallButton(t, i, a);
+                        })
+                    }else{
+                        e.onSkip.subscribe(function (e) {
+                            return r.OverlayEventHandlers.onSkip(t, i, a);
+                        });
+                        e.onMute.subscribe(function (e) {
+                            return r.OverlayEventHandlers.onMute(t, i, a, e);
+                        });
+                    }
+                };
+                AdUnitFactory.prepareEndScreen = function (e, t, n, i) {
+                    e.render();
+                    e.hide();
+                    document.body.appendChild(e.container());
+                    e.onDownload.subscribe(function () {
                         return a.EndScreenEventHandlers.onDownload(t, n, i);
-                    }), e.onPrivacy.subscribe(function (e) {
+                    });
+                    e.onPrivacy.subscribe(function (e) {
                         return a.EndScreenEventHandlers.onPrivacy(t, e);
-                    }), e.onClose.subscribe(function () {
+                    });
+                    e.onClose.subscribe(function () {
                         return a.EndScreenEventHandlers.onClose(t, i);
                     });
-                }, e.prepareVideoPlayer = function (e, t, i) {
-                    var r, o, a = e.VideoPlayer.onPrepared.subscribe(function (t, n, r) {
+                };
+                AdUnitFactory.prepareVideoPlayer = function (e, t, i) {
+                    var r, o;
+                    var a = e.VideoPlayer.onPrepared.subscribe(function (t, n, r) {
                         return s.VideoEventHandlers.onVideoPrepared(e, i, t);
-                    }), u = e.VideoPlayer.onProgress.subscribe(function (n) {
+                    });
+                    var u = e.VideoPlayer.onProgress.subscribe(function (n) {
                         return s.VideoEventHandlers.onVideoProgress(e, t, i, n);
-                    }), l = e.VideoPlayer.onPlay.subscribe(function () {
+                    });
+                    var l = e.VideoPlayer.onPlay.subscribe(function () {
                         return s.VideoEventHandlers.onVideoStart(e, t, i);
                     });
-                    if (i instanceof n.VastAdUnit ? (r = e.VideoPlayer.onCompleted.subscribe(function (n) {
+
+                    if(i instanceof n.VastAdUnit){
+                        r = e.VideoPlayer.onCompleted.subscribe(function (n) {
                             return c.VastVideoEventHandlers.onVideoCompleted(e, t, i);
-                        }), o = e.VideoPlayer.onError.subscribe(function (t, n, r) {
+                        });
+                        o = e.VideoPlayer.onError.subscribe(function (t, n, r) {
                             return c.VastVideoEventHandlers.onVideoError(e, i, t, n);
-                        })) : (r = e.VideoPlayer.onCompleted.subscribe(function (n) {
+                        })
+                    }else{
+                        r = e.VideoPlayer.onCompleted.subscribe(function (n) {
                             return s.VideoEventHandlers.onVideoCompleted(e, t, i);
-                        }), o = e.VideoPlayer.onError.subscribe(function (t, n, r) {
+                        });
+                        o = e.VideoPlayer.onError.subscribe(function (t, n, r) {
                             return s.VideoEventHandlers.onVideoError(e, i, t, n);
-                        })), i.onClose.subscribe(function () {
-                            e.VideoPlayer.onPrepared.unsubscribe(a), e.VideoPlayer.onProgress.unsubscribe(u),
-                                e.VideoPlayer.onPlay.unsubscribe(l), e.VideoPlayer.onCompleted.unsubscribe(r), e.VideoPlayer.onError.unsubscribe(o);
-                        }), e.getPlatform() === h.Platform.IOS) {
+                        });
+                    }
+
+                    i.onClose.subscribe(function () {
+                        e.VideoPlayer.onPrepared.unsubscribe(a);
+                        e.VideoPlayer.onProgress.unsubscribe(u);
+                        e.VideoPlayer.onPlay.unsubscribe(l);
+                        e.VideoPlayer.onCompleted.unsubscribe(r);
+                        e.VideoPlayer.onError.unsubscribe(o);
+                    });
+
+                    if ( e.getPlatform() === h.Platform.IOS) {
                         var p = e.VideoPlayer.Ios.onLikelyToKeepUp.subscribe(function (t, n) {
-                            n === !0 && e.VideoPlayer.play();
+                            n === true && e.VideoPlayer.play();
                         });
                         i.onClose.subscribe(function () {
                             e.VideoPlayer.Ios.onLikelyToKeepUp.unsubscribe(p);
                         });
                     }
-                }, e;
+                };
+                return AdUnitFactory;
             }();
-            return e.AdUnitFactory = p, e;
-        }(Ae, he, pe, Q, de, fe, ve, ge, _e, Ie, Ce, a), be = function (e) {
-            var t = function () {
-                function e(e, t, n) {
-                    this._ads = e, this._errorURLTemplates = t, this._additionalTrackingEvents = n;
-                }
+            AdUnit.AdUnitFactory = AdUnitFactory;
+            return AdUnit;
+        }(Ae, he, pe, Q, de, fe, ve, ge, _e, Ie, Ce, a),
 
-                return e.prototype.getAds = function () {
+        be = function (exports) {
+            var Vast = function () {
+                function Vast(ads, urlTemplates, additionalTrackingEvents) {
+                    this._ads = ads;
+                    this._errorURLTemplates = urlTemplates;
+                    this._additionalTrackingEvents = additionalTrackingEvents;
+                }
+                Vast.prototype.getAds = function () {
                     return this._ads;
-                }, e.prototype.getErrorURLTemplates = function () {
-                    var e = this.getAd();
-                    if (e) {
-                        var t = e.getErrorURLTemplates();
-                        if (t instanceof Array) return t.concat(this._errorURLTemplates || []);
+                };
+                Vast.prototype.getErrorURLTemplates = function () {
+                    var ad = this.getAd();
+                    if (ad) {
+                        var templates = ad.getErrorURLTemplates();
+                        if (templates instanceof Array){
+                            return templates.concat(this._errorURLTemplates || []);
+                        }
                     }
                     return this._errorURLTemplates;
-                }, e.prototype.getAd = function () {
-                    return this.getAds() && this.getAds().length > 0 ? this.getAds()[0] : null;
-                }, e.prototype.getVideoUrl = function () {
-                    var e = this.getAd();
-                    if (e) for (var t = 0, n = e.getCreatives(); t < n.length; t++) for (var i = n[t], r = 0, o = i.getMediaFiles(); r < o.length; r++) {
-                        var a = o[r], s = this.isPlayableMIMEType(a.getMIMEType());
-                        if (a.getFileURL() && s) return a.getFileURL();
+                };
+                Vast.prototype.getAd = function () {
+                    if(this.getAds() && this.getAds().length > 0){
+                        return this.getAds()[0];
+                    }else{
+                        return null;
+                    }
+                };
+                Vast.prototype.getVideoUrl = function () {
+                    var ad = this.getAd();
+                    if (ad) {
+                        var creatives = ad.getCreatives();
+                        for (var i = 0;  i < creatives.length; i++) {
+                            var creative = creatives[i], files = creative.getMediaFiles();
+                            for (var  j = 0; j < files.length; j++) {
+                                var file = files[j],
+                                    isPlayable = this.isPlayableMIMEType(file.getMIMEType());
+                                if (file.getFileURL() && isPlayable){
+                                    return file.getFileURL();
+                                }
+                            }
+                        }
                     }
                     return null;
-                }, e.prototype.getImpressionUrls = function () {
-                    var e = this.getAd();
-                    return e ? e.getImpressionURLTemplates() : [];
-                }, e.prototype.getTrackingEventUrls = function (e) {
-                    var t = this.getAd();
-                    if (t) {
-                        var n = t.getTrackingEventUrls(e), i = [];
-                        return this._additionalTrackingEvents && (i = this._additionalTrackingEvents[e] || []),
-                            n instanceof Array ? n.concat(i) : i;
+                };
+                Vast.prototype.getImpressionUrls = function () {
+                    var ad = this.getAd();
+                    return ad ? ad.getImpressionURLTemplates() : [];
+                };
+                Vast.prototype.getTrackingEventUrls = function (e) {
+                    var ad = this.getAd();
+                    if (ad) {
+                        var urls = ad.getTrackingEventUrls(e),
+                            additionalUrls = [];
+                        if(this._additionalTrackingEvents ){
+                            additionalUrls = this._additionalTrackingEvents[e] || [];
+                        }
+                        return urls instanceof Array ? urls.concat(additionalUrls) : additionalUrls;
                     }
                     return null;
-                }, e.prototype.addTrackingEventUrl = function (e, t) {
-                    this._additionalTrackingEvents || (this._additionalTrackingEvents = {}), this._additionalTrackingEvents[e] || (this._additionalTrackingEvents[e] = []),
-                        this._additionalTrackingEvents[e].push(t);
-                }, e.prototype.getDuration = function () {
-                    var e = this.getAd();
-                    return e ? e.getDuration() : null;
-                }, e.prototype.getWrapperURL = function () {
-                    var e = this.getAd();
-                    return e ? e.getWrapperURL() : null;
-                }, e.prototype.getVideoClickThroughURL = function () {
-                    var e = this.getAd();
-                    return e ? e.getVideoClickThroughURLTemplate() : null;
-                }, e.prototype.getVideoClickTrackingURLs = function () {
-                    var e = this.getAd();
-                    return e ? e.getVideoClickTrackingURLTemplates() : null;
-                }, e.prototype.isPlayableMIMEType = function (e) {
-                    var t = "video/mp4";
-                    return e === t;
-                }, e;
+                };
+                //逻辑有点问题 重置了?
+                Vast.prototype.addTrackingEventUrl = function (event, url) {
+                    if(!this._additionalTrackingEvents){
+                        this._additionalTrackingEvents = {};
+                    }
+                    if(!this._additionalTrackingEvents[event]){
+                        this._additionalTrackingEvents[event] = [];
+                    }
+                    this._additionalTrackingEvents[event].push(url);
+                };
+                Vast.prototype.getDuration = function () {
+                    var ad = this.getAd();
+                    return ad ? ad.getDuration() : null;
+                };
+                Vast.prototype.getWrapperURL = function () {
+                    var ad = this.getAd();
+                    return ad ? ad.getWrapperURL() : null;
+                };
+                Vast.prototype.getVideoClickThroughURL = function () {
+                    var ad = this.getAd();
+                    return ad ? ad.getVideoClickThroughURLTemplate() : null;
+                };
+                Vast.prototype.getVideoClickTrackingURLs = function () {
+                    var ad = this.getAd();
+                    return ad ? ad.getVideoClickTrackingURLTemplates() : null;
+                };
+                Vast.prototype.isPlayableMIMEType = function (mimeType) {
+                    var mime = "video/mp4";
+                    return mimeType === mime;
+                };
+                return Vast;
             }();
-            return e.Vast = t, e;
-        }(be), Oe = function (e) {
-            var t = function () {
-                function e(e, t) {
-                    this._type = e, this._trackingEvents = t || {};
-                }
+            exports.Vast = Vast;
+            return exports;
+        }(be),
 
-                return e.prototype.getType = function () {
+        Creative = function (exports) {
+            var VastCreative = function () {
+                function Creative(type, events) {
+                    this._type = type;
+                    this._trackingEvents = events || {};
+                }
+                Creative.prototype.getType = function () {
                     return this._type;
-                }, e.prototype.getTrackingEvents = function () {
+                };
+                Creative.prototype.getTrackingEvents = function () {
                     return this._trackingEvents;
-                }, e.prototype.addTrackingEvent = function (e, t) {
-                    null == this._trackingEvents[e] && (this._trackingEvents[e] = []), this._trackingEvents[e].push(t);
-                }, e;
+                };
+                Creative.prototype.addTrackingEvent = function (eventName, eventHandler) {
+                    if(null == this._trackingEvents[eventName] ){
+                        this._trackingEvents[eventName] = [];
+                    }
+                    this._trackingEvents[eventName].push(eventHandler);
+                };
+                return Creative;
             }();
-            return e.VastCreative = t, e;
-        }(Oe);
-        var Be = this && this.__extends || function (e, t) {
-                function n() {
-                    this.constructor = e;
-                }
+            exports.VastCreative = VastCreative;
+            return exports;
+        }(Creative);
 
-                for (var i in t) t.hasOwnProperty(i) && (e[i] = t[i]);
-                e.prototype = null === t ? Object.create(t) : (n.prototype = t.prototype, new n());
-            };
+
+
         Te = function (e, t) {
             var n = function (e) {
                 function t(t, n, i, r, o, a, s) {
@@ -4367,7 +4570,7 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                         this._videoCustomClickURLTemplates = a || [], this._adParameters = s || null;
                 }
 
-                return Be(t, e), t.prototype.getDuration = function () {
+                return extend(t, e), t.prototype.getDuration = function () {
                     return this._duration;
                 }, t.prototype.setDuration = function (e) {
                     this._duration = e;
@@ -4394,7 +4597,7 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                 }, t;
             }(t.VastCreative);
             return e.VastCreativeLinear = n, e;
-        }(Te, Oe), we = function (e, t) {
+        }(Te, Creative), we = function (e, t) {
             var n = function () {
                 function e(e, t, n, i, r) {
                     this._id = e, this._creatives = t || [], this._errorURLTemplates = n || [], this._impressionURLTemplates = i || [],
@@ -6331,6 +6534,6 @@ document.addEventListener('DOMContentLoaded', function () { /*!
             win.webview = new n.WebView(nativeBridge);
             win.webview.initialize();
             return exports;
-        }(Pe, L, De, IosWebView, a, F);
+        }(Pe, L, De, IosWebView, a, UrlKit);
     }();
 }, false);
