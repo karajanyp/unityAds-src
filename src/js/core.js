@@ -566,18 +566,19 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                 e[e.IOS = 1] = "IOS";
                 e[e.TEST = 2] = "TEST";
             }(e.Platform || (e.Platform = {}));
-            e.Platform;
+
             return e;
         }(a);
 
-        s = function (e, t) {
-            var n = function () {
+        s = function (exports, t) {
+            var BatchInvocation = function () {
                 function e(e) {
-                    this._batch = [], this._nativeBridge = e;
+                    this._batch = [];
+                    this._nativeBridge = e;
                 }
-
-                return e.prototype.queue = function (e, n, i) {
-                    switch (void 0 === i && (i = []), this._nativeBridge.getPlatform()) {
+                e.prototype.queue = function (e, n, i) {
+                    void 0 === i && (i = []);
+                    switch (this._nativeBridge.getPlatform()) {
                         case t.Platform.ANDROID:
                             return this.rawQueue("com.unity3d.ads.api." + e, n, i);
 
@@ -587,30 +588,37 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                         default:
                             return this.rawQueue(e, n, i);
                     }
-                }, e.prototype.rawQueue = function (e, t, n) {
-                    var i = this;
-                    return void 0 === n && (n = []), new Promise(function (r, o) {
-                        var a = i._nativeBridge.registerCallback(r, o);
-                        i._batch.push([e, t, n, a.toString()]);
+                };
+                e.prototype.rawQueue = function (e, t, n) {
+                    var me = this;
+                    void 0 === n && (n = []);
+                    return new Promise(function (r, o) {
+                        var a = me._nativeBridge.registerCallback(r, o);
+                        me._batch.push([e, t, n, a.toString()]);
                     });
-                }, e.prototype.getBatch = function () {
+                };
+                e.prototype.getBatch = function () {
                     return this._batch;
-                }, e;
+                };
+                return e;
             }();
-            return e.BatchInvocation = n, e;
+            exports.BatchInvocation = BatchInvocation;
+            return exports;
         }(s, a);
 
-        c = function (e) {
-            var t = function () {
-                function e(e, t) {
-                    this._nativeBridge = e, this._apiClass = t;
+        c = function (exports) {
+            var NativeApi = function () {
+                function NativeApi(e, t) {
+                    this._nativeBridge = e;
+                    this._apiClass = t;
                 }
-
-                return e.prototype.handleEvent = function (e, t) {
+                NativeApi.prototype.handleEvent = function (e, t) {
                     throw new Error(this._apiClass + " event " + e + " does not have an observable");
-                }, e;
+                };
+                return NativeApi;
             }();
-            return e.NativeApi = t, e;
+            exports.NativeApi = NativeApi;
+            return exports;
         }(c);
 
         var extend = this && this.__extends || function (constructor, superClass) {
@@ -631,330 +639,431 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                 }
             };
 
-        u = function (e) {
-            var t = function () {
-                function e() {
+        u = function (exports) {
+            var Observable = function () {
+                function Observable() {
                     this._observers = [];
                 }
-
-                return e.prototype.subscribe = function (e) {
-                    return this._observers.push(e), e;
-                }, e.prototype.unsubscribe = function (e) {
-                    this._observers.length && ("undefined" != typeof e ? this._observers = this._observers.filter(function (t) {
-                        return t !== e;
-                    }) : this._observers = []);
-                }, e;
+                Observable.prototype.subscribe = function (e) {
+                    this._observers.push(e);
+                    return e;
+                };
+                Observable.prototype.unsubscribe = function (e) {
+                    if(!this._observers.length){
+                        return;
+                    }
+                    if("undefined" != typeof e ){
+                        this._observers = this._observers.filter(function (t) {
+                            return t !== e;
+                        })
+                    }else{
+                        this._observers = [];
+                    }
+                };
+                return Observable;
             }();
-            e.Observable = t;
-            var n = function (e) {
-                function t() {
-                    e.apply(this, arguments);
-                }
+            exports.Observable = Observable;
 
-                return extend(t, e), t.prototype.trigger = function () {
+            var Observable0 = function (Observable) {
+                function Sub() {
+                    Observable.apply(this, arguments);
+                }
+                extend(Sub, Observable);
+                Sub.prototype.trigger = function () {
                     this._observers.forEach(function (e) {
                         return e();
                     });
-                }, t;
-            }(t);
-            e.Observable0 = n;
-            var i = function (e) {
-                function t() {
-                    e.apply(this, arguments);
-                }
+                };
+                return Sub;
+            }(Observable);
+            exports.Observable0 = Observable0;
 
-                return extend(t, e), t.prototype.trigger = function (e) {
+            var Observable1 = function (Observable) {
+                function Sub() {
+                    Observable.apply(this, arguments);
+                }
+                extend(Sub, Observable);
+                Sub.prototype.trigger = function (e) {
                     this._observers.forEach(function (t) {
                         return t(e);
                     });
-                }, t;
-            }(t);
-            e.Observable1 = i;
-            var r = function (e) {
-                function t() {
-                    e.apply(this, arguments);
-                }
+                };
+                return Sub;
+            }(Observable);
+            exports.Observable1 = Observable1;
 
-                return extend(t, e), t.prototype.trigger = function (e, t) {
+            var Observable2 = function (Observable) {
+                function Sub() {
+                    Observable.apply(this, arguments);
+                }
+                extend(Sub, Observable);
+
+                Sub.prototype.trigger = function (e, t) {
                     this._observers.forEach(function (n) {
                         return n(e, t);
                     });
-                }, t;
-            }(t);
-            e.Observable2 = r;
-            var o = function (e) {
-                function t() {
-                    e.apply(this, arguments);
-                }
+                };
+                return Sub;
+            }(Observable);
+            exports.Observable2 = Observable2;
 
-                return extend(t, e), t.prototype.trigger = function (e, t, n) {
+            var Observable3 = function (Observable) {
+                function Sub() {
+                    Observable.apply(this, arguments);
+                }
+                extend(Sub, Observable);
+
+                Sub.prototype.trigger = function (e, t, n) {
                     this._observers.forEach(function (i) {
                         return i(e, t, n);
                     });
-                }, t;
-            }(t);
-            e.Observable3 = o;
-            var a = function (e) {
-                function t() {
-                    e.apply(this, arguments);
-                }
+                };
+                return Sub;
+            }(Observable);
+            exports.Observable3 = Observable3;
 
-                return extend(t, e), t.prototype.trigger = function (e, t, n, i) {
+            var Observable4 = function (Observable) {
+                function Sub() {
+                    Observable.apply(this, arguments);
+                }
+                extend(Sub, Observable);
+
+                Sub.prototype.trigger = function (e, t, n, i) {
                     this._observers.forEach(function (r) {
                         return r(e, t, n, i);
                     });
-                }, t;
-            }(t);
-            e.Observable4 = a;
-            var s = function (e) {
-                function t() {
-                    e.apply(this, arguments);
-                }
+                };
+                return Sub;
+            }(Observable);
+            exports.Observable4 = Observable4;
 
-                return extend(t, e), t.prototype.trigger = function (e, t, n, i, r) {
+            var Observable5 = function (Observable) {
+                function Sub() {
+                    Observable.apply(this, arguments);
+                }
+                extend(Sub, Observable);
+
+                Sub.prototype.trigger = function (e, t, n, i, r) {
                     this._observers.forEach(function (o) {
                         return o(e, t, n, i, r);
                     });
-                }, t;
-            }(t);
-            e.Observable5 = s;
-            var c = function (e) {
-                function t() {
+                };
+                return Sub;
+            }(Observable);
+            exports.Observable5 = Observable5;
+
+            var Observable6 = function (e) {
+                function Sub() {
                     e.apply(this, arguments);
                 }
+                extend(Sub, e);
 
-                return extend(t, e), t.prototype.trigger = function (e, t, n, i, r, o) {
+                Sub.prototype.trigger = function (e, t, n, i, r, o) {
                     this._observers.forEach(function (a) {
                         return a(e, t, n, i, r, o);
                     });
-                }, t;
-            }(t);
-            return e.Observable6 = c, e;
+                };
+                return Sub;
+            }(Observable);
+            exports.Observable6 = Observable6;
+            return exports;
         }(u);
 
-        l = function (e, t, n) {
-            var i;
+        l = function (exports, t, n) {
+            var Event;
             !function (e) {
                 e[e.ACTION = 0] = "ACTION";
-            }(i || (i = {}));
-            var r = function (e) {
-                function t(t) {
-                    e.call(this, t, "Broadcast"), this.onBroadcastAction = new n.Observable4();
-                }
+            }(Event || (Event = {}));
 
-                return extend(t, e), t.prototype.addBroadcastListener = function (e, t) {
+            var BroadcastApi = function (NativeApi) {
+                function BroadcastApi(t) {
+                    NativeApi.call(this, t, "Broadcast");
+                    this.onBroadcastAction = new n.Observable4();
+                }
+                extend(BroadcastApi, NativeApi);
+                BroadcastApi.prototype.addBroadcastListener = function (e, t) {
                     return this._nativeBridge.invoke(this._apiClass, "addBroadcastListener", [e, t]);
-                }, t.prototype.addDataSchemeBroadcastListener = function (e, t, n) {
+                };
+                BroadcastApi.prototype.addDataSchemeBroadcastListener = function (e, t, n) {
                     return this._nativeBridge.invoke(this._apiClass, "addBroadcastListener", [e, t, n]);
-                }, t.prototype.removeBroadcastListener = function (e) {
+                };
+                BroadcastApi.prototype.removeBroadcastListener = function (e) {
                     return this._nativeBridge.invoke(this._apiClass, "removeBroadcastListener", [e]);
-                }, t.prototype.removeAllBroadcastListeners = function () {
+                };
+                BroadcastApi.prototype.removeAllBroadcastListeners = function () {
                     return this._nativeBridge.invoke(this._apiClass, "removeAllBroadcastListeners", []);
-                }, t.prototype.handleEvent = function (t, n) {
-                    t === i[i.ACTION] ? this.onBroadcastAction.trigger(n[0], n[1], n[2], n[3]) : e.prototype.handleEvent.call(this, t, n);
-                }, t;
+                };
+                BroadcastApi.prototype.handleEvent = function (t, n) {
+                    if(t === Event[Event.ACTION]){ this.onBroadcastAction.trigger(n[0], n[1], n[2], n[3]) }else{
+                        NativeApi.prototype.handleEvent.call(this, t, n);
+                    }
+
+
+                };
+                return BroadcastApi;
             }(t.NativeApi);
-            return e.BroadcastApi = r, e;
+            exports.BroadcastApi = BroadcastApi;
+            return exports;
         }(l, c, u);
 
-        h = function (e, t, n) {
+        h = function (exports, t, n) {
             !function (e) {
-                e[e.FILE_IO_ERROR = 0] = "FILE_IO_ERROR", e[e.FILE_NOT_FOUND = 1] = "FILE_NOT_FOUND",
-                    e[e.FILE_ALREADY_CACHING = 2] = "FILE_ALREADY_CACHING", e[e.NOT_CACHING = 3] = "NOT_CACHING",
-                    e[e.JSON_ERROR = 4] = "JSON_ERROR", e[e.NO_INTERNET = 5] = "NO_INTERNET";
-            }(e.CacheError || (e.CacheError = {}));
-            e.CacheError;
-            !function (e) {
-                e[e.DOWNLOAD_STARTED = 0] = "DOWNLOAD_STARTED", e[e.DOWNLOAD_PROGRESS = 1] = "DOWNLOAD_PROGRESS",
-                    e[e.DOWNLOAD_END = 2] = "DOWNLOAD_END", e[e.DOWNLOAD_STOPPED = 3] = "DOWNLOAD_STOPPED",
-                    e[e.DOWNLOAD_ERROR = 4] = "DOWNLOAD_ERROR";
-            }(e.CacheEvent || (e.CacheEvent = {}));
-            var i = e.CacheEvent, r = function (e) {
-                function n(n) {
-                    e.call(this, n, "Cache"), this.onDownloadStarted = new t.Observable5(), this.onDownloadProgress = new t.Observable3(),
-                        this.onDownloadEnd = new t.Observable6(), this.onDownloadStopped = new t.Observable6(),
-                        this.onDownloadError = new t.Observable3();
-                }
+                e[e.FILE_IO_ERROR = 0] = "FILE_IO_ERROR";
+                e[e.FILE_NOT_FOUND = 1] = "FILE_NOT_FOUND";
+                e[e.FILE_ALREADY_CACHING = 2] = "FILE_ALREADY_CACHING";
+                e[e.NOT_CACHING = 3] = "NOT_CACHING";
+                e[e.JSON_ERROR = 4] = "JSON_ERROR";
+                e[e.NO_INTERNET = 5] = "NO_INTERNET";
+            }(exports.CacheError || (exports.CacheError = {}));
 
-                return extend(n, e), n.prototype.download = function (e, t) {
+            !function (e) {
+                e[e.DOWNLOAD_STARTED = 0] = "DOWNLOAD_STARTED";
+                e[e.DOWNLOAD_PROGRESS = 1] = "DOWNLOAD_PROGRESS";
+                e[e.DOWNLOAD_END = 2] = "DOWNLOAD_END";
+                e[e.DOWNLOAD_STOPPED = 3] = "DOWNLOAD_STOPPED";
+                e[e.DOWNLOAD_ERROR = 4] = "DOWNLOAD_ERROR";
+            }(exports.CacheEvent || (exports.CacheEvent = {}));
+
+            var Event = exports.CacheEvent;
+
+            var CacheApi = function (NativeApi) {
+                function CacheApi(n) {
+                    NativeApi.call(this, n, "Cache");
+                    this.onDownloadStarted = new t.Observable5();
+                    this.onDownloadProgress = new t.Observable3();
+                    this.onDownloadEnd = new t.Observable6();
+                    this.onDownloadStopped = new t.Observable6();
+                    this.onDownloadError = new t.Observable3();
+                }
+                extend(CacheApi, NativeApi);
+
+                CacheApi.prototype.download = function (e, t) {
                     return this._nativeBridge.invoke(this._apiClass, "download", [e, t]);
-                }, n.prototype.stop = function () {
+                };
+                CacheApi.prototype.stop = function () {
                     return this._nativeBridge.invoke(this._apiClass, "stop");
-                }, n.prototype.isCaching = function () {
+                };
+                CacheApi.prototype.isCaching = function () {
                     return this._nativeBridge.invoke(this._apiClass, "isCaching");
-                }, n.prototype.getFiles = function () {
+                };
+                CacheApi.prototype.getFiles = function () {
                     return this._nativeBridge.invoke(this._apiClass, "getFiles");
-                }, n.prototype.getFileInfo = function (e) {
+                };
+                CacheApi.prototype.getFileInfo = function (e) {
                     return this._nativeBridge.invoke(this._apiClass, "getFileInfo", [e]);
-                }, n.prototype.getFilePath = function (e) {
+                };
+                CacheApi.prototype.getFilePath = function (e) {
                     return this._nativeBridge.invoke(this._apiClass, "getFilePath", [e]);
-                }, n.prototype.getHash = function (e) {
+                };
+                CacheApi.prototype.getHash = function (e) {
                     return this._nativeBridge.invoke(this._apiClass, "getHash", [e]);
-                }, n.prototype.deleteFile = function (e) {
+                };
+                CacheApi.prototype.deleteFile = function (e) {
                     return this._nativeBridge.invoke(this._apiClass, "deleteFile", [e]);
-                }, n.prototype.setProgressInterval = function (e) {
+                };
+                CacheApi.prototype.setProgressInterval = function (e) {
                     return this._nativeBridge.invoke(this._apiClass, "setProgressInterval", [e]);
-                }, n.prototype.getProgressInterval = function () {
+                };
+                CacheApi.prototype.getProgressInterval = function () {
                     return this._nativeBridge.invoke(this._apiClass, "getProgressInterval");
-                }, n.prototype.setTimeouts = function (e, t) {
+                };
+                CacheApi.prototype.setTimeouts = function (e, t) {
                     return this._nativeBridge.invoke(this._apiClass, "setTimeouts", [e, t]);
-                }, n.prototype.getTimeouts = function () {
+                };
+                CacheApi.prototype.getTimeouts = function () {
                     return this._nativeBridge.invoke(this._apiClass, "getTimeouts");
-                }, n.prototype.getFreeSpace = function () {
+                };
+                CacheApi.prototype.getFreeSpace = function () {
                     return this._nativeBridge.invoke(this._apiClass, "getFreeSpace");
-                }, n.prototype.getTotalSpace = function () {
+                };
+                CacheApi.prototype.getTotalSpace = function () {
                     return this._nativeBridge.invoke(this._apiClass, "getTotalSpace");
-                }, n.prototype.handleEvent = function (t, n) {
+                };
+                CacheApi.prototype.handleEvent = function (t, n) {
                     switch (t) {
-                        case i[i.DOWNLOAD_STARTED]:
+                        case Event[Event.DOWNLOAD_STARTED]:
                             this.onDownloadStarted.trigger(n[0], n[1], n[2], n[3], n[4]);
                             break;
 
-                        case i[i.DOWNLOAD_PROGRESS]:
+                        case Event[Event.DOWNLOAD_PROGRESS]:
                             this.onDownloadProgress.trigger(n[0], n[1], n[2]);
                             break;
 
-                        case i[i.DOWNLOAD_END]:
+                        case Event[Event.DOWNLOAD_END]:
                             this.onDownloadEnd.trigger(n[0], n[1], n[2], n[3], n[4], n[5]);
                             break;
 
-                        case i[i.DOWNLOAD_STOPPED]:
+                        case Event[Event.DOWNLOAD_STOPPED]:
                             this.onDownloadStopped.trigger(n[0], n[1], n[2], n[3], n[4], n[5]);
                             break;
 
-                        case i[i.DOWNLOAD_ERROR]:
+                        case Event[Event.DOWNLOAD_ERROR]:
                             this.onDownloadError.trigger(n[0], n[1], n[2]);
                             break;
 
                         default:
-                            e.prototype.handleEvent.call(this, t, n);
+                            NativeApi.prototype.handleEvent.call(this, t, n);
                     }
-                }, n;
+                };
+                return CacheApi;
             }(n.NativeApi);
-            return e.CacheApi = r, e;
+            exports.CacheApi = CacheApi;
+            return exports;
         }(h, u, c);
 
-        p = function (e, t, n) {
-            var i;
+        p = function (exports, t, n) {
+            var Event;
             !function (e) {
-                e[e.CONNECTED = 0] = "CONNECTED", e[e.DISCONNECTED = 1] = "DISCONNECTED", e[e.NETWORK_CHANGE = 2] = "NETWORK_CHANGE";
-            }(i || (i = {}));
-            var r = function (e) {
-                function n(n) {
-                    e.call(this, n, "Connectivity"), this.onConnected = new t.Observable2(), this.onDisconnected = new t.Observable0();
-                }
+                e[e.CONNECTED = 0] = "CONNECTED";
+                e[e.DISCONNECTED = 1] = "DISCONNECTED";
+                e[e.NETWORK_CHANGE = 2] = "NETWORK_CHANGE";
+            }(Event || (Event = {}));
 
-                return extend(n, e), n.prototype.setListeningStatus = function (e) {
+            var ConnectivityApi = function (NativeApi) {
+                function ConnectivityApi(n) {
+                    NativeApi.call(this, n, "Connectivity"), this.onConnected = new t.Observable2(), this.onDisconnected = new t.Observable0();
+                }
+                extend(ConnectivityApi, NativeApi);
+
+                ConnectivityApi.prototype.setListeningStatus = function (e) {
                     return this._nativeBridge.invoke(this._apiClass, "setConnectionMonitoring", [e]);
-                }, n.prototype.handleEvent = function (t, n) {
+                };
+                ConnectivityApi.prototype.handleEvent = function (t, n) {
                     switch (t) {
-                        case i[i.CONNECTED]:
+                        case Event[Event.CONNECTED]:
                             this.onConnected.trigger(n[0], n[1]);
                             break;
 
-                        case i[i.DISCONNECTED]:
+                        case Event[Event.DISCONNECTED]:
                             this.onDisconnected.trigger();
                             break;
 
-                        case i[i.NETWORK_CHANGE]:
+                        case Event[Event.NETWORK_CHANGE]:
                             break;
 
                         default:
-                            e.prototype.handleEvent.call(this, t, n);
+                            NativeApi.prototype.handleEvent.call(this, t, n);
                     }
-                }, n;
+                };
+                return ConnectivityApi;
             }(n.NativeApi);
-            return e.ConnectivityApi = r, e;
+            exports.ConnectivityApi = ConnectivityApi;
+            return exports;
         }(p, u, c);
 
-        d = function (e, t, n, i) {
+        d = function (exports, t, n, i) {
             !function (e) {
-                e[e.COMPLETE = 0] = "COMPLETE", e[e.FAILED = 1] = "FAILED";
-            }(e.RequestEvent || (e.RequestEvent = {}));
-            var r = e.RequestEvent, o = function (e) {
-                function n(n) {
-                    e.call(this, n, "Request"), this.onComplete = new t.Observable5(), this.onFailed = new t.Observable3();
-                }
+                e[e.COMPLETE = 0] = "COMPLETE";
+                e[e.FAILED = 1] = "FAILED";
+            }(exports.RequestEvent || (exports.RequestEvent = {}));
 
-                return extend(n, e), n.prototype.get = function (e, t, n, r, o) {
+            var RequestEvent = exports.RequestEvent;
+
+            var RequestApi = function (NativeApi) {
+                function RequestApi(n) {
+                    NativeApi.call(this, n, "Request"), this.onComplete = new t.Observable5(), this.onFailed = new t.Observable3();
+                }
+                extend(RequestApi, NativeApi);
+
+                RequestApi.prototype.get = function (e, t, n, r, o) {
                     return this._nativeBridge.getPlatform() === i.Platform.IOS ? this._nativeBridge.invoke(this._apiClass, "get", [e, t, n, r]) : this._nativeBridge.invoke(this._apiClass, "get", [e, t, n, r, o]);
-                }, n.prototype.post = function (e, t, n, r, o, a) {
+                };
+                RequestApi.prototype.post = function (e, t, n, r, o, a) {
                     return this._nativeBridge.getPlatform() === i.Platform.IOS ? this._nativeBridge.invoke(this._apiClass, "post", [e, t, n, r, o]) : this._nativeBridge.invoke(this._apiClass, "post", [e, t, n, r, o, a]);
-                }, n.prototype.head = function (e, t, n, r, o) {
+                };
+                RequestApi.prototype.head = function (e, t, n, r, o) {
                     return this._nativeBridge.getPlatform() === i.Platform.IOS ? this._nativeBridge.invoke(this._apiClass, "head", [e, t, n, r]) : this._nativeBridge.invoke(this._apiClass, "head", [e, t, n, r, o]);
-                }, n.prototype.setConnectTimeout = function (e) {
+                };
+                RequestApi.prototype.setConnectTimeout = function (e) {
                     return this._nativeBridge.invoke(this._apiClass, "setConnectTimeout", [e]);
-                }, n.prototype.getConnectTimeout = function () {
+                };
+                RequestApi.prototype.getConnectTimeout = function () {
                     return this._nativeBridge.invoke(this._apiClass, "getConnectTimeout");
-                }, n.prototype.setReadTimeout = function (e) {
+                };
+                RequestApi.prototype.setReadTimeout = function (e) {
                     return this._nativeBridge.invoke(this._apiClass, "setReadTimeout", [e]);
-                }, n.prototype.getReadTimeout = function () {
+                };
+                RequestApi.prototype.getReadTimeout = function () {
                     return this._nativeBridge.invoke(this._apiClass, "getReadTimeout");
-                }, n.prototype.handleEvent = function (t, n) {
+                };
+                RequestApi.prototype.handleEvent = function (t, n) {
                     switch (t) {
-                        case r[r.COMPLETE]:
+                        case RequestEvent[RequestEvent.COMPLETE]:
                             this.onComplete.trigger(n[0], n[1], n[2], n[3], n[4]);
                             break;
 
-                        case r[r.FAILED]:
+                        case RequestEvent[RequestEvent.FAILED]:
                             this.onFailed.trigger(n[0], n[1], n[2]);
                             break;
 
                         default:
-                            e.prototype.handleEvent.call(this, t, n);
+                            NativeApi.prototype.handleEvent.call(this, t, n);
                     }
-                }, n;
+                };
+                return RequestApi;
             }(n.NativeApi);
-            return e.RequestApi = o, e;
+            exports.RequestApi = RequestApi;
+            return exports;
         }(d, u, c, a);
 
-        f = function (e, t, n) {
-            var i;
+        f = function (exports, t, n) {
+            var Event;
             !function (e) {
-                e[e.LIKELY_TO_KEEP_UP = 0] = "LIKELY_TO_KEEP_UP", e[e.BUFFER_EMPTY = 1] = "BUFFER_EMPTY",
-                    e[e.BUFFER_FULL = 2] = "BUFFER_FULL";
-            }(i || (i = {}));
-            var r = function (e) {
-                function n(n) {
-                    e.call(this, n, "VideoPlayer"), this.onLikelyToKeepUp = new t.Observable2(), this.onBufferEmpty = new t.Observable2(),
-                        this.onBufferFull = new t.Observable2();
-                }
+                e[e.LIKELY_TO_KEEP_UP = 0] = "LIKELY_TO_KEEP_UP";
+                e[e.BUFFER_EMPTY = 1] = "BUFFER_EMPTY";
+                e[e.BUFFER_FULL = 2] = "BUFFER_FULL";
+            }(Event || (Event = {}));
 
-                return extend(n, e), n.prototype.handleEvent = function (e, t) {
+            var IosVideoPlayerApi = function (NativeApi) {
+                function IosVideoPlayerApi(n) {
+                    NativeApi.call(this, n, "VideoPlayer");
+                    this.onLikelyToKeepUp = new t.Observable2();
+                    this.onBufferEmpty = new t.Observable2();
+                    this.onBufferFull = new t.Observable2();
+                }
+                extend(IosVideoPlayerApi, NativeApi);
+
+                IosVideoPlayerApi.prototype.handleEvent = function (e, t) {
                     switch (e) {
-                        case i[i.LIKELY_TO_KEEP_UP]:
+                        case Event[Event.LIKELY_TO_KEEP_UP]:
                             this.onLikelyToKeepUp.trigger(t[0], t[1]);
                             break;
 
-                        case i[i.BUFFER_EMPTY]:
+                        case Event[Event.BUFFER_EMPTY]:
                             this.onBufferEmpty.trigger(t[0], t[1]);
                             break;
 
-                        case i[i.BUFFER_FULL]:
+                        case Event[Event.BUFFER_FULL]:
                             this.onBufferFull.trigger(t[0], t[1]);
                             break;
 
                         default:
                             throw new Error("VideoPlayer event " + e + " does not have an observable");
                     }
-                }, n;
+                };
+                return IosVideoPlayerApi;
             }(n.NativeApi);
-            return e.IosVideoPlayerApi = r, e;
+            exports.IosVideoPlayerApi = IosVideoPlayerApi;
+            return exports;
         }(f, u, c);
 
-        v = function (e, t, n) {
+        v = function (exports, t, n) {
             var i;
             !function (e) {
                 e[e.INFO = 0] = "INFO";
             }(i || (i = {}));
-            var r = function (e) {
-                function t(t) {
-                    e.call(this, t, "VideoPlayer"), this.onInfo = new n.Observable3();
-                }
 
-                return extend(t, e), t.prototype.setInfoListenerEnabled = function (e) {
+            var AndroidVideoPlayerApi = function (NativeApi) {
+                function AndroidVideoPlayerApi(t) {
+                    NativeApi.call(this, t, "VideoPlayer");
+                    this.onInfo = new n.Observable3();
+                }
+                extend(AndroidVideoPlayerApi, NativeApi);
+
+                AndroidVideoPlayerApi.prototype.setInfoListenerEnabled = function (e) {
                     return this._nativeBridge.invoke(this._apiClass, "setInfoListenerEnabled", [e]);
-                }, t.prototype.handleEvent = function (e, t) {
+                };
+                AndroidVideoPlayerApi.prototype.handleEvent = function (e, t) {
                     switch (e) {
                         case i[i.INFO]:
                             this.onInfo.trigger(t[0], t[1], t[2]);
@@ -963,648 +1072,893 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                         default:
                             throw new Error("VideoPlayer event " + e + " does not have an observable");
                     }
-                }, t;
+                };
+                return AndroidVideoPlayerApi;
             }(t.NativeApi);
-            return e.AndroidVideoPlayerApi = r, e;
+            exports.AndroidVideoPlayerApi = AndroidVideoPlayerApi;
+            return exports;
         }(v, c, u);
 
-        g = function (e, t, n, i, r, o) {
-            var a;
+        g = function (exports, t, n, i, r, o) {
+            var Event;
             !function (e) {
-                e[e.GENERIC_ERROR = 0] = "GENERIC_ERROR", e[e.PROGRESS = 1] = "PROGRESS", e[e.COMPLETED = 2] = "COMPLETED",
-                    e[e.PREPARED = 3] = "PREPARED", e[e.PREPARE_ERROR = 4] = "PREPARE_ERROR", e[e.PLAY = 5] = "PLAY",
-                    e[e.PAUSE_ERROR = 6] = "PAUSE_ERROR", e[e.PAUSE = 7] = "PAUSE", e[e.SEEKTO_ERROR = 8] = "SEEKTO_ERROR",
-                    e[e.SEEKTO = 9] = "SEEKTO", e[e.STOP = 10] = "STOP", e[e.ILLEGAL_STATE = 11] = "ILLEGAL_STATE";
-            }(a || (a = {}));
-            var s = function (e) {
-                function n(n) {
-                    e.call(this, n, "VideoPlayer"), this.onError = new t.Observable3(), this.onProgress = new t.Observable1(),
-                        this.onCompleted = new t.Observable1(), this.onPrepared = new t.Observable4(), this.onPlay = new t.Observable1(),
-                        this.onPause = new t.Observable1(), this.onSeek = new t.Observable1(), this.onStop = new t.Observable1(),
-                        n.getPlatform() === i.Platform.IOS ? this.Ios = new r.IosVideoPlayerApi(n) : n.getPlatform() === i.Platform.ANDROID && (this.Android = new o.AndroidVideoPlayerApi(n));
-                }
+                e[e.GENERIC_ERROR = 0] = "GENERIC_ERROR";
+                e[e.PROGRESS = 1] = "PROGRESS";
+                e[e.COMPLETED = 2] = "COMPLETED";
+                e[e.PREPARED = 3] = "PREPARED";
+                e[e.PREPARE_ERROR = 4] = "PREPARE_ERROR";
+                e[e.PLAY = 5] = "PLAY";
+                e[e.PAUSE_ERROR = 6] = "PAUSE_ERROR";
+                e[e.PAUSE = 7] = "PAUSE";
+                e[e.SEEKTO_ERROR = 8] = "SEEKTO_ERROR";
+                e[e.SEEKTO = 9] = "SEEKTO";
+                e[e.STOP = 10] = "STOP";
+                e[e.ILLEGAL_STATE = 11] = "ILLEGAL_STATE";
+            }(Event || (Event = {}));
 
-                return extend(n, e), n.prototype.setProgressEventInterval = function (e) {
+            var VideoPlayerApi = function (NativeApi) {
+                function VideoPlayerApi(n) {
+                    NativeApi.call(this, n, "VideoPlayer");
+                    this.onError = new t.Observable3();
+                    this.onProgress = new t.Observable1();
+                    this.onCompleted = new t.Observable1();
+                    this.onPrepared = new t.Observable4();
+                    this.onPlay = new t.Observable1();
+                    this.onPause = new t.Observable1();
+                    this.onSeek = new t.Observable1();
+                    this.onStop = new t.Observable1();
+
+                    if(n.getPlatform() === i.Platform.IOS){
+                        this.Ios = new r.IosVideoPlayerApi(n);
+                    }else if(n.getPlatform() === i.Platform.ANDROID){
+                        this.Android = new o.AndroidVideoPlayerApi(n);
+                    }
+                }
+                extend(VideoPlayerApi, NativeApi);
+
+                VideoPlayerApi.prototype.setProgressEventInterval = function (e) {
                     return this._nativeBridge.invoke(this._apiClass, "setProgressEventInterval", [e]);
-                }, n.prototype.getProgressEventInterval = function () {
+                };
+                VideoPlayerApi.prototype.getProgressEventInterval = function () {
                     return this._nativeBridge.invoke(this._apiClass, "getProgressEventInterval");
-                }, n.prototype.prepare = function (e, t) {
+                };
+                VideoPlayerApi.prototype.prepare = function (e, t) {
                     return this._nativeBridge.invoke(this._apiClass, "prepare", [e, t]);
-                }, n.prototype.play = function () {
+                };
+                VideoPlayerApi.prototype.play = function () {
                     return this._nativeBridge.invoke(this._apiClass, "play");
-                }, n.prototype.pause = function () {
+                };
+                VideoPlayerApi.prototype.pause = function () {
                     return this._nativeBridge.invoke(this._apiClass, "pause");
-                }, n.prototype.stop = function () {
+                };
+                VideoPlayerApi.prototype.stop = function () {
                     return this._nativeBridge.invoke(this._apiClass, "stop");
-                }, n.prototype.seekTo = function (e) {
+                };
+                VideoPlayerApi.prototype.seekTo = function (e) {
                     return this._nativeBridge.invoke(this._apiClass, "seekTo", [e]);
-                }, n.prototype.getCurrentPosition = function () {
+                };
+                VideoPlayerApi.prototype.getCurrentPosition = function () {
                     return this._nativeBridge.invoke(this._apiClass, "getCurrentPosition");
-                }, n.prototype.getVolume = function () {
+                };
+                VideoPlayerApi.prototype.getVolume = function () {
                     return this._nativeBridge.invoke(this._apiClass, "getVolume");
-                }, n.prototype.setVolume = function (e) {
+                };
+                VideoPlayerApi.prototype.setVolume = function (e) {
                     return this._nativeBridge.invoke(this._apiClass, "setVolume", [e]);
-                }, n.prototype.handleEvent = function (e, t) {
+                };
+                VideoPlayerApi.prototype.handleEvent = function (e, t) {
                     switch (e) {
-                        case a[a.GENERIC_ERROR]:
+                        case Event[Event.GENERIC_ERROR]:
                             this.onError.trigger(t[0], t[1], t[2]);
                             break;
 
-                        case a[a.PROGRESS]:
+                        case Event[Event.PROGRESS]:
                             this.onProgress.trigger(t[0]);
                             break;
 
-                        case a[a.COMPLETED]:
+                        case Event[Event.COMPLETED]:
                             this.onCompleted.trigger(t[0]);
                             break;
 
-                        case a[a.PREPARED]:
+                        case Event[Event.PREPARED]:
                             this.onPrepared.trigger(t[0], t[1], t[2], t[3]);
                             break;
 
-                        case a[a.PLAY]:
+                        case Event[Event.PLAY]:
                             this.onPlay.trigger(t[0]);
                             break;
 
-                        case a[a.PAUSE]:
+                        case Event[Event.PAUSE]:
                             this.onPause.trigger(t[0]);
                             break;
 
-                        case a[a.SEEKTO]:
+                        case Event[Event.SEEKTO]:
                             this.onSeek.trigger(t[0]);
                             break;
 
-                        case a[a.STOP]:
+                        case Event[Event.STOP]:
                             this.onStop.trigger(t[0]);
                             break;
 
                         default:
                             this._nativeBridge.getPlatform() === i.Platform.IOS ? this.Ios.handleEvent(e, t) : this._nativeBridge.getPlatform() === i.Platform.ANDROID && this.Android.handleEvent(e, t);
                     }
-                }, n;
+                };
+                return VideoPlayerApi;
             }(n.NativeApi);
-            return e.VideoPlayerApi = s, e;
-        }(g, u, c, a, f, v), _ = function (e) {
+            exports.VideoPlayerApi = VideoPlayerApi;
+            return exports;
+        }(g, u, c, a, f, v),
+
+        _ = function (exports) {
             !function (e) {
-                e[e.APPSHEET = 0] = "APPSHEET", e[e.ADUNIT = 1] = "ADUNIT", e[e.VIDEOPLAYER = 2] = "VIDEOPLAYER",
-                    e[e.CACHE = 3] = "CACHE", e[e.CONNECTIVITY = 4] = "CONNECTIVITY", e[e.STORAGE = 5] = "STORAGE",
-                    e[e.REQUEST = 6] = "REQUEST", e[e.RESOLVE = 7] = "RESOLVE", e[e.BROADCAST = 8] = "BROADCAST",
-                    e[e.NOTIFICATION = 9] = "NOTIFICATION";
-            }(e.EventCategory || (e.EventCategory = {}));
-            e.EventCategory;
-            return e;
+                e[e.APPSHEET = 0] = "APPSHEET";
+                e[e.ADUNIT = 1] = "ADUNIT";
+                e[e.VIDEOPLAYER = 2] = "VIDEOPLAYER";
+                e[e.CACHE = 3] = "CACHE";
+                e[e.CONNECTIVITY = 4] = "CONNECTIVITY";
+                e[e.STORAGE = 5] = "STORAGE";
+                e[e.REQUEST = 6] = "REQUEST";
+                e[e.RESOLVE = 7] = "RESOLVE";
+                e[e.BROADCAST = 8] = "BROADCAST";
+                e[e.NOTIFICATION = 9] = "NOTIFICATION";
+            }(exports.EventCategory || (exports.EventCategory = {}));
+            return exports;
         }(_);
 
-        m = function (e, t, n) {
+        m = function (exports, t, n) {
             !function (e) {
-                e[e.COMPLETE = 0] = "COMPLETE", e[e.FAILED = 1] = "FAILED";
-            }(e.ResolveEvent || (e.ResolveEvent = {}));
-            var i = e.ResolveEvent, r = function (e) {
-                function n(n) {
-                    e.call(this, n, "Resolve"), this.onComplete = new t.Observable3(), this.onFailed = new t.Observable4();
-                }
+                e[e.COMPLETE = 0] = "COMPLETE";
+                e[e.FAILED = 1] = "FAILED";
+            }(exports.ResolveEvent || (exports.ResolveEvent = {}));
 
-                return extend(n, e), n.prototype.resolve = function (e, t) {
+            var ResolveEvent = exports.ResolveEvent;
+
+            var ResolveApi = function (NativeApi) {
+                function ResolveApi(n) {
+                    NativeApi.call(this, n, "Resolve"), this.onComplete = new t.Observable3(), this.onFailed = new t.Observable4();
+                }
+                extend(ResolveApi, NativeApi);
+
+                ResolveApi.prototype.resolve = function (e, t) {
                     return this._nativeBridge.invoke(this._apiClass, "resolve", [e, t]);
-                }, n.prototype.handleEvent = function (t, n) {
+                };
+                ResolveApi.prototype.handleEvent = function (t, n) {
                     switch (t) {
-                        case i[i.COMPLETE]:
+                        case ResolveEvent[ResolveEvent.COMPLETE]:
                             this.onComplete.trigger(n[0], n[1], n[2]);
                             break;
 
-                        case i[i.FAILED]:
+                        case ResolveEvent[ResolveEvent.FAILED]:
                             this.onFailed.trigger(n[0], n[1], n[2], n[3]);
                             break;
 
                         default:
-                            e.prototype.handleEvent.call(this, t, n);
+                            NativeApi.prototype.handleEvent.call(this, t, n);
                     }
-                }, n;
+                };
+                return ResolveApi;
             }(n.NativeApi);
-            return e.ResolveApi = r, e;
+            exports.ResolveApi = ResolveApi;
+            return exports;
         }(m, u, c);
 
-        y = function (e, t) {
-            var n = function (e) {
-                function t(t) {
-                    e.call(this, t, "Intent");
+        y = function (exports, t) {
+            var IntentApi = function (NativeApi) {
+                function IntentApi(t) {
+                    NativeApi.call(this, t, "Intent");
                 }
-
-                return extend(t, e), t.prototype.launch = function (e) {
+                extend(IntentApi, NativeApi);
+                IntentApi.prototype.launch = function (e) {
                     return this._nativeBridge.invoke(this._apiClass, "launch", [e]);
-                }, t;
+                };
+                return IntentApi;
             }(t.NativeApi);
-            return e.IntentApi = n, e;
-        }(y, c), E = function (e) {
+            exports.IntentApi = IntentApi;
+            return exports;
+        }(y, c),
+
+        E = function (exports) {
             !function (e) {
-                e[e.COMPLETED = 0] = "COMPLETED", e[e.SKIPPED = 1] = "SKIPPED", e[e.ERROR = 2] = "ERROR";
-            }(e.FinishState || (e.FinishState = {}));
-            e.FinishState;
-            return e;
+                e[e.COMPLETED = 0] = "COMPLETED";
+                e[e.SKIPPED = 1] = "SKIPPED";
+                e[e.ERROR = 2] = "ERROR";
+            }(exports.FinishState || (exports.FinishState = {}));
+
+            return exports;
         }(E);
 
-        S = function (e, t, n) {
-            var i = function (e) {
-                function n(t) {
-                    e.call(this, t, "Listener");
+        S = function (exports, t, n) {
+            var ListenerApi = function (NativeApi) {
+                function ListenerApi(t) {
+                    NativeApi.call(this, t, "Listener");
                 }
-
-                return extend(n, e), n.prototype.sendReadyEvent = function (e) {
+                extend(ListenerApi, NativeApi);
+                ListenerApi.prototype.sendReadyEvent = function (e) {
                     return this._nativeBridge.invoke(this._apiClass, "sendReadyEvent", [e]);
-                }, n.prototype.sendStartEvent = function (e) {
+                };
+                ListenerApi.prototype.sendStartEvent = function (e) {
                     return this._nativeBridge.invoke(this._apiClass, "sendStartEvent", [e]);
-                }, n.prototype.sendFinishEvent = function (e, n) {
+                };
+                ListenerApi.prototype.sendFinishEvent = function (e, n) {
                     return this._nativeBridge.invoke(this._apiClass, "sendFinishEvent", [e, t.FinishState[n]]);
-                }, n.prototype.sendErrorEvent = function (e, t) {
+                };
+                ListenerApi.prototype.sendErrorEvent = function (e, t) {
                     return this._nativeBridge.invoke(this._apiClass, "sendErrorEvent", [e, t]);
-                }, n;
+                };
+                return ListenerApi;
             }(n.NativeApi);
-            return e.ListenerApi = i, e;
-        }(S, E, c), I = function (e) {
-            !function (e) {
-                e[e.READY = 0] = "READY", e[e.NOT_AVAILABLE = 1] = "NOT_AVAILABLE", e[e.DISABLED = 2] = "DISABLED",
-                    e[e.WAITING = 3] = "WAITING", e[e.NO_FILL = 4] = "NO_FILL";
-            }(e.PlacementState || (e.PlacementState = {}));
-            var t = (e.PlacementState, function () {
-                function e(e) {
-                    this._id = e.id, this._name = e.name, this._default = e["default"], this._allowSkip = e.allowSkip,
-                        this._skipInSeconds = e.skipInSeconds, this._disableBackButton = e.disableBackButton,
-                        this._useDeviceOrientationForVideo = e.useDeviceOrientationForVideo, this._muteVideo = e.muteVideo;
-                }
+            exports.ListenerApi = ListenerApi;
+            return exports;
+        }(S, E, c),
 
-                return e.prototype.getId = function () {
+        I = function (exports) {
+            !function (e) {
+                e[e.READY = 0] = "READY";
+                e[e.NOT_AVAILABLE = 1] = "NOT_AVAILABLE";
+                e[e.DISABLED = 2] = "DISABLED";
+                e[e.WAITING = 3] = "WAITING";
+                e[e.NO_FILL = 4] = "NO_FILL";
+            }(exports.PlacementState || (exports.PlacementState = {}));
+
+            function Placement(e) {
+                    this._id = e.id;
+                    this._name = e.name;
+                    this._default = e["default"];
+                    this._allowSkip = e.allowSkip;
+                    this._skipInSeconds = e.skipInSeconds;
+                    this._disableBackButton = e.disableBackButton;
+                    this._useDeviceOrientationForVideo = e.useDeviceOrientationForVideo;
+                    this._muteVideo = e.muteVideo;
+                }
+                Placement.prototype.getId = function () {
                     return this._id;
-                }, e.prototype.getName = function () {
+                };
+                Placement.prototype.getName = function () {
                     return this._name;
-                }, e.prototype.isDefault = function () {
+                };
+                Placement.prototype.isDefault = function () {
                     return this._default;
-                }, e.prototype.allowSkip = function () {
+                };
+                Placement.prototype.allowSkip = function () {
                     return this._allowSkip;
-                }, e.prototype.allowSkipInSeconds = function () {
+                };
+                Placement.prototype.allowSkipInSeconds = function () {
                     return this._skipInSeconds;
-                }, e.prototype.disableBackButton = function () {
+                };
+                Placement.prototype.disableBackButton = function () {
                     return this._disableBackButton;
-                }, e.prototype.useDeviceOrientationForVideo = function () {
+                };
+                Placement.prototype.useDeviceOrientationForVideo = function () {
                     return this._useDeviceOrientationForVideo;
-                }, e.prototype.muteVideo = function () {
+                };
+                Placement.prototype.muteVideo = function () {
                     return this._muteVideo;
-                }, e;
-            }());
-            return e.Placement = t, e;
+                };
+
+            exports.Placement = Placement;
+            return exports;
         }(I);
 
-        C = function (e, t, n) {
-            var i = function (e) {
-                function n(t) {
-                    e.call(this, t, "Placement");
+        C = function (exports, t, n) {
+            var PlacementApi = function (NativeApi) {
+                function PlacementApi(t) {
+                    NativeApi.call(this, t, "Placement");
                 }
+                extend(PlacementApi, NativeApi);
 
-                return extend(n, e), n.prototype.setDefaultPlacement = function (e) {
+                PlacementApi.prototype.setDefaultPlacement = function (e) {
                     return this._nativeBridge.invoke(this._apiClass, "setDefaultPlacement", [e]);
-                }, n.prototype.setPlacementState = function (e, n) {
+                };
+
+                PlacementApi.prototype.setPlacementState = function (e, n) {
                     return this._nativeBridge.invoke(this._apiClass, "setPlacementState", [e, t.PlacementState[n]]);
-                }, n.prototype.setPlacementAnalytics = function (e) {
+                };
+
+                PlacementApi.prototype.setPlacementAnalytics = function (e) {
                     return this._nativeBridge.invoke(this._apiClass, "setPlacementAnalytics", [e]);
-                }, n;
+                };
+                return PlacementApi;
             }(n.NativeApi);
-            return e.PlacementApi = i, e;
+            exports.PlacementApi = PlacementApi;
+            return exports;
         }(C, I, c);
 
-        A = function (e, t) {
-            var n = function (e) {
-                function t(t) {
-                    e.call(this, t, "Sdk");
+        A = function (exports, t) {
+            var SdkApi = function (NativeApi) {
+                function SdkApi(t) {
+                    NativeApi.call(this, t, "Sdk");
                 }
-
-                return extend(t, e), t.prototype.loadComplete = function () {
+                extend(SdkApi, NativeApi);
+                SdkApi.prototype.loadComplete = function () {
                     return this._nativeBridge.invoke(this._apiClass, "loadComplete");
-                }, t.prototype.initComplete = function () {
+                };
+                SdkApi.prototype.initComplete = function () {
                     return this._nativeBridge.invoke(this._apiClass, "initComplete");
-                }, t.prototype.setDebugMode = function (e) {
+                };
+                SdkApi.prototype.setDebugMode = function (e) {
                     return this._nativeBridge.invoke(this._apiClass, "setDebugMode", [e]);
-                }, t.prototype.getDebugMode = function () {
+                };
+                SdkApi.prototype.getDebugMode = function () {
                     return this._nativeBridge.invoke(this._apiClass, "getDebugMode");
-                }, t.prototype.logError = function (e) {
+                };
+                SdkApi.prototype.logError = function (e) {
                     return this._nativeBridge.invoke(this._apiClass, "logError", [e]);
-                }, t.prototype.logWarning = function (e) {
+                };
+                SdkApi.prototype.logWarning = function (e) {
                     return this._nativeBridge.invoke(this._apiClass, "logWarning", [e]);
-                }, t.prototype.logInfo = function (e) {
+                };
+                SdkApi.prototype.logInfo = function (e) {
                     return this._nativeBridge.invoke(this._apiClass, "logInfo", [e]);
-                }, t.prototype.logDebug = function (e) {
+                };
+                SdkApi.prototype.logDebug = function (e) {
                     return this._nativeBridge.invoke(this._apiClass, "logDebug", [e]);
-                }, t.prototype.setShowTimeout = function (e) {
+                };
+                SdkApi.prototype.setShowTimeout = function (e) {
                     return this._nativeBridge.invoke(this._apiClass, "setShowTimeout", [e]);
-                }, t.prototype.reinitialize = function () {
+                };
+                SdkApi.prototype.reinitialize = function () {
                     this._nativeBridge.invoke(this._apiClass, "reinitialize");
-                }, t;
+                };
+                return SdkApi;
             }(t.NativeApi);
-            return e.SdkApi = n, e;
+            exports.SdkApi = SdkApi;
+            return exports;
         }(A, c);
 
-        b = function (e, t) {
+        b = function (exports, t) {
             !function (e) {
-                e[e.PRIVATE = 0] = "PRIVATE", e[e.PUBLIC = 1] = "PUBLIC";
-            }(e.StorageType || (e.StorageType = {}));
-            var n = e.StorageType;
-            !function (e) {
-                e[e.COULDNT_SET_VALUE = 0] = "COULDNT_SET_VALUE", e[e.COULDNT_GET_VALUE = 1] = "COULDNT_GET_VALUE",
-                    e[e.COULDNT_WRITE_STORAGE_TO_CACHE = 2] = "COULDNT_WRITE_STORAGE_TO_CACHE", e[e.COULDNT_CLEAR_STORAGE = 3] = "COULDNT_CLEAR_STORAGE",
-                    e[e.COULDNT_GET_STORAGE = 4] = "COULDNT_GET_STORAGE", e[e.COULDNT_DELETE_VALUE = 5] = "COULDNT_DELETE_VALUE";
-            }(e.StorageError || (e.StorageError = {}));
-            var i = (e.StorageError, function (e) {
-                function t(t) {
-                    e.call(this, t, "Storage");
-                }
+                e[e.PRIVATE = 0] = "PRIVATE";
+                e[e.PUBLIC = 1] = "PUBLIC";
+            }(exports.StorageType || (exports.StorageType = {}));
 
-                return extend(t, e), t.prototype.read = function (e) {
-                    return this._nativeBridge.invoke(this._apiClass, "read", [n[e]]);
-                }, t.prototype.write = function (e) {
-                    return this._nativeBridge.invoke(this._apiClass, "write", [n[e]]);
-                }, t.prototype.get = function (e, t) {
-                    return this._nativeBridge.invoke(this._apiClass, "get", [n[e], t]);
-                }, t.prototype.set = function (e, t, i) {
-                    return this._nativeBridge.invoke(this._apiClass, "set", [n[e], t, i]);
-                }, t.prototype["delete"] = function (e, t) {
-                    return this._nativeBridge.invoke(this._apiClass, "delete", [n[e], t]);
-                }, t.prototype.clear = function (e) {
-                    return this._nativeBridge.invoke(this._apiClass, "clear", [n[e]]);
-                }, t.prototype.getKeys = function (e, t, i) {
-                    return this._nativeBridge.invoke(this._apiClass, "getKeys", [n[e], t, i]);
-                }, t.prototype.handleEvent = function (e, t) {
+            var StorageType = exports.StorageType;
+
+            !function (e) {
+                e[e.COULDNT_SET_VALUE = 0] = "COULDNT_SET_VALUE";
+                e[e.COULDNT_GET_VALUE = 1] = "COULDNT_GET_VALUE";
+                e[e.COULDNT_WRITE_STORAGE_TO_CACHE = 2] = "COULDNT_WRITE_STORAGE_TO_CACHE";
+                e[e.COULDNT_CLEAR_STORAGE = 3] = "COULDNT_CLEAR_STORAGE";
+                e[e.COULDNT_GET_STORAGE = 4] = "COULDNT_GET_STORAGE";
+                e[e.COULDNT_DELETE_VALUE = 5] = "COULDNT_DELETE_VALUE";
+            }(exports.StorageError || (exports.StorageError = {}));
+
+            var StorageApi = function (NativeApi) {
+                function StorageApi(t) {
+                    NativeApi.call(this, t, "Storage");
+                }
+                extend(StorageApi, NativeApi);
+                StorageApi.prototype.read = function (e) {
+                    return this._nativeBridge.invoke(this._apiClass, "read", [StorageType[e]]);
+                };
+                StorageApi.prototype.write = function (e) {
+                    return this._nativeBridge.invoke(this._apiClass, "write", [StorageType[e]]);
+                };
+                StorageApi.prototype.get = function (e, t) {
+                    return this._nativeBridge.invoke(this._apiClass, "get", [StorageType[e], t]);
+                };
+                StorageApi.prototype.set = function (e, t, i) {
+                    return this._nativeBridge.invoke(this._apiClass, "set", [StorageType[e], t, i]);
+                };
+                StorageApi.prototype["delete"] = function (e, t) {
+                    return this._nativeBridge.invoke(this._apiClass, "delete", [StorageType[e], t]);
+                };
+                StorageApi.prototype.clear = function (e) {
+                    return this._nativeBridge.invoke(this._apiClass, "clear", [StorageType[e]]);
+                };
+                StorageApi.prototype.getKeys = function (e, t, i) {
+                    return this._nativeBridge.invoke(this._apiClass, "getKeys", [StorageType[e], t, i]);
+                };
+                StorageApi.prototype.handleEvent = function (e, t) {
                     switch (e) {
                     }
-                }, t;
-            }(t.NativeApi));
-            return e.StorageApi = i, e;
+                };
+                return StorageApi;
+            }(t.NativeApi);
+            exports.StorageApi = StorageApi;
+            return exports;
         }(b, c);
 
-        O = function (e, t) {
+        O = function (exports, t) {
             !function (e) {
-                e[e.EXTERNAL = 0] = "EXTERNAL", e[e.INTERNAL = 1] = "INTERNAL";
-            }(e.StorageType || (e.StorageType = {}));
-            var n = e.StorageType, i = function (e) {
-                function t(t) {
-                    e.call(this, t, "DeviceInfo");
-                }
+                e[e.EXTERNAL = 0] = "EXTERNAL";
+                e[e.INTERNAL = 1] = "INTERNAL";
+            }(exports.StorageType || (exports.StorageType = {}));
+            var StorageType = exports.StorageType;
 
-                return extend(t, e), t.prototype.getAndroidId = function () {
+            var AndroidDeviceInfoApi = function (NativeApi) {
+                function AndroidDeviceInfoApi(t) {
+                    NativeApi.call(this, t, "DeviceInfo");
+                }
+                extend(AndroidDeviceInfoApi, NativeApi);
+                AndroidDeviceInfoApi.prototype.getAndroidId = function () {
                     return this._nativeBridge.invoke(this._apiClass, "getAndroidId");
-                }, t.prototype.getApiLevel = function () {
+                };
+                AndroidDeviceInfoApi.prototype.getApiLevel = function () {
                     return this._nativeBridge.invoke(this._apiClass, "getApiLevel");
-                }, t.prototype.getManufacturer = function () {
+                };
+                AndroidDeviceInfoApi.prototype.getManufacturer = function () {
                     return this._nativeBridge.invoke(this._apiClass, "getManufacturer");
-                }, t.prototype.getScreenLayout = function () {
+                };
+                AndroidDeviceInfoApi.prototype.getScreenLayout = function () {
                     return this._nativeBridge.invoke(this._apiClass, "getScreenLayout");
-                }, t.prototype.getScreenDensity = function () {
+                };
+                AndroidDeviceInfoApi.prototype.getScreenDensity = function () {
                     return this._nativeBridge.invoke(this._apiClass, "getScreenDensity");
-                }, t.prototype.isAppInstalled = function (e) {
+                };
+                AndroidDeviceInfoApi.prototype.isAppInstalled = function (e) {
                     return this._nativeBridge.invoke(this._apiClass, "isAppInstalled", [e]);
-                }, t.prototype.getInstalledPackages = function (e) {
+                };
+                AndroidDeviceInfoApi.prototype.getInstalledPackages = function (e) {
                     return this._nativeBridge.invoke(this._apiClass, "getInstalledPackages", [e]);
-                }, t.prototype.getSystemProperty = function (e, t) {
+                };
+                AndroidDeviceInfoApi.prototype.getSystemProperty = function (e, t) {
                     return this._nativeBridge.invoke(this._apiClass, "getSystemProperty", [e, t]);
-                }, t.prototype.getRingerMode = function () {
+                };
+                AndroidDeviceInfoApi.prototype.getRingerMode = function () {
                     return this._nativeBridge.invoke(this._apiClass, "getRingerMode");
-                }, t.prototype.getDeviceVolume = function (e) {
+                };
+                AndroidDeviceInfoApi.prototype.getDeviceVolume = function (e) {
                     return this._nativeBridge.invoke(this._apiClass, "getDeviceVolume", [e]);
-                }, t.prototype.getFreeSpace = function (e) {
-                    return this._nativeBridge.invoke(this._apiClass, "getFreeSpace", [n[e]]);
-                }, t.prototype.getTotalSpace = function (e) {
-                    return this._nativeBridge.invoke(this._apiClass, "getTotalSpace", [n[e]]);
-                }, t;
+                };
+                AndroidDeviceInfoApi.prototype.getFreeSpace = function (e) {
+                    return this._nativeBridge.invoke(this._apiClass, "getFreeSpace", [StorageType[e]]);
+                };
+                AndroidDeviceInfoApi.prototype.getTotalSpace = function (e) {
+                    return this._nativeBridge.invoke(this._apiClass, "getTotalSpace", [StorageType[e]]);
+                };
+                return AndroidDeviceInfoApi;
             }(t.NativeApi);
-            return e.AndroidDeviceInfoApi = i, e;
+            exports.AndroidDeviceInfoApi = AndroidDeviceInfoApi;
+            return exports;
         }(O, c);
 
-        T = function (e, t) {
-            var n = function (e) {
-                function t(t) {
-                    e.call(this, t, "DeviceInfo");
+        T = function (exports, t) {
+            var IosDeviceInfoApi = function (NativeApi) {
+                function IosDeviceInfoApi(t) {
+                    NativeApi.call(this, t, "DeviceInfo");
                 }
-
-                return extend(t, e), t.prototype.getScreenScale = function () {
+                extend(IosDeviceInfoApi, NativeApi);
+                IosDeviceInfoApi.prototype.getScreenScale = function () {
                     return this._nativeBridge.invoke(this._apiClass, "getScreenScale");
-                }, t.prototype.getUserInterfaceIdiom = function () {
+                };
+                IosDeviceInfoApi.prototype.getUserInterfaceIdiom = function () {
                     return this._nativeBridge.invoke(this._apiClass, "getUserInterfaceIdiom");
-                }, t.prototype.getDeviceVolume = function () {
+                };
+                IosDeviceInfoApi.prototype.getDeviceVolume = function () {
                     return this._nativeBridge.invoke(this._apiClass, "getDeviceVolume");
-                }, t.prototype.getFreeSpace = function () {
+                };
+                IosDeviceInfoApi.prototype.getFreeSpace = function () {
                     return this._nativeBridge.invoke(this._apiClass, "getFreeSpace");
-                }, t.prototype.getTotalSpace = function () {
+                };
+                IosDeviceInfoApi.prototype.getTotalSpace = function () {
                     return this._nativeBridge.invoke(this._apiClass, "getTotalSpace");
-                }, t.prototype.isSimulator = function () {
+                };
+                IosDeviceInfoApi.prototype.isSimulator = function () {
                     return this._nativeBridge.invoke(this._apiClass, "isSimulator");
-                }, t.prototype.isAppleWatchPaired = function () {
+                };
+                IosDeviceInfoApi.prototype.isAppleWatchPaired = function () {
                     return this._nativeBridge.invoke(this._apiClass, "isAppleWatchPaired");
-                }, t;
+                };
+                return IosDeviceInfoApi;
             }(t.NativeApi);
-            return e.IosDeviceInfoApi = n, e;
+            exports.IosDeviceInfoApi = IosDeviceInfoApi;
+            return exports;
         }(T, c);
 
-        w = function (e, t, n, i, r) {
-            var o = function (e) {
-                function t(t) {
-                    e.call(this, t, "DeviceInfo"), t.getPlatform() === r.Platform.IOS ? this.Ios = new i.IosDeviceInfoApi(t) : this.Android = new n.AndroidDeviceInfoApi(t);
+        w = function (exports, t, n, i, r) {
+            var DeviceInfoApi = function (NativeApi) {
+                function DeviceInfoApi(t) {
+                    NativeApi.call(this, t, "DeviceInfo");
+                    if(t.getPlatform() === r.Platform.IOS ){
+                        this.Ios = new i.IosDeviceInfoApi(t)
+                    }else{
+                        this.Android = new n.AndroidDeviceInfoApi(t);
+                    }
                 }
-
-                return extend(t, e), t.prototype.getAdvertisingTrackingId = function () {
+                extend(DeviceInfoApi, NativeApi);
+                DeviceInfoApi.prototype.getAdvertisingTrackingId = function () {
                     return this._nativeBridge.invoke(this._apiClass, "getAdvertisingTrackingId");
-                }, t.prototype.getLimitAdTrackingFlag = function () {
+                };
+                DeviceInfoApi.prototype.getLimitAdTrackingFlag = function () {
                     return this._nativeBridge.invoke(this._apiClass, "getLimitAdTrackingFlag");
-                }, t.prototype.getOsVersion = function () {
+                };
+                DeviceInfoApi.prototype.getOsVersion = function () {
                     return this._nativeBridge.invoke(this._apiClass, "getOsVersion");
-                }, t.prototype.getModel = function () {
+                };
+                DeviceInfoApi.prototype.getModel = function () {
                     return this._nativeBridge.invoke(this._apiClass, "getModel");
-                }, t.prototype.getScreenWidth = function () {
+                };
+                DeviceInfoApi.prototype.getScreenWidth = function () {
                     return this._nativeBridge.invoke(this._apiClass, "getScreenWidth");
-                }, t.prototype.getScreenHeight = function () {
+                };
+                DeviceInfoApi.prototype.getScreenHeight = function () {
                     return this._nativeBridge.invoke(this._apiClass, "getScreenHeight");
-                }, t.prototype.getTimeZone = function (e) {
+                };
+                DeviceInfoApi.prototype.getTimeZone = function (e) {
                     return this._nativeBridge.invoke(this._apiClass, "getTimeZone", [e]);
-                }, t.prototype.getConnectionType = function () {
+                };
+                DeviceInfoApi.prototype.getConnectionType = function () {
                     return this._nativeBridge.invoke(this._apiClass, "getConnectionType");
-                }, t.prototype.getNetworkType = function () {
+                };
+                DeviceInfoApi.prototype.getNetworkType = function () {
                     return this._nativeBridge.invoke(this._apiClass, "getNetworkType");
-                }, t.prototype.getNetworkOperator = function () {
+                };
+                DeviceInfoApi.prototype.getNetworkOperator = function () {
                     return this._nativeBridge.invoke(this._apiClass, "getNetworkOperator");
-                }, t.prototype.getNetworkOperatorName = function () {
+                };
+                DeviceInfoApi.prototype.getNetworkOperatorName = function () {
                     return this._nativeBridge.invoke(this._apiClass, "getNetworkOperatorName");
-                }, t.prototype.isRooted = function () {
+                };
+                DeviceInfoApi.prototype.isRooted = function () {
                     return this._nativeBridge.invoke(this._apiClass, "isRooted");
-                }, t.prototype.getUniqueEventId = function () {
+                };
+                DeviceInfoApi.prototype.getUniqueEventId = function () {
                     return this._nativeBridge.invoke(this._apiClass, "getUniqueEventId");
-                }, t.prototype.getHeadset = function () {
+                };
+                DeviceInfoApi.prototype.getHeadset = function () {
                     return this._nativeBridge.invoke(this._apiClass, "getHeadset");
-                }, t.prototype.getSystemLanguage = function () {
+                };
+                DeviceInfoApi.prototype.getSystemLanguage = function () {
                     return this._nativeBridge.invoke(this._apiClass, "getSystemLanguage");
-                }, t.prototype.getScreenBrightness = function () {
+                };
+                DeviceInfoApi.prototype.getScreenBrightness = function () {
                     return this._nativeBridge.invoke(this._apiClass, "getScreenBrightness");
-                }, t.prototype.getBatteryLevel = function () {
+                };
+                DeviceInfoApi.prototype.getBatteryLevel = function () {
                     return this._nativeBridge.invoke(this._apiClass, "getBatteryLevel");
-                }, t.prototype.getBatteryStatus = function () {
+                };
+                DeviceInfoApi.prototype.getBatteryStatus = function () {
                     return this._nativeBridge.invoke(this._apiClass, "getBatteryStatus");
-                }, t.prototype.getFreeMemory = function () {
+                };
+                DeviceInfoApi.prototype.getFreeMemory = function () {
                     return this._nativeBridge.invoke(this._apiClass, "getFreeMemory");
-                }, t.prototype.getTotalMemory = function () {
+                };
+                DeviceInfoApi.prototype.getTotalMemory = function () {
                     return this._nativeBridge.invoke(this._apiClass, "getTotalMemory");
-                }, t;
+                };
+                return DeviceInfoApi;
             }(t.NativeApi);
-            return e.DeviceInfoApi = o, e;
+            exports.DeviceInfoApi = DeviceInfoApi;
+            return exports;
         }(w, c, O, T, a);
 
-        N = function (e, t, n) {
+        N = function (exports, t, n) {
             !function (e) {
-                e[e.PREPARED = 0] = "PREPARED", e[e.OPENED = 1] = "OPENED", e[e.CLOSED = 2] = "CLOSED",
-                    e[e.FAILED = 3] = "FAILED";
-            }(e.AppSheetEvent || (e.AppSheetEvent = {}));
-            var i = e.AppSheetEvent, r = function (e) {
-                function t(t) {
-                    e.call(this, t, "AppSheet"), this.onPrepared = new n.Observable1(), this.onOpen = new n.Observable1(),
-                        this.onClose = new n.Observable1(), this.onError = new n.Observable2();
-                }
+                e[e.PREPARED = 0] = "PREPARED";
+                e[e.OPENED = 1] = "OPENED";
+                e[e.CLOSED = 2] = "CLOSED";
+                e[e.FAILED = 3] = "FAILED";
+            }(exports.AppSheetEvent || (exports.AppSheetEvent = {}));
 
-                return extend(t, e), t.prototype.canOpen = function () {
+            var Event = exports.AppSheetEvent;
+            var AppSheetApi = function (NativeApi) {
+                function AppSheetApi(t) {
+                    NativeApi.call(this, t, "AppSheet");
+
+                    this.onPrepared = new n.Observable1();
+                    this.onOpen = new n.Observable1();
+                    this.onClose = new n.Observable1();
+                    this.onError = new n.Observable2();
+                }
+                extend(AppSheetApi, NativeApi);
+                AppSheetApi.prototype.canOpen = function () {
                     return this._nativeBridge.invoke(this._apiClass, "canOpen");
-                }, t.prototype.prepare = function (e, t) {
-                    return void 0 === t && (t = 3e4), this._nativeBridge.invoke(this._apiClass, "prepare", [e, t]);
-                }, t.prototype.present = function (e, t) {
-                    return void 0 === t && (t = !0), this._nativeBridge.invoke(this._apiClass, "present", [e, t]);
-                }, t.prototype.destroy = function (e) {
-                    return "undefined" == typeof e ? this._nativeBridge.invoke(this._apiClass, "destroy") : this._nativeBridge.invoke(this._apiClass, "destroy", [e]);
-                }, t.prototype.setPrepareTimeout = function (e) {
+                };
+                AppSheetApi.prototype.prepare = function (e, t) {
+                    void 0 === t && (t = 3e4);
+                    return this._nativeBridge.invoke(this._apiClass, "prepare", [e, t]);
+                };
+                AppSheetApi.prototype.present = function (e, t) {
+                    void 0 === t && (t = !0);
+                    return this._nativeBridge.invoke(this._apiClass, "present", [e, t]);
+                };
+                AppSheetApi.prototype.destroy = function (e) {
+                    if("undefined" == typeof e){
+                        return this._nativeBridge.invoke(this._apiClass, "destroy");
+                    }else{
+                        return this._nativeBridge.invoke(this._apiClass, "destroy", [e]);
+                    }
+                };
+                AppSheetApi.prototype.setPrepareTimeout = function (e) {
                     return this._nativeBridge.invoke(this._apiClass, "setPrepareTimeout", [e]);
-                }, t.prototype.getPrepareTimeout = function () {
+                };
+                AppSheetApi.prototype.getPrepareTimeout = function () {
                     return this._nativeBridge.invoke(this._apiClass, "getPrepareTimeout");
-                }, t.prototype.handleEvent = function (t, n) {
+                };
+                AppSheetApi.prototype.handleEvent = function (t, n) {
                     switch (t) {
-                        case i[i.PREPARED]:
+                        case Event[Event.PREPARED]:
                             this.onPrepared.trigger(n[0]);
                             break;
 
-                        case i[i.OPENED]:
+                        case Event[Event.OPENED]:
                             this.onOpen.trigger(n[0]);
                             break;
 
-                        case i[i.CLOSED]:
+                        case Event[Event.CLOSED]:
                             this.onClose.trigger(n[0]);
                             break;
 
-                        case i[i.FAILED]:
+                        case Event[Event.FAILED]:
                             this.onError.trigger(n[0], n[1]);
                             break;
 
                         default:
-                            e.prototype.handleEvent.call(this, t, n);
+                            NativeApi.prototype.handleEvent.call(this, t, n);
                     }
-                }, t;
+                };
+                return AppSheetApi;
             }(t.NativeApi);
-            return e.AppSheetApi = r, e;
-        }(N, c, u), R = function (e) {
-            var t = function () {
-                function e(e, t) {
-                    this.resolve = e, this.reject = t;
+            exports.AppSheetApi = AppSheetApi;
+            return exports;
+        }(N, c, u),
+
+        R = function (exports) {
+            var CallbackContainer = function () {
+                function CallbackContainer(resolve, reject) {
+                    this.resolve = resolve;
+                    this.reject = reject;
                 }
 
-                return e;
+                return CallbackContainer;
             }();
-            return e.CallbackContainer = t, e;
+            exports.CallbackContainer = CallbackContainer;
+            return exports;
         }(R);
 
-        D = function (e, t, n) {
-            var i;
+        D = function (exports, t, n) {
+            var Event;
             !function (e) {
-                e[e.ON_START = 0] = "ON_START", e[e.ON_CREATE = 1] = "ON_CREATE", e[e.ON_RESUME = 2] = "ON_RESUME",
-                    e[e.ON_DESTROY = 3] = "ON_DESTROY", e[e.ON_PAUSE = 4] = "ON_PAUSE", e[e.KEY_DOWN = 5] = "KEY_DOWN",
-                    e[e.ON_RESTORE = 6] = "ON_RESTORE", e[e.ON_STOP = 7] = "ON_STOP";
-            }(i || (i = {}));
-            var r = function (e) {
-                function n(n) {
-                    e.call(this, n, "AdUnit"), this.onStart = new t.Observable1(), this.onCreate = new t.Observable1(),
-                        this.onResume = new t.Observable1(), this.onDestroy = new t.Observable2(), this.onPause = new t.Observable2(),
-                        this.onKeyDown = new t.Observable5(), this.onRestore = new t.Observable1(), this.onStop = new t.Observable1();
-                }
+                e[e.ON_START = 0] = "ON_START";
+                e[e.ON_CREATE = 1] = "ON_CREATE";
+                e[e.ON_RESUME = 2] = "ON_RESUME";
+                e[e.ON_DESTROY = 3] = "ON_DESTROY";
+                e[e.ON_PAUSE = 4] = "ON_PAUSE";
+                e[e.KEY_DOWN = 5] = "KEY_DOWN";
+                e[e.ON_RESTORE = 6] = "ON_RESTORE";
+                e[e.ON_STOP = 7] = "ON_STOP";
+            }(Event || (Event = {}));
 
-                return extend(n, e), n.prototype.open = function (e, t, n, i, r, o) {
-                    return void 0 === i && (i = null), void 0 === r && (r = 0), void 0 === o && (o = !0),
-                        this._nativeBridge.invoke(this._apiClass, "open", [e, t, n, i, r, o]);
-                }, n.prototype.close = function () {
+            var AndroidAdUnitApi = function (NativeApi) {
+
+                function AndroidAdUnitApi(n) {
+                    NativeApi.call(this, n, "AdUnit");
+
+                    this.onStart = new t.Observable1();
+                    this.onCreate = new t.Observable1();
+                    this.onResume = new t.Observable1();
+                    this.onDestroy = new t.Observable2();
+                    this.onPause = new t.Observable2();
+                    this.onKeyDown = new t.Observable5();
+                    this.onRestore = new t.Observable1();
+                    this.onStop = new t.Observable1();
+                }
+                extend(AndroidAdUnitApi, NativeApi);
+
+                AndroidAdUnitApi.prototype.open = function (e, t, n, i, r, o) {
+                    void 0 === i && (i = null);
+                    void 0 === r && (r = 0);
+                    void 0 === o && (o = !0);
+                    return this._nativeBridge.invoke(this._apiClass, "open", [e, t, n, i, r, o]);
+                };
+                AndroidAdUnitApi.prototype.close = function () {
                     return this._nativeBridge.invoke(this._apiClass, "close");
-                }, n.prototype.setViews = function (e) {
+                };
+                AndroidAdUnitApi.prototype.setViews = function (e) {
                     return this._nativeBridge.invoke(this._apiClass, "setViews", [e]);
-                }, n.prototype.getViews = function () {
+                };
+                AndroidAdUnitApi.prototype.getViews = function () {
                     return this._nativeBridge.invoke(this._apiClass, "getViews");
-                }, n.prototype.setOrientation = function (e) {
+                };
+                AndroidAdUnitApi.prototype.setOrientation = function (e) {
                     return this._nativeBridge.invoke(this._apiClass, "setOrientation", [e]);
-                }, n.prototype.getOrientation = function () {
+                };
+                AndroidAdUnitApi.prototype.getOrientation = function () {
                     return this._nativeBridge.invoke(this._apiClass, "getOrientation");
-                }, n.prototype.setKeepScreenOn = function (e) {
+                };
+                AndroidAdUnitApi.prototype.setKeepScreenOn = function (e) {
                     return this._nativeBridge.invoke(this._apiClass, "setKeepScreenOn", [e]);
-                }, n.prototype.setSystemUiVisibility = function (e) {
+                };
+                AndroidAdUnitApi.prototype.setSystemUiVisibility = function (e) {
                     return this._nativeBridge.invoke(this._apiClass, "setSystemUiVisibility", [e]);
-                }, n.prototype.setKeyEventList = function (e) {
+                };
+                AndroidAdUnitApi.prototype.setKeyEventList = function (e) {
                     return this._nativeBridge.invoke(this._apiClass, "setKeyEventList", [e]);
-                }, n.prototype.handleEvent = function (t, n) {
+                };
+                AndroidAdUnitApi.prototype.handleEvent = function (t, n) {
                     switch (t) {
-                        case i[i.ON_START]:
+                        case Event[Event.ON_START]:
                             this.onStart.trigger(n[0]);
                             break;
 
-                        case i[i.ON_CREATE]:
+                        case Event[Event.ON_CREATE]:
                             this.onCreate.trigger(n[0]);
                             break;
 
-                        case i[i.ON_RESUME]:
+                        case Event[Event.ON_RESUME]:
                             this.onResume.trigger(n[0]);
                             break;
 
-                        case i[i.ON_DESTROY]:
+                        case Event[Event.ON_DESTROY]:
                             this.onDestroy.trigger(n[0], n[1]);
                             break;
 
-                        case i[i.ON_PAUSE]:
+                        case Event[Event.ON_PAUSE]:
                             this.onPause.trigger(n[0], n[1]);
                             break;
 
-                        case i[i.KEY_DOWN]:
+                        case Event[Event.KEY_DOWN]:
                             this.onKeyDown.trigger(n[0], n[1], n[2], n[3], n[4]);
                             break;
 
-                        case i[i.ON_RESTORE]:
+                        case Event[Event.ON_RESTORE]:
                             this.onRestore.trigger(n[0]);
                             break;
 
-                        case i[i.ON_STOP]:
+                        case Event[Event.ON_STOP]:
                             this.onStop.trigger(n[0]);
                             break;
 
                         default:
-                            e.prototype.handleEvent.call(this, t, n);
+                            NativeApi.prototype.handleEvent.call(this, t, n);
                     }
-                }, n;
+                };
+                return AndroidAdUnitApi;
             }(n.NativeApi);
-            return e.AndroidAdUnitApi = r, e;
+            exports.AndroidAdUnitApi = AndroidAdUnitApi;
+            return exports;
         }(D, u, c);
 
-        k = function (e, t, n) {
-            var i;
+        k = function (exports, t, n) {
+            var Status;
             !function (e) {
-                e[e.VIEW_CONTROLLER_INIT = 0] = "VIEW_CONTROLLER_INIT", e[e.VIEW_CONTROLLER_DID_LOAD = 1] = "VIEW_CONTROLLER_DID_LOAD",
-                    e[e.VIEW_CONTROLLER_DID_APPEAR = 2] = "VIEW_CONTROLLER_DID_APPEAR", e[e.VIEW_CONTROLLER_WILL_DISAPPEAR = 3] = "VIEW_CONTROLLER_WILL_DISAPPEAR",
-                    e[e.VIEW_CONTROLLER_DID_DISAPPEAR = 4] = "VIEW_CONTROLLER_DID_DISAPPEAR", e[e.VIEW_CONTROLLER_DID_RECEIVE_MEMORY_WARNING = 5] = "VIEW_CONTROLLER_DID_RECEIVE_MEMORY_WARNING";
-            }(i || (i = {}));
-            var r = function (e) {
-                function n(n) {
-                    e.call(this, n, "AdUnit"), this.onViewControllerInit = new t.Observable0(), this.onViewControllerDidLoad = new t.Observable0(),
-                        this.onViewControllerDidAppear = new t.Observable0(), this.onViewControllerWillDisappear = new t.Observable0(),
-                        this.onViewControllerDidDisappear = new t.Observable0(), this.onViewControllerDidReceiveMemoryWarning = new t.Observable0();
-                }
+                e[e.VIEW_CONTROLLER_INIT = 0] = "VIEW_CONTROLLER_INIT";
+                e[e.VIEW_CONTROLLER_DID_LOAD = 1] = "VIEW_CONTROLLER_DID_LOAD";
+                e[e.VIEW_CONTROLLER_DID_APPEAR = 2] = "VIEW_CONTROLLER_DID_APPEAR";
+                e[e.VIEW_CONTROLLER_WILL_DISAPPEAR = 3] = "VIEW_CONTROLLER_WILL_DISAPPEAR";
+                e[e.VIEW_CONTROLLER_DID_DISAPPEAR = 4] = "VIEW_CONTROLLER_DID_DISAPPEAR";
+                e[e.VIEW_CONTROLLER_DID_RECEIVE_MEMORY_WARNING = 5] = "VIEW_CONTROLLER_DID_RECEIVE_MEMORY_WARNING";
+            }(Status || (Status = {}));
 
-                return extend(n, e), n.prototype.open = function (e, t, n, i) {
+            var IosAdUnitApi = function (NativeApi) {
+                function IosAdUnitApi(n) {
+                    NativeApi.call(this, n, "AdUnit");
+                    this.onViewControllerInit = new t.Observable0();
+                    this.onViewControllerDidLoad = new t.Observable0();
+                    this.onViewControllerDidAppear = new t.Observable0();
+                    this.onViewControllerWillDisappear = new t.Observable0();
+                    this.onViewControllerDidDisappear = new t.Observable0();
+                    this.onViewControllerDidReceiveMemoryWarning = new t.Observable0();
+                }
+                extend(IosAdUnitApi, NativeApi);
+                IosAdUnitApi.prototype.open = function (e, t, n, i) {
                     return this._nativeBridge.invoke(this._apiClass, "open", [e, t, n, i]);
-                }, n.prototype.close = function () {
+                };
+                IosAdUnitApi.prototype.close = function () {
                     return this._nativeBridge.invoke(this._apiClass, "close");
-                }, n.prototype.setViews = function (e) {
+                };
+                IosAdUnitApi.prototype.setViews = function (e) {
                     return this._nativeBridge.invoke(this._apiClass, "setViews", [e]);
-                }, n.prototype.getViews = function () {
+                };
+                IosAdUnitApi.prototype.getViews = function () {
                     return this._nativeBridge.invoke(this._apiClass, "getViews");
-                }, n.prototype.setSupportedOrientations = function (e) {
+                };
+                IosAdUnitApi.prototype.setSupportedOrientations = function (e) {
                     return this._nativeBridge.invoke(this._apiClass, "setSupportedOrientations", [e]);
-                }, n.prototype.getSupportedOrientations = function () {
+                };
+                IosAdUnitApi.prototype.getSupportedOrientations = function () {
                     return this._nativeBridge.invoke(this._apiClass, "getSupportedOrientations");
-                }, n.prototype.setKeepScreenOn = function (e) {
+                };
+                IosAdUnitApi.prototype.setKeepScreenOn = function (e) {
                     return this._nativeBridge.invoke(this._apiClass, "setKeepScreenOn", [e]);
-                }, n.prototype.setStatusBarHidden = function (e) {
+                };
+                IosAdUnitApi.prototype.setStatusBarHidden = function (e) {
                     return this._nativeBridge.invoke(this._apiClass, "setStatusBarHidden", [e]);
-                }, n.prototype.getStatusBarHidden = function () {
+                };
+                IosAdUnitApi.prototype.getStatusBarHidden = function () {
                     return this._nativeBridge.invoke(this._apiClass, "getStatusBarHidden");
-                }, n.prototype.setShouldAutorotate = function (e) {
+                };
+                IosAdUnitApi.prototype.setShouldAutorotate = function (e) {
                     return this._nativeBridge.invoke(this._apiClass, "setShouldAutorotate", [e]);
-                }, n.prototype.getShouldAutorotate = function () {
+                };
+                IosAdUnitApi.prototype.getShouldAutorotate = function () {
                     return this._nativeBridge.invoke(this._apiClass, "getShouldAutorotate");
-                }, n.prototype.handleEvent = function (t, n) {
+                };
+                IosAdUnitApi.prototype.handleEvent = function (t, n) {
                     switch (t) {
-                        case i[i.VIEW_CONTROLLER_INIT]:
+                        case Status[Status.VIEW_CONTROLLER_INIT]:
                             this.onViewControllerInit.trigger();
                             break;
 
-                        case i[i.VIEW_CONTROLLER_DID_LOAD]:
+                        case Status[Status.VIEW_CONTROLLER_DID_LOAD]:
                             this.onViewControllerDidLoad.trigger();
                             break;
 
-                        case i[i.VIEW_CONTROLLER_DID_APPEAR]:
+                        case Status[Status.VIEW_CONTROLLER_DID_APPEAR]:
                             this.onViewControllerDidAppear.trigger();
                             break;
 
-                        case i[i.VIEW_CONTROLLER_WILL_DISAPPEAR]:
+                        case Status[Status.VIEW_CONTROLLER_WILL_DISAPPEAR]:
                             this.onViewControllerWillDisappear.trigger();
                             break;
 
-                        case i[i.VIEW_CONTROLLER_DID_DISAPPEAR]:
+                        case Status[Status.VIEW_CONTROLLER_DID_DISAPPEAR]:
                             this.onViewControllerDidDisappear.trigger();
                             break;
 
-                        case i[i.VIEW_CONTROLLER_DID_RECEIVE_MEMORY_WARNING]:
+                        case Status[Status.VIEW_CONTROLLER_DID_RECEIVE_MEMORY_WARNING]:
                             this.onViewControllerDidReceiveMemoryWarning.trigger();
                             break;
 
                         default:
-                            e.prototype.handleEvent.call(this, t, n);
+                            NativeApi.prototype.handleEvent.call(this, t, n);
                     }
-                }, n;
+                };
+                return IosAdUnitApi;
             }(n.NativeApi);
-            return e.IosAdUnitApi = r, e;
+            exports.IosAdUnitApi = IosAdUnitApi;
+            return exports;
         }(k, u, c);
 
-        P = function (e, t, n) {
-            var i;
-            !function (e) {
-                e[e.ACTION = 0] = "ACTION";
-            }(i || (i = {}));
-            var r = function (e) {
-                function t(t) {
-                    e.call(this, t, "Notification"), this.onNotification = new n.Observable2();
-                }
+        P = function (exports, t, n) {
+            var Event;
+            !function (Event) {
+                Event[Event.ACTION = 0] = "ACTION";
+            }(Event || (Event = {}));
 
-                return extend(t, e), t.prototype.addNotificationObserver = function (e, t) {
+            var NotificationApi = function (NativeApi) {
+                function NotificationApi(t) {
+                    NativeApi.call(this, t, "Notification"), this.onNotification = new n.Observable2();
+                }
+                extend(NotificationApi, NativeApi);
+                NotificationApi.prototype.addNotificationObserver = function (e, t) {
                     return this._nativeBridge.invoke(this._apiClass, "addNotificationObserver", [e, t]);
-                }, t.prototype.removeNotificationObserver = function (e) {
+                };
+                NotificationApi.prototype.removeNotificationObserver = function (e) {
                     return this._nativeBridge.invoke(this._apiClass, "removeNotificationObserver", [e]);
-                }, t.prototype.removeAllNotificationObservers = function () {
+                };
+                NotificationApi.prototype.removeAllNotificationObservers = function () {
                     return this._nativeBridge.invoke(this._apiClass, "removeAllNotificationObservers");
-                }, t.prototype.handleEvent = function (t, n) {
+                };
+                NotificationApi.prototype.handleEvent = function (t, n) {
                     switch (t) {
-                        case i[i.ACTION]:
+                        case Event[Event.ACTION]:
                             this.onNotification.trigger(n[0], n[1]);
                             break;
 
                         default:
-                            e.prototype.handleEvent.call(this, t, n);
+                            NativeApi.prototype.handleEvent.call(this, t, n);
                     }
-                }, t;
+                };
+                return NotificationApi;
             }(t.NativeApi);
-            return e.NotificationApi = r, e;
+            exports.NotificationApi = NotificationApi;
+            return exports;
         }(P, c, u);
 
-        B = function (e, t) {
-            var n = function (e) {
-                function t(t) {
-                    e.call(this, t, "UrlScheme");
+        B = function (exports, t) {
+            var UrlSchemeApi = function (NativeApi) {
+                function UrlSchemeApi(t) {
+                    NativeApi.call(this, t, "UrlScheme");
                 }
-
-                return extend(t, e), t.prototype.open = function (e) {
+                extend(UrlSchemeApi, NativeApi);
+                UrlSchemeApi.prototype.open = function (e) {
                     return this._nativeBridge.invoke(this._apiClass, "open", [e]);
-                }, t;
+                };
+                return UrlSchemeApi;
             }(t.NativeApi);
-            return e.UrlSchemeApi = n, e;
+            exports.UrlSchemeApi = UrlSchemeApi;
+            return exports;
         }(B, c),
 
-        L = function (e, t, n, i, r, o, a, s, c, u, l, h, p, d, f, v, g, _, m, y, E, S) {
+        L = function (exports, t, n, i, r, o, a, s, c, u, l, h, p, d, f, v, g, _, m, y, E, S) {
             !function (status) {
                 status[status.OK = 0] = "OK";
                 status[status.ERROR = 1] = "ERROR";
-            }(e.CallbackStatus || (e.CallbackStatus = {}));
+            }(exports.CallbackStatus || (exports.CallbackStatus = {}));
 
-            var CallbackStatus = e.CallbackStatus;
+            var CallbackStatus = exports.CallbackStatus;
             var NativeBridge = function () {
                 function Bridge(e, t, s) {
                     void 0 === t && (t = _.Platform.TEST);
@@ -1809,24 +2163,33 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                 Bridge._doubleRegExp = /"(\d+\.\d+)=double"/g; //version:"1.2=double" => version:1.2
                 return Bridge;
             }();
-            e.NativeBridge = NativeBridge;
-            return e;
-        }(L, s, l, h, p, d, g, _, m, y, S, C, A, b, w, N, R, a, D, k, P, B), U = function (e) {
-            !function (e) {
-                e[e.STREAM_ALARM = 4] = "STREAM_ALARM", e[e.STREAM_DTMF = 8] = "STREAM_DTMF", e[e.STREAM_MUSIC = 3] = "STREAM_MUSIC",
-                    e[e.STREAM_NOTIFICATION = 5] = "STREAM_NOTIFICATION", e[e.STREAM_RING = 2] = "STREAM_RING",
-                    e[e.STREAM_SYSTEM = 1] = "STREAM_SYSTEM", e[e.STREAM_VOICE_CALL = 0] = "STREAM_VOICE_CALL";
-            }(e.StreamType || (e.StreamType = {}));
-            e.StreamType;
-            return e;
-        }(U), V = function (e) {
-            var t = function () {
+            exports.NativeBridge = NativeBridge;
+            return exports;
+        }(L, s, l, h, p, d, g, _, m, y, S, C, A, b, w, N, R, a, D, k, P, B),
+
+        U = function (exports) {
+            !function (StreamType) {
+                StreamType[StreamType.STREAM_ALARM = 4] = "STREAM_ALARM";
+                StreamType[StreamType.STREAM_DTMF = 8] = "STREAM_DTMF";
+                StreamType[StreamType.STREAM_MUSIC = 3] = "STREAM_MUSIC";
+                StreamType[StreamType.STREAM_NOTIFICATION = 5] = "STREAM_NOTIFICATION";
+                StreamType[StreamType.STREAM_RING = 2] = "STREAM_RING";
+                StreamType[StreamType.STREAM_SYSTEM = 1] = "STREAM_SYSTEM";
+                StreamType[StreamType.STREAM_VOICE_CALL = 0] = "STREAM_VOICE_CALL";
+            }(exports.StreamType || (exports.StreamType = {}));
+            exports.StreamType;
+            return exports;
+        }(U),
+
+        V = function (exports) {
+            var Model = function () {
                 function e() {
                 }
 
                 return e;
             }();
-            return e.Model = t, e;
+            exports.Model = Model;
+            return exports;
         }(V);
 
         M = function (exports, t, n, i, r) {
@@ -2129,27 +2492,31 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                     }
                 };
                 DeviceInfo.prototype.getScreenBrightness = function () {
-                    var e = this;
+                    var me = this;
                     return this._nativeBridge.DeviceInfo.getScreenBrightness().then(function (t) {
-                        return e._screenBrightness = t, e._screenBrightness;
+                        me._screenBrightness = t;
+                        return me._screenBrightness;
                     });
                 };
                 DeviceInfo.prototype.getBatteryLevel = function () {
-                    var e = this;
+                    var me = this;
                     return this._nativeBridge.DeviceInfo.getBatteryLevel().then(function (t) {
-                        return e._batteryLevel = t, e._batteryLevel;
+                        me._batteryLevel = t;
+                        return me._batteryLevel;
                     });
                 };
                 DeviceInfo.prototype.getBatteryStatus = function () {
-                    var e = this;
+                    var me = this;
                     return this._nativeBridge.DeviceInfo.getBatteryStatus().then(function (t) {
-                        return e._batteryStatus = t, e._batteryStatus;
+                        me._batteryStatus = t;
+                        return me._batteryStatus;
                     });
                 };
                 DeviceInfo.prototype.getFreeMemory = function () {
-                    var e = this;
+                    var me = this;
                     return this._nativeBridge.DeviceInfo.getFreeMemory().then(function (t) {
-                        return e._freeMemory = t, e._freeMemory;
+                        me._freeMemory = t;
+                        return me._freeMemory;
                     });
                 };
                 DeviceInfo.prototype.getTotalMemory = function () {
@@ -2157,35 +2524,52 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                 };
                 DeviceInfo.prototype.getDTO = function () {
                     var e = this, t = [];
-                    return t.push(this.getConnectionType()["catch"](function (t) {
+                    t.push(this.getConnectionType()["catch"](function (t) {
                         return e.handleDeviceInfoError(t);
-                    })), t.push(this.getNetworkType()["catch"](function (t) {
+                    }));
+                    t.push(this.getNetworkType()["catch"](function (t) {
                         return e.handleDeviceInfoError(t);
-                    })), t.push(this.getNetworkOperator()["catch"](function (t) {
+                    }));
+                    t.push(this.getNetworkOperator()["catch"](function (t) {
                         return e.handleDeviceInfoError(t);
-                    })), t.push(this.getNetworkOperatorName()["catch"](function (t) {
+                    }));
+                    t.push(this.getNetworkOperatorName()["catch"](function (t) {
                         return e.handleDeviceInfoError(t);
-                    })), t.push(this.getHeadset()["catch"](function (t) {
+                    }));
+                    t.push(this.getHeadset()["catch"](function (t) {
                         return e.handleDeviceInfoError(t);
-                    })), t.push(this.getDeviceVolume()["catch"](function (t) {
+                    }));
+                    t.push(this.getDeviceVolume()["catch"](function (t) {
                         return e.handleDeviceInfoError(t);
-                    })), t.push(this.getScreenBrightness()["catch"](function (t) {
+                    }));
+                    t.push(this.getScreenBrightness()["catch"](function (t) {
                         return e.handleDeviceInfoError(t);
-                    })), t.push(this.getFreeSpace()["catch"](function (t) {
+                    }));
+                    t.push(this.getFreeSpace()["catch"](function (t) {
                         return e.handleDeviceInfoError(t);
-                    })), t.push(this.getBatteryLevel()["catch"](function (t) {
+                    }));
+                    t.push(this.getBatteryLevel()["catch"](function (t) {
                         return e.handleDeviceInfoError(t);
-                    })), t.push(this.getBatteryStatus()["catch"](function (t) {
+                    }));
+                    t.push(this.getBatteryStatus()["catch"](function (t) {
                         return e.handleDeviceInfoError(t);
-                    })), t.push(this.getFreeMemory()["catch"](function (t) {
+                    }));
+                    t.push(this.getFreeMemory()["catch"](function (t) {
                         return e.handleDeviceInfoError(t);
-                    })), this._nativeBridge.getPlatform() === i.Platform.IOS && t.push(this.isAppleWatchPaired()["catch"](function (t) {
-                        return e.handleDeviceInfoError(t);
-                    })), this._nativeBridge.getPlatform() === i.Platform.ANDROID && (t.push(this.getFreeSpaceExternal()["catch"](function (t) {
-                        return e.handleDeviceInfoError(t);
-                    })), t.push(this.getRingerMode()["catch"](function (t) {
-                        return e.handleDeviceInfoError(t);
-                    }))), Promise.all(t).then(function (t) {
+                    }));
+                    if(this._nativeBridge.getPlatform() === i.Platform.IOS ){
+                        t.push(this.isAppleWatchPaired()["catch"](function (t) {
+                            return e.handleDeviceInfoError(t);
+                        }))
+                    }else if(this._nativeBridge.getPlatform() === i.Platform.ANDROID){
+                        t.push(this.getFreeSpaceExternal()["catch"](function (t) {
+                            return e.handleDeviceInfoError(t);
+                        }));
+                        t.push(this.getRingerMode()["catch"](function (t) {
+                            return e.handleDeviceInfoError(t);
+                        }))
+                    }
+                    return Promise.all(t).then(function (t) {
                         return {
                             androidId: e._androidId,
                             advertisingId: e._advertisingIdentifier,
