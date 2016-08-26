@@ -1249,6 +1249,7 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                     NativeApi.call(this, t, "Intent");
                 }
                 extend(IntentApi, NativeApi);
+
                 IntentApi.prototype.launch = function (e) {
                     return this._nativeBridge.invoke(this._apiClass, "launch", [e]);
                 };
@@ -2633,7 +2634,7 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                             }
                         }
                     }
-                    return url += paramArr.join("&");
+                    return url + paramArr.join("&");
                 };
                 Url.getQueryParameter = function (url, paramName) {
                     var params = url.split("?")[1].split("&");
@@ -2651,193 +2652,298 @@ document.addEventListener('DOMContentLoaded', function () { /*!
             return exports;
         }(UrlKit);
 
-        x = function (e, t) {
+        x = function (exports, t) {
             !function (e) {
-                e[e.FORCED = 0] = "FORCED", e[e.ALLOWED = 1] = "ALLOWED", e[e.DISABLED = 2] = "DISABLED";
-            }(e.CacheMode || (e.CacheMode = {}));
-            var n = e.CacheMode, i = function () {
-                function e(e) {
-                    var i = this;
-                    switch (this._placements = {}, this._defaultPlacement = null, this._enabled = e.enabled,
-                        this._country = e.country, this._coppaCompliant = e.coppaCompliant, e.assetCaching) {
+                e[e.FORCED = 0] = "FORCED";
+                e[e.ALLOWED = 1] = "ALLOWED";
+                e[e.DISABLED = 2] = "DISABLED";
+            }(exports.CacheMode || (exports.CacheMode = {}));
+
+            var CacheMode = exports.CacheMode;
+
+            var Configuration = function () {
+                function Configuration(e) {
+                    var me = this;
+                    this._placements = {};
+                    this._defaultPlacement = null;
+                    this._enabled = e.enabled;
+                    this._country = e.country;
+                    this._coppaCompliant = e.coppaCompliant;
+
+                    switch (e.assetCaching) {
                         case "forced":
-                            this._cacheMode = n.FORCED;
+                            this._cacheMode = CacheMode.FORCED;
                             break;
 
                         case "allowed":
-                            this._cacheMode = n.ALLOWED;
+                            this._cacheMode = CacheMode.ALLOWED;
                             break;
 
                         case "disabled":
-                            this._cacheMode = n.DISABLED;
+                            this._cacheMode = CacheMode.DISABLED;
                             break;
 
                         default:
                             throw new Error('Unknown assetCaching value "' + e.assetCaching + '"');
                     }
-                    var r = e.placements;
-                    r.forEach(function (e) {
-                        var n = new t.Placement(e);
-                        i._placements[n.getId()] = n, n.isDefault() && (i._defaultPlacement = n);
+
+                    var placements = e.placements;
+                    placements.forEach(function (item) {
+                        var placement = new t.Placement(item);
+                        me._placements[placement.getId()] = placement;
+
+                        if(placement.isDefault()){
+                            me._defaultPlacement = placement;
+                        }
                     });
                 }
-
-                return e.prototype.isEnabled = function () {
+                Configuration.prototype.isEnabled = function () {
                     return this._enabled;
-                }, e.prototype.getCountry = function () {
+                };
+                Configuration.prototype.getCountry = function () {
                     return this._country;
-                }, e.prototype.isCoppaCompliant = function () {
+                };
+                Configuration.prototype.isCoppaCompliant = function () {
                     return this._coppaCompliant;
-                }, e.prototype.getCacheMode = function () {
+                };
+                Configuration.prototype.getCacheMode = function () {
                     return this._cacheMode;
-                }, e.prototype.getPlacement = function (e) {
-                    return this._placements[e];
-                }, e.prototype.getPlacements = function () {
+                };
+                Configuration.prototype.getPlacement = function (placementId) {
+                    return this._placements[placementId];
+                };
+                Configuration.prototype.getPlacements = function () {
                     return this._placements;
-                }, e.prototype.getPlacementCount = function () {
-                    if (!this._placements) return 0;
-                    var e = 0;
-                    for (var t in this._placements) this._placements.hasOwnProperty(t) && e++;
-                    return e;
-                }, e.prototype.getDefaultPlacement = function () {
+                };
+                Configuration.prototype.getPlacementCount = function () {
+                    if (!this._placements) {
+                        return 0;
+                    }
+                    var count = 0;
+                    for (var key in this._placements) {
+                        if(this._placements.hasOwnProperty(key)){
+                            count++;
+                        }
+                    }
+                    return count;
+                };
+                Configuration.prototype.getDefaultPlacement = function () {
                     return this._defaultPlacement;
-                }, e;
+                };
+                return Configuration;
             }();
-            return e.Configuration = i, e;
+            exports.Configuration = Configuration;
+            return exports;
         }(x, I);
 
-        W = function (e, t) {
-            var n = function (e) {
+        W = function (exports, t) {
+            var FrameworkMetaData = function (Model) {
                 function t(t) {
-                    e.call(this), this._name = t[0], this._version = t[1];
+                    Model.call(this);
+                    this._name = t[0];
+                    this._version = t[1];
                 }
+                extend(t, Model);
 
-                return extend(t, e), t.getCategory = function () {
+                t.getCategory = function () {
                     return "framework";
-                }, t.getKeys = function () {
+                };
+                t.getKeys = function () {
                     return ["name.value", "version.value"];
-                }, t.prototype.getName = function () {
+                };
+                t.prototype.getName = function () {
                     return this._name;
-                }, t.prototype.getVersion = function () {
+                };
+                t.prototype.getVersion = function () {
                     return this._version;
-                }, t.prototype.getDTO = function () {
+                };
+                t.prototype.getDTO = function () {
                     return {
                         frameworkName: this._name,
                         frameworkVersion: this._version
                     };
-                }, t;
+                };
+                return t;
             }(t.Model);
-            return e.FrameworkMetaData = n, e;
+            exports.FrameworkMetaData = FrameworkMetaData;
+            return exports;
         }(W, V);
 
-        q = function (e, t) {
-            var n = function (e) {
-                function t(t) {
-                    e.call(this), this._name = t[0], this._version = t[1];
+        q = function (exports, t) {
+            var AdapterMetaData = function (Model) {
+                function AdapterMetaData(t) {
+                    Model.call(this);
+                    this._name = t[0];
+                    this._version = t[1];
                 }
+                extend(AdapterMetaData, Model);
 
-                return extend(t, e), t.getCategory = function () {
+                AdapterMetaData.getCategory = function () {
                     return "adapter";
-                }, t.getKeys = function () {
+                };
+                AdapterMetaData.getKeys = function () {
                     return ["name.value", "version.value"];
-                }, t.prototype.getName = function () {
+                };
+                AdapterMetaData.prototype.getName = function () {
                     return this._name;
-                }, t.prototype.getVersion = function () {
+                };
+                AdapterMetaData.prototype.getVersion = function () {
                     return this._version;
-                }, t.prototype.getDTO = function () {
+                };
+                AdapterMetaData.prototype.getDTO = function () {
                     return {
                         adapterName: this._name,
                         adapterVersion: this._version
                     };
-                }, t;
+                };
+                return AdapterMetaData;
             }(t.Model);
-            return e.AdapterMetaData = n, e;
+            exports.AdapterMetaData = AdapterMetaData;
+            return exports;
         }(q, V);
 
-        K = function (e, t) {
-            var n = function (e) {
-                function t(t) {
-                    e.call(this), this._name = t[0], this._version = t[1], this._ordinal = parseInt(t[2], 10);
+        K = function (exports, t) {
+            var MediationMetaData = function (Model) {
+                function MediationMetaData(t) {
+                    Model.call(this);
+                    this._name = t[0];
+                    this._version = t[1];
+                    this._ordinal = parseInt(t[2], 10);
                 }
+                extend(MediationMetaData, Model);
 
-                return extend(t, e), t.getCategory = function () {
+                MediationMetaData.getCategory = function () {
                     return "mediation";
-                }, t.getKeys = function () {
+                };
+                MediationMetaData.getKeys = function () {
                     return ["name.value", "version.value", "ordinal.value"];
-                }, t.prototype.getName = function () {
+                };
+                MediationMetaData.prototype.getName = function () {
                     return this._name;
-                }, t.prototype.getVersion = function () {
+                };
+                MediationMetaData.prototype.getVersion = function () {
                     return this._version;
-                }, t.prototype.getOrdinal = function () {
+                };
+                MediationMetaData.prototype.getOrdinal = function () {
                     return this._ordinal;
-                }, t.prototype.getDTO = function () {
+                };
+                MediationMetaData.prototype.getDTO = function () {
                     return {
                         mediationName: this._name,
                         mediationVersion: this._version,
                         mediationOrdinal: this._ordinal
                     };
-                }, t;
+                };
+                return MediationMetaData;
             }(t.Model);
-            return e.MediationMetaData = n, e;
+            exports.MediationMetaData = MediationMetaData;
+            return exports;
         }(K, V);
 
-        H = function (e, t) {
-            var n = function (e) {
-                function t(t) {
-                    e.call(this), this._serverId = t[0];
+        H = function (exports, t) {
+            var PlayerMetaData = function (Model) {
+                function PlayerMetaData(t) {
+                    Model.call(this);
+                    this._serverId = t[0];
                 }
+                extend(PlayerMetaData, Model);
 
-                return extend(t, e), t.getCategory = function () {
+                PlayerMetaData.getCategory = function () {
                     return "player";
-                }, t.getKeys = function () {
+                };
+                PlayerMetaData.getKeys = function () {
                     return ["server_id.value"];
-                }, t.prototype.getServerId = function () {
+                };
+                PlayerMetaData.prototype.getServerId = function () {
                     return this._serverId;
-                }, t.prototype.getDTO = function () {
+                };
+                PlayerMetaData.prototype.getDTO = function () {
                     return {
                         sid: this._serverId
                     };
-                }, t;
-            }(t.Model);
-            return e.PlayerMetaData = n, e;
-        }(H, V), j = function (e, t, n, i, r, o) {
-            var a = function () {
-                function e() {
                 }
+                return PlayerMetaData;
+            }(t.Model);
+            exports.PlayerMetaData = PlayerMetaData;
+            return exports;
+        }(H, V),
 
-                return e.getValues = function (n, i, r) {
-                    return e.categoryExists(n, r).then(function (e) {
-                        return e ? Promise.all(i.map(function (e) {
-                            return r.Storage.get(t.StorageType.PUBLIC, n + "." + e)["catch"](function () {
+        j = function (exports, t, n, i, r, o) {
+            var MetaDataManager = function () {
+                function MetaDataManager() {
+                }
+                MetaDataManager.getValues = function (n, i, r) {
+                    return MetaDataManager.categoryExists(n, r).then(function (e) {
+                        if(e){
+                            return Promise.all(i.map(function (e) {
+                                return r.Storage.get(t.StorageType.PUBLIC, n + "." + e)["catch"](function () {});
+                            }));
+                        }else{
+                            return Promise.resolve(void 0);
+                        }
+                    });
+                };
+                MetaDataManager.fetchFrameworkMetaData = function (t, i) {
+                    if(void 0 === i){
+                        i = true;
+                    }
+                    return MetaDataManager.fetch(n.FrameworkMetaData.getCategory(), n.FrameworkMetaData.getKeys(), t, i).then(function (e) {
+                        return Promise.resolve(e);
+                    });
+                };
+                MetaDataManager.fetchAdapterMetaData = function (t, n) {
+                    if(void 0 === n){
+                        n = true;
+                    }
+                    return MetaDataManager.fetch(i.AdapterMetaData.getCategory(), i.AdapterMetaData.getKeys(), t, n).then(function (e) {
+                        return Promise.resolve(e);
+                    });
+                };
+                MetaDataManager.fetchMediationMetaData = function (t, n) {
+                    if(void 0 === n){
+                        n = true;
+                    }
+                    return MetaDataManager.fetch(r.MediationMetaData.getCategory(), r.MediationMetaData.getKeys(), t, n).then(function (e) {
+                        return Promise.resolve(e);
+                    });
+                };
+                MetaDataManager.fetchPlayerMetaData = function (n) {
+                    return MetaDataManager.fetch(o.PlayerMetaData.getCategory(), o.PlayerMetaData.getKeys(), n, false).then(function (i) {
+                        if(null != i){
+                            return MetaDataManager.caches.player = void 0, n.Storage["delete"](t.StorageType.PUBLIC, o.PlayerMetaData.getCategory()).then(function () {
+                                return i;
                             });
-                        })) : Promise.resolve(void 0);
+                        }else{
+                            return Promise.resolve(i);
+                        }
                     });
-                }, e.fetchFrameworkMetaData = function (t, i) {
-                    return void 0 === i && (i = !0), e.fetch(n.FrameworkMetaData.getCategory(), n.FrameworkMetaData.getKeys(), t, i).then(function (e) {
-                        return Promise.resolve(e);
-                    });
-                }, e.fetchAdapterMetaData = function (t, n) {
-                    return void 0 === n && (n = !0), e.fetch(i.AdapterMetaData.getCategory(), i.AdapterMetaData.getKeys(), t, n).then(function (e) {
-                        return Promise.resolve(e);
-                    });
-                }, e.fetchMediationMetaData = function (t, n) {
-                    return void 0 === n && (n = !0), e.fetch(r.MediationMetaData.getCategory(), r.MediationMetaData.getKeys(), t, n).then(function (e) {
-                        return Promise.resolve(e);
-                    });
-                }, e.fetchPlayerMetaData = function (n) {
-                    return e.fetch(o.PlayerMetaData.getCategory(), o.PlayerMetaData.getKeys(), n, !1).then(function (i) {
-                        return null != i ? (e.caches.player = void 0, n.Storage["delete"](t.StorageType.PUBLIC, o.PlayerMetaData.getCategory()).then(function () {
-                            return i;
-                        })) : Promise.resolve(i);
-                    });
-                }, e.fetch = function (t, n, i, r) {
-                    return void 0 === r && (r = !0), r && e.caches[t] ? Promise.resolve(e.caches[t]) : e.getValues(t, n, i).then(function (n) {
-                        return e.createAndCache(t, n, r);
-                    });
-                }, e.createAndCache = function (t, n, i) {
-                    return void 0 === i && (i = !0), void 0 !== n ? (i && !e.caches[t] && (e.caches[t] = e.createByCategory(t, n)),
-                        i ? e.caches[t] : e.createByCategory(t, n)) : void 0;
-                }, e.createByCategory = function (e, t) {
+                };
+                MetaDataManager.fetch = function (t, n, i, r) {
+                    if(void 0 === r ){
+                        r = true;
+                    }
+                    if(r && MetaDataManager.caches[t]){
+                        return Promise.resolve(MetaDataManager.caches[t]);
+                    }else{
+                        return  MetaDataManager.getValues(t, n, i).then(function (n) {
+                            return MetaDataManager.createAndCache(t, n, r);
+                        });
+                    }
+                };
+                MetaDataManager.createAndCache = function (t, n, i) {
+                    if(void 0 === i){
+                        i = true
+                    }
+                    if(void 0 !== n){
+                        if(i && !MetaDataManager.caches[t] ){
+                            MetaDataManager.caches[t] = MetaDataManager.createByCategory(t, n);
+                        }
+                        return i ? MetaDataManager.caches[t] : MetaDataManager.createByCategory(t, n)
+                    }else{
+                        return void 0
+                    }
+                };
+                MetaDataManager.createByCategory = function (e, t) {
                     switch (e) {
                         case "framework":
                             return new n.FrameworkMetaData(t);
@@ -2854,58 +2960,67 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                         default:
                             return null;
                     }
-                }, e.clearCaches = function () {
-                    e.caches = {
+                };
+                MetaDataManager.clearCaches = function () {
+                    MetaDataManager.caches = {
                         framework: void 0,
                         adapter: void 0,
                         mediation: void 0,
                         player: void 0
                     };
-                }, e.categoryExists = function (e, n) {
-                    return n.Storage.getKeys(t.StorageType.PUBLIC, e, !1).then(function (e) {
+                };
+                MetaDataManager.categoryExists = function (e, n) {
+                    return n.Storage.getKeys(t.StorageType.PUBLIC, e, false).then(function (e) {
                         return e.length > 0;
                     });
-                }, e.caches = {
+                };
+                MetaDataManager.caches = {
                     framework: void 0,
                     adapter: void 0,
                     mediation: void 0,
                     player: void 0
-                }, e;
+                };
+                return MetaDataManager;
             }();
-            return e.MetaDataManager = a, e;
+            exports.MetaDataManager = MetaDataManager;
+            return exports;
         }(j, b, W, q, K, H);
 
-        G = function (e) {
-            var t = function (e) {
-                function t() {
-                    e.apply(this, arguments);
+        G = function (exports) {
+            var JsonSyntaxError = function (SyntaxError) {
+                function JsonSyntaxError() {
+                    SyntaxError.apply(this, arguments);
                 }
-
-                return extend(t, e), t;
+                extend(JsonSyntaxError, SyntaxError);
+                return JsonSyntaxError;
             }(SyntaxError);
-            e.JsonSyntaxError = t;
-            var n = function () {
-                function e() {
-                }
+            exports.JsonSyntaxError = JsonSyntaxError;
 
-                return e.parse = function (e, t) {
+            var JsonParser = function () {
+                function JsonParser() {
+                }
+                JsonParser.parse = function (text, reviver) {
                     try {
-                        return JSON.parse(e, t);
-                    } catch (n) {
-                        var i = n;
-                        throw i.failingContent = e, i.name = "JsonSyntaxError", i;
+                        return JSON.parse(text, reviver);
+                    } catch (e) {
+                        e.failingContent = text;
+                        e.name = "JsonSyntaxError";
+                        throw e;
                     }
-                }, e;
+                };
+                return JsonParser;
             }();
-            return e.JsonParser = n, e;
-        }(G), Y = function (e, t, n, i, r) {
-            var o = function () {
-                function e() {
-                }
+            exports.JsonParser = JsonParser;
+            return exports;
+        }(G),
 
-                return e.fetch = function (t, o, a, s) {
+        Y = function (exports, t, n, i, r) {
+            var ConfigManager = function () {
+                function ConfigManager() {
+                }
+                ConfigManager.fetch = function (t, o, a, s) {
                     return i.MetaDataManager.fetchAdapterMetaData(t).then(function (i) {
-                        var c = e.createConfigUrl(a, s, i);
+                        var c = ConfigManager.createConfigUrl(a, s, i);
                         return t.Sdk.logInfo("Requesting configuration from " + c), o.get(c, [], {
                             retries: 5,
                             retryDelay: 5e3,
@@ -2913,118 +3028,181 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                             retryWithConnectionEvents: !0
                         }).then(function (e) {
                             try {
-                                var i = r.JsonParser.parse(e.response), o = new n.Configuration(i);
-                                return t.Sdk.logInfo("Received configuration with " + o.getPlacementCount() + " placements"),
-                                    o;
-                            } catch (a) {
-                                throw t.Sdk.logError("Config request failed " + a), new Error(a);
+                                var i = r.JsonParser.parse(e.response),
+                                    o = new n.Configuration(i);
+                                t.Sdk.logInfo("Received configuration with " + o.getPlacementCount() + " placements");
+                                return o;
+                            } catch (e) {
+                                t.Sdk.logError("Config request failed " + e);
+                                throw new Error(e);
                             }
                         });
                     });
-                }, e.setTestBaseUrl = function (t) {
-                    e.ConfigBaseUrl = t + "/games";
-                }, e.createConfigUrl = function (n, i, r) {
-                    var o = [e.ConfigBaseUrl, n.getGameId(), "configuration"].join("/");
-                    return o = t.Url.addParameters(o, {
+                };
+                ConfigManager.setTestBaseUrl = function (baseUrl) {
+                    ConfigManager.ConfigBaseUrl = baseUrl + "/games";
+                };
+                ConfigManager.createConfigUrl = function (n, i, r) {
+                    var o = [ConfigManager.ConfigBaseUrl, n.getGameId(), "configuration"].join("/");
+                    o = t.Url.addParameters(o, {
                         bundleId: n.getApplicationName(),
                         encrypted: !n.isDebuggable(),
                         rooted: i.isRooted()
-                    }), r && (o = t.Url.addParameters(o, r.getDTO())), o;
-                }, e.ConfigBaseUrl = "https://adserver.unityads.unity3d.com/games", e;
+                    });
+                    if(r){
+                        o = t.Url.addParameters(o, r.getDTO());
+                    }
+                    return o;
+                };
+                ConfigManager.ConfigBaseUrl = "https://adserver.unityads.unity3d.com/games";
+                return ConfigManager;
             }();
-            return e.ConfigManager = o, e;
-        }(Y, UrlKit, x, j, G), z = function (e) {
-            var t = function () {
-                function e(e, t, n) {
-                    this._isVideoCached = !1, this._id = e.id, this._appStoreId = e.appStoreId, this._appStoreCountry = e.appStoreCountry,
-                        this._gameId = e.gameId, this._gameName = e.gameName, this._gameIcon = e.gameIcon,
-                        this._rating = e.rating, this._ratingCount = e.ratingCount, this._landscapeImage = e.endScreenLandscape,
-                        this._portraitImage = e.endScreenPortrait, this._video = e.trailerDownloadable,
-                        this._videoSize = e.trailerDownloadableSize, this._streamingVideo = e.trailerStreaming,
-                        this._clickAttributionUrl = e.clickAttributionUrl, this._clickAttributionUrlFollowsRedirects = e.clickAttributionUrlFollowsRedirects,
-                        this._bypassAppSheet = e.bypassAppSheet, this._gamerId = t, this._abGroup = n;
-                }
+            exports.ConfigManager = ConfigManager;
+            return exports;
+        }(Y, UrlKit, x, j, G),
 
-                return e.prototype.getId = function () {
+        z = function (exports) {
+            var Campaign = function () {
+                function Campaign(e, gamerId, abGroup) {
+                    this._isVideoCached = false;
+                    this._id = e.id;
+                    this._appStoreId = e.appStoreId;
+                    this._appStoreCountry = e.appStoreCountry;
+                    this._gameId = e.gameId;
+                    this._gameName = e.gameName;
+                    this._gameIcon = e.gameIcon;
+                    this._rating = e.rating;
+                    this._ratingCount = e.ratingCount;
+                    this._landscapeImage = e.endScreenLandscape;
+                    this._portraitImage = e.endScreenPortrait;
+                    this._video = e.trailerDownloadable;
+                    this._videoSize = e.trailerDownloadableSize;
+                    this._streamingVideo = e.trailerStreaming;
+                    this._clickAttributionUrl = e.clickAttributionUrl;
+                    this._clickAttributionUrlFollowsRedirects = e.clickAttributionUrlFollowsRedirects;
+                    this._bypassAppSheet = e.bypassAppSheet;
+                    this._gamerId = gamerId;
+                    this._abGroup = abGroup;
+                }
+                Campaign.prototype.getId = function () {
                     return this._id;
-                }, e.prototype.getAppStoreId = function () {
+                };
+                Campaign.prototype.getAppStoreId = function () {
                     return this._appStoreId;
-                }, e.prototype.getAppStoreCountry = function () {
+                };
+                Campaign.prototype.getAppStoreCountry = function () {
                     return this._appStoreCountry;
-                }, e.prototype.getGameId = function () {
+                };
+                Campaign.prototype.getGameId = function () {
                     return this._gameId;
-                }, e.prototype.getGameName = function () {
+                };
+                Campaign.prototype.getGameName = function () {
                     return this._gameName;
-                }, e.prototype.getGameIcon = function () {
+                };
+                Campaign.prototype.getGameIcon = function () {
                     return this._gameIcon;
-                }, e.prototype.setGameIcon = function (e) {
-                    this._gameIcon = e;
-                }, e.prototype.getRating = function () {
+                };
+                Campaign.prototype.setGameIcon = function (icon) {
+                    this._gameIcon = icon;
+                };
+                Campaign.prototype.getRating = function () {
                     return this._rating;
-                }, e.prototype.getRatingCount = function () {
+                };
+                Campaign.prototype.getRatingCount = function () {
                     return this._ratingCount;
-                }, e.prototype.getPortraitUrl = function () {
+                };
+                Campaign.prototype.getPortraitUrl = function () {
                     return this._portraitImage;
-                }, e.prototype.setPortraitUrl = function (e) {
-                    this._portraitImage = e;
-                }, e.prototype.getLandscapeUrl = function () {
+                };
+                Campaign.prototype.setPortraitUrl = function (imgUrl) {
+                    this._portraitImage = imgUrl;
+                };
+                Campaign.prototype.getLandscapeUrl = function () {
                     return this._landscapeImage;
-                }, e.prototype.setLandscapeUrl = function (e) {
-                    this._landscapeImage = e;
-                }, e.prototype.getVideoUrl = function () {
+                };
+                Campaign.prototype.setLandscapeUrl = function (url) {
+                    this._landscapeImage = url;
+                };
+                Campaign.prototype.getVideoUrl = function () {
                     return this._video;
-                }, e.prototype.setVideoUrl = function (e) {
-                    this._video = e;
-                }, e.prototype.getClickAttributionUrl = function () {
+                };
+                Campaign.prototype.setVideoUrl = function (url) {
+                    this._video = url;
+                };
+                Campaign.prototype.getClickAttributionUrl = function () {
                     return this._clickAttributionUrl;
-                }, e.prototype.getClickAttributionUrlFollowsRedirects = function () {
+                };
+                Campaign.prototype.getClickAttributionUrlFollowsRedirects = function () {
                     return this._clickAttributionUrlFollowsRedirects;
-                }, e.prototype.getBypassAppSheet = function () {
+                };
+                Campaign.prototype.getBypassAppSheet = function () {
                     return this._bypassAppSheet;
-                }, e.prototype.getGamerId = function () {
+                };
+                Campaign.prototype.getGamerId = function () {
                     return this._gamerId;
-                }, e.prototype.getAbGroup = function () {
+                };
+                Campaign.prototype.getAbGroup = function () {
                     return this._abGroup;
-                }, e.prototype.isVideoCached = function () {
+                };
+                Campaign.prototype.isVideoCached = function () {
                     return this._isVideoCached;
-                }, e.prototype.setVideoCached = function (e) {
-                    this._isVideoCached = e;
-                }, e;
+                };
+                Campaign.prototype.setVideoCached = function (cached) {
+                    this._isVideoCached = cached;
+                };
+                return Campaign;
             }();
-            return e.Campaign = t, e;
+            exports.Campaign = Campaign;
+            return exports;
         }(z);
 
-        Q = function (e, t) {
-            var n = function (e) {
-                function t(t, n, i, r) {
-                    e.call(this, {}, i, r), this._campaignId = n, this._vast = t;
+        Q = function (exports, t) {
+            var VastCampaign = function (Campaign) {
+                function VastCampaign(vast, campaignId, gamerId, abGroup) {
+                    Campaign.call(this, {}, gamerId, abGroup);
+                    this._campaignId = campaignId;
+                    this._vast = vast;
                 }
+                extend(VastCampaign, Campaign);
 
-                return extend(t, e), t.prototype.getId = function () {
+                VastCampaign.prototype.getId = function () {
                     return this._campaignId;
-                }, t.prototype.getVast = function () {
+                };
+                VastCampaign.prototype.getVast = function () {
                     return this._vast;
-                }, t.prototype.getVideoUrl = function () {
-                    var t = e.prototype.getVideoUrl.call(this);
-                    return t ? t : this._vast.getVideoUrl();
-                }, t;
+                };
+                VastCampaign.prototype.getVideoUrl = function () {
+                    var url = Campaign.prototype.getVideoUrl.call(this);
+                    return url ? url : this._vast.getVideoUrl();
+                };
+                return VastCampaign;
             }(t.Campaign);
-            return e.VastCampaign = n, e;
-        }(Q, z), J = function (e, t, n, i, r, o, a, s) {
-            var c = function () {
-                function e(e, n, i, r, o) {
-                    this.onCampaign = new t.Observable1(), this.onVastCampaign = new t.Observable1(),
-                        this.onNoFill = new t.Observable1(), this.onError = new t.Observable1(), this._nativeBridge = e,
-                        this._request = n, this._clientInfo = i, this._deviceInfo = r, this._vastParser = o;
-                }
+            exports.VastCampaign = VastCampaign;
+            return exports;
+        }(Q, z),
 
-                return e.setTestBaseUrl = function (t) {
-                    e.CampaignBaseUrl = t + "/games";
-                }, e.prototype.request = function () {
-                    var e = this;
+        J = function (exports, t, UrlKit, i, r, o, a, s) {
+            var CampaignManager = function () {
+                function CampaignManager(nativeBridge, request, clientInfo, deviceInfo, vastParser) {
+                    this.onCampaign = new t.Observable1();
+                    this.onVastCampaign = new t.Observable1()
+                    this.onNoFill = new t.Observable1();
+                    this.onError = new t.Observable1();
+                    this._nativeBridge = nativeBridge;
+                    this._request = request;
+                    this._clientInfo = clientInfo;
+                    this._deviceInfo = deviceInfo;
+                    this._vastParser = vastParser;
+                }
+                CampaignManager.setTestBaseUrl = function (baseUrl) {
+                    CampaignManager.CampaignBaseUrl = baseUrl + "/games";
+                };
+                CampaignManager.prototype.request = function () {
+                    var me = this;
                     return Promise.all([this.createRequestUrl(), this.createRequestBody()]).then(function (t) {
                         var n = t[0], a = t[1];
-                        return e._nativeBridge.Sdk.logInfo("Requesting ad plan from " + n), e._request.post(n, a, [], {
+                        me._nativeBridge.Sdk.logInfo("Requesting ad plan from " + n);
+                        return me._request.post(n, a, [], {
                             retries: 5,
                             retryDelay: 5e3,
                             followRedirects: !1,
@@ -3032,32 +3210,67 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                         }).then(function (t) {
                             var n = s.JsonParser.parse(t.response);
                             if (n.campaign) {
-                                e._nativeBridge.Sdk.logInfo("Unity Ads server returned game advertisement");
+                                me._nativeBridge.Sdk.logInfo("Unity Ads server returned game advertisement");
                                 var a = new i.Campaign(n.campaign, n.gamerId, n.abGroup);
-                                e.onCampaign.trigger(a);
-                            } else "vast" in n ? null === n.vast ? (e._nativeBridge.Sdk.logInfo("Unity Ads server returned no fill"),
-                                e.onNoFill.trigger(3600)) : (e._nativeBridge.Sdk.logInfo("Unity Ads server returned VAST advertisement"),
-                                e._vastParser.retrieveVast(n.vast, e._nativeBridge, e._request).then(function (t) {
-                                    var i = void 0;
-                                    e._nativeBridge.getPlatform() === o.Platform.IOS ? i = "00005472656d6f7220694f53" : e._nativeBridge.getPlatform() === o.Platform.ANDROID && (i = "005472656d6f7220416e6472");
-                                    var a = new r.VastCampaign(t, i, n.gamerId, n.abGroup);
-                                    return 0 === a.getVast().getImpressionUrls().length ? void e.onError.trigger(new Error("Campaign does not have an impression url")) : (0 === a.getVast().getErrorURLTemplates().length && e._nativeBridge.Sdk.logWarning("Campaign does not have an error url for game id " + e._clientInfo.getGameId()),
-                                        a.getVideoUrl() ? void e.onVastCampaign.trigger(a) : void e.onError.trigger(new Error("Campaign does not have a video url")));
-                                })["catch"](function (t) {
-                                    e.onError.trigger(t);
-                                })) : (e._nativeBridge.Sdk.logInfo("Unity Ads server returned no fill"), e.onNoFill.trigger(3600));
+                                me.onCampaign.trigger(a);
+                            } else if("vast" in n ){
+                                if(null === n.vast){
+                                    me._nativeBridge.Sdk.logInfo("Unity Ads server returned no fill");
+                                    me.onNoFill.trigger(3600)
+                                }else{
+                                    me._nativeBridge.Sdk.logInfo("Unity Ads server returned VAST advertisement");
+                                    me._vastParser.retrieveVast(n.vast, me._nativeBridge, me._request).then(function (t) {
+                                        var i = void 0;
+                                        if(me._nativeBridge.getPlatform() === o.Platform.IOS){
+                                            i = "00005472656d6f7220694f53";
+                                        }else if(me._nativeBridge.getPlatform() === o.Platform.ANDROID){
+                                            i = "005472656d6f7220416e6472";
+                                        }
+
+                                        var a = new r.VastCampaign(t, i, n.gamerId, n.abGroup);
+                                        if(0 === a.getVast().getImpressionUrls().length){
+                                            me.onError.trigger(new Error("Campaign does not have an impression url"))
+
+                                        }else{
+                                            if(0 === a.getVast().getErrorURLTemplates().length){
+                                                me._nativeBridge.Sdk.logWarning("Campaign does not have an error url for game id " + me._clientInfo.getGameId())
+                                            }
+                                            if(a.getVideoUrl()){
+                                                me.onVastCampaign.trigger(a)
+                                            }else{
+                                                me.onError.trigger(new Error("Campaign does not have a video url"))
+                                            }
+                                        }
+
+
+                                    })["catch"](function (t) {
+                                        me.onError.trigger(t);
+                                    })
+                                }
+                            }else{
+                                me._nativeBridge.Sdk.logInfo("Unity Ads server returned no fill");
+                                me.onNoFill.trigger(3600);
+                            }
                         });
                     })["catch"](function (t) {
-                        e.onError.trigger(t);
+                        me.onError.trigger(t);
                     });
-                }, e.prototype.createRequestUrl = function () {
-                    var t = [e.CampaignBaseUrl, this._clientInfo.getGameId(), "fill"].join("/");
-                    this._deviceInfo.getAdvertisingIdentifier() ? t = n.Url.addParameters(t, {
-                        advertisingTrackingId: this._deviceInfo.getAdvertisingIdentifier(),
-                        limitAdTracking: this._deviceInfo.getLimitAdTracking()
-                    }) : this._clientInfo.getPlatform() === o.Platform.ANDROID && (t = n.Url.addParameters(t, {
-                        androidId: this._deviceInfo.getAndroidId()
-                    })), t = n.Url.addParameters(t, {
+                };
+                CampaignManager.prototype.createRequestUrl = function () {
+                    var t = [CampaignManager.CampaignBaseUrl, this._clientInfo.getGameId(), "fill"].join("/");
+
+                    if(this._deviceInfo.getAdvertisingIdentifier() ){
+                        t = UrlKit.Url.addParameters(t, {
+                            advertisingTrackingId: this._deviceInfo.getAdvertisingIdentifier(),
+                            limitAdTracking: this._deviceInfo.getLimitAdTracking()
+                        })
+                    }else if(this._clientInfo.getPlatform() === o.Platform.ANDROID){
+                        t = UrlKit.Url.addParameters(t, {
+                            androidId: this._deviceInfo.getAndroidId()
+                        })
+                    }
+
+                    t = UrlKit.Url.addParameters(t, {
                         deviceMake: this._deviceInfo.getManufacturer(),
                         deviceModel: this._deviceInfo.getModel(),
                         platform: o.Platform[this._clientInfo.getPlatform()].toLowerCase(),
@@ -3066,28 +3279,39 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                         screenHeight: this._deviceInfo.getScreenHeight(),
                         sdkVersion: this._clientInfo.getSdkVersion(),
                         screenSize: this._deviceInfo.getScreenLayout()
-                    }), "undefined" != typeof navigator && navigator.userAgent && (t = n.Url.addParameters(t, {
-                        webviewUa: encodeURIComponent(navigator.userAgent)
-                    })), t = this._clientInfo.getPlatform() === o.Platform.IOS ? n.Url.addParameters(t, {
-                        osVersion: this._deviceInfo.getOsVersion()
-                    }) : n.Url.addParameters(t, {
-                        apiLevel: this._deviceInfo.getApiLevel()
-                    }), this._clientInfo.getTestMode() && (t = n.Url.addParameters(t, {
-                        test: !0
-                    }));
-                    var i = [];
-                    return i.push(this._deviceInfo.getConnectionType()), i.push(this._deviceInfo.getNetworkType()),
-                        Promise.all(i).then(function (e) {
-                            var i = e[0], r = e[1];
-                            return t = n.Url.addParameters(t, {
-                                connectionType: i,
-                                networkType: r
-                            });
+                    });
+
+                    if("undefined" != typeof navigator && navigator.userAgent ){
+                        t = UrlKit.Url.addParameters(t, {
+                            webviewUa: encodeURIComponent(navigator.userAgent)
                         });
-                }, e.prototype.createRequestBody = function () {
+                    }
+
+                    if(this._clientInfo.getPlatform() === o.Platform.IOS){
+                        t = UrlKit.Url.addParameters(t, {osVersion: this._deviceInfo.getOsVersion()})
+                    }else{
+                        t = UrlKit.Url.addParameters(t, {apiLevel: this._deviceInfo.getApiLevel()});
+                    }
+
+                    if(this._clientInfo.getTestMode()){
+                        t = UrlKit.Url.addParameters(t, {test: !0});
+                    }
+                    var i = [];
+                    i.push(this._deviceInfo.getConnectionType());
+                    i.push(this._deviceInfo.getNetworkType());
+                    return Promise.all(i).then(function (e) {
+                        var i = e[0], r = e[1];
+                        return t = UrlKit.Url.addParameters(t, {
+                            connectionType: i,
+                            networkType: r
+                        });
+                    });
+                };
+                CampaignManager.prototype.createRequestBody = function () {
                     var e = this, t = [];
-                    t.push(this._deviceInfo.getFreeSpace()), t.push(this._deviceInfo.getNetworkOperator()),
-                        t.push(this._deviceInfo.getNetworkOperatorName());
+                    t.push(this._deviceInfo.getFreeSpace());
+                    t.push(this._deviceInfo.getNetworkOperator());
+                    t.push(this._deviceInfo.getNetworkOperatorName());
                     var n = {
                         bundleVersion: this._clientInfo.getApplicationVersion(),
                         bundleId: this._clientInfo.getApplicationName(),
@@ -3101,54 +3325,65 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                                 return e && (n.mediation = e.getDTO()), JSON.stringify(n);
                             });
                     });
-                }, e.CampaignBaseUrl = "https://adserver.unityads.unity3d.com/games", e;
+                };
+                CampaignManager.CampaignBaseUrl = "https://adserver.unityads.unity3d.com/games";
+                return CampaignManager;
             }();
-            return e.CampaignManager = c, e;
-        }(J, u, UrlKit, z, Q, a, j, G), X = function (e, t, n, i) {
+            exports.CampaignManager = CampaignManager;
+            return exports;
+        }(J, u, UrlKit, z, Q, a, j, G),
+
+        X = function (exports, t, n, i) {
             !function (e) {
-                e[e.OK = 0] = "OK", e[e.STOPPED = 1] = "STOPPED";
-            }(e.CacheStatus || (e.CacheStatus = {}));
-            var r = e.CacheStatus, o = function () {
+                e[e.OK = 0] = "OK";
+                e[e.STOPPED = 1] = "STOPPED";
+            }(exports.CacheStatus || (exports.CacheStatus = {}));
+
+            var CacheStatus = exports.CacheStatus;
+
+            var o = function () {
                 function e(e, t) {
-                    var n = this;
+                    var me = this;
                     this._callbacks = {}, this._fileIds = {}, this._nativeBridge = e, this._wakeUpManager = t,
                         this._wakeUpManager.onNetworkConnected.subscribe(function () {
-                            return n.onNetworkConnected();
+                            return me.onNetworkConnected();
                         }), this._nativeBridge.Cache.setProgressInterval(500), this._nativeBridge.Cache.onDownloadStarted.subscribe(function (e, t, i, r, o) {
-                        return n.onDownloadStarted(e, t, i, r, o);
+                        return me.onDownloadStarted(e, t, i, r, o);
                     }), this._nativeBridge.Cache.onDownloadProgress.subscribe(function (e, t, i) {
-                        return n.onDownloadProgress(e, t, i);
+                        return me.onDownloadProgress(e, t, i);
                     }), this._nativeBridge.Cache.onDownloadEnd.subscribe(function (e, t, i, r, o, a) {
-                        return n.onDownloadEnd(e, t, i, r, o, a);
+                        return me.onDownloadEnd(e, t, i, r, o, a);
                     }), this._nativeBridge.Cache.onDownloadStopped.subscribe(function (e, t, i, r, o, a) {
-                        return n.onDownloadStopped(e, t, i, r, o, a);
+                        return me.onDownloadStopped(e, t, i, r, o, a);
                     }), this._nativeBridge.Cache.onDownloadError.subscribe(function (e, t, i) {
-                        return n.onDownloadError(e, t, i);
+                        return me.onDownloadError(e, t, i);
                     });
                 }
-
-                return e.getDefaultCacheOptions = function () {
+                e.getDefaultCacheOptions = function () {
                     return {
                         retries: 0
                     };
-                }, e.prototype.cache = function (n, i) {
+                };
+                e.prototype.cache = function (n, i) {
                     var o = this;
                     return "undefined" == typeof i && (i = e.getDefaultCacheOptions()), this._nativeBridge.Cache.isCaching().then(function (e) {
                         return e ? Promise.reject(t.CacheError.FILE_ALREADY_CACHING) : Promise.all([o.shouldCache(n), o.getFileId(n)]).then(function (e) {
                             var t = e[0], a = e[1];
-                            if (!t) return Promise.resolve([r.OK, a]);
+                            if (!t) return Promise.resolve([CacheStatus.OK, a]);
                             var s = o.registerCallback(n, a, i);
                             return o.downloadFile(n, a), s;
                         });
                     });
-                }, e.prototype.stop = function () {
+                };
+                e.prototype.stop = function () {
                     var e, t = !1;
                     for (e in this._callbacks) if (this._callbacks.hasOwnProperty(e)) {
                         var n = this._callbacks[e];
-                        n.networkRetry ? (n.reject([r.STOPPED, n.fileId]), delete this._callbacks[e]) : t = !0;
+                        n.networkRetry ? (n.reject([CacheStatus.STOPPED, n.fileId]), delete this._callbacks[e]) : t = !0;
                     }
                     t && this._nativeBridge.Cache.stop();
-                }, e.prototype.cleanCache = function () {
+                };
+                e.prototype.cleanCache = function () {
                     var e = this;
                     return this._nativeBridge.Cache.getFiles().then(function (t) {
                         if (!t || !t.length) return Promise.resolve();
@@ -3168,7 +3403,8 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                                 u.push(e._nativeBridge.Cache.deleteFile(t));
                         }), u.push(e._nativeBridge.Storage.write(n.StorageType.PRIVATE)), Promise.all(u);
                     });
-                }, e.prototype.getFileId = function (e) {
+                };
+                e.prototype.getFileId = function (e) {
                     var t = this;
                     if (e in this._fileIds) return Promise.resolve(this._fileIds[e]);
                     var n, i = e, r = e.split("/");
@@ -3178,11 +3414,13 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                         var r;
                         return r = n ? t._fileIds[e] = i + "." + n : t._fileIds[e] = i;
                     });
-                }, e.prototype.getFileUrl = function (e) {
+                };
+                e.prototype.getFileUrl = function (e) {
                     return this._nativeBridge.Cache.getFilePath(e).then(function (e) {
                         return "file://" + e;
                     });
-                }, e.prototype.shouldCache = function (e) {
+                };
+                e.prototype.shouldCache = function (e) {
                     var t = this;
                     return this.getFileId(e).then(function (e) {
                         return t._nativeBridge.Cache.getFileInfo(e).then(function (r) {
@@ -3192,7 +3430,8 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                             }) : !0;
                         });
                     });
-                }, e.prototype.downloadFile = function (e, n) {
+                };
+                e.prototype.downloadFile = function (e, n) {
                     var i = this;
                     this._nativeBridge.Cache.download(e, n)["catch"](function (r) {
                         var o = i._callbacks[e];
@@ -3208,7 +3447,8 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                                 return void o.reject(r);
                         }
                     });
-                }, e.prototype.registerCallback = function (e, t, n) {
+                };
+                e.prototype.registerCallback = function (e, t, n) {
                     var i = this;
                     return new Promise(function (r, o) {
                         var a = {
@@ -3221,7 +3461,8 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                         };
                         i._callbacks[e] = a;
                     });
-                }, e.prototype.createCacheResponse = function (e, t, n, i, r, o, a) {
+                };
+                e.prototype.createCacheResponse = function (e, t, n, i, r, o, a) {
                     return {
                         fullyDownloaded: e,
                         url: t,
@@ -3231,7 +3472,8 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                         responseCode: o,
                         headers: a
                     };
-                }, e.prototype.writeCacheResponse = function (e, t) {
+                };
+                e.prototype.writeCacheResponse = function (e, t) {
                     this._nativeBridge.Storage.set(n.StorageType.PRIVATE, "cache." + this._fileIds[e], JSON.stringify(t)),
                         this._nativeBridge.Storage.write(n.StorageType.PRIVATE);
                 }, e.prototype.onDownloadStarted = function (e, t, n, i, r) {
@@ -3241,11 +3483,11 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                 }, e.prototype.onDownloadEnd = function (e, t, n, i, o, a) {
                     var s = this._callbacks[e];
                     s && (this.writeCacheResponse(e, this.createCacheResponse(!0, e, t, n, i, o, a)),
-                        s.resolve([r.OK, s.fileId]), delete this._callbacks[e]);
+                        s.resolve([CacheStatus.OK, s.fileId]), delete this._callbacks[e]);
                 }, e.prototype.onDownloadStopped = function (e, t, n, i, o, a) {
                     var s = this._callbacks[e];
                     s && (this.writeCacheResponse(e, this.createCacheResponse(!1, e, t, n, i, o, a)),
-                        s.resolve([r.STOPPED, s.fileId]), delete this._callbacks[e]);
+                        s.resolve([CacheStatus.STOPPED, s.fileId]), delete this._callbacks[e]);
                 }, e.prototype.onDownloadError = function (e, n, i) {
                     var r = this._callbacks[n];
                     if (r) switch (e) {
@@ -3264,10 +3506,14 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                         var t = this._callbacks[e];
                         t.networkRetry && (t.networkRetry = !1, this.downloadFile(e, t.fileId));
                     }
-                }, e;
+                };
+                return e;
             }();
-            return e.CacheManager = o, e;
-        }(X, h, b, G), $ = function (e) {
+            exports.CacheManager = o;
+            return exports;
+        }(X, h, b, G),
+
+        $ = function (e) {
             var t = function () {
                 function e(e, t) {
                     var n = this;
@@ -6022,7 +6268,10 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                     for (r.lastIndex = t, r.exec(e); n = r.exec(e);) if (i.push(n), n[1]) return i;
                 }
 
-                var p = /[A-Z_a-z\xC0-\xD6\xD8-\xF6\u00F8-\u02FF\u0370-\u037D\u037F-\u1FFF\u200C-\u200D\u2070-\u218F\u2C00-\u2FEF\u3001-\uD7FF\uF900-\uFDCF\uFDF0-\uFFFD]/, d = new RegExp("[\\-\\.0-9" + p.source.slice(1, -1) + "¡¤?-?\\u203F-?]"), f = new RegExp("^" + p.source + d.source + "*(?::" + p.source + d.source + "*)?$"), v = 0, g = 1, _ = 2, m = 3, y = 4, E = 5, S = 6, I = 7, C = function () {
+                var p = /[A-Z_a-z\xC0-\xD6\xD8-\xF6\u00F8-\u02FF\u0370-\u037D\u037F-\u1FFF\u200C-\u200D\u2070-\u218F\u2C00-\u2FEF\u3001-\uD7FF\uF900-\uFDCF\uFDF0-\uFFFD]/,
+                    d = new RegExp("[\\-\\.0-9" + p.source.slice(1, -1) + "¡¤?-?\\u203F-?]"),
+                    f = new RegExp("^" + p.source + d.source + "*(?::" + p.source + d.source + "*)?$"),
+                    v = 0, g = 1, _ = 2, m = 3, y = 4, E = 5, S = 6, I = 7, C = function () {
                 };
                 C.prototype = {
                     parse: function (t, n, i) {
