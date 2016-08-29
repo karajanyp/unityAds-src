@@ -560,14 +560,14 @@ document.addEventListener('DOMContentLoaded', function () { /*!
 
         }).call(this);
 
-        a = function (e) {
+        a = function (exports) {
             !function (e) {
                 e[e.ANDROID = 0] = "ANDROID";
                 e[e.IOS = 1] = "IOS";
                 e[e.TEST = 2] = "TEST";
-            }(e.Platform || (e.Platform = {}));
+            }(exports.Platform || (exports.Platform = {}));
 
-            return e;
+            return exports;
         }(a);
 
         s = function (exports, t) {
@@ -608,9 +608,9 @@ document.addEventListener('DOMContentLoaded', function () { /*!
 
         c = function (exports) {
             var NativeApi = function () {
-                function NativeApi(e, t) {
-                    this._nativeBridge = e;
-                    this._apiClass = t;
+                function NativeApi(nativeBridge, apiClass) {
+                    this._nativeBridge = nativeBridge;
+                    this._apiClass = apiClass;
                 }
                 NativeApi.prototype.handleEvent = function (e, t) {
                     throw new Error(this._apiClass + " event " + e + " does not have an observable");
@@ -794,7 +794,9 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                     return this._nativeBridge.invoke(this._apiClass, "removeAllBroadcastListeners", []);
                 };
                 BroadcastApi.prototype.handleEvent = function (t, n) {
-                    if(t === Event[Event.ACTION]){ this.onBroadcastAction.trigger(n[0], n[1], n[2], n[3]) }else{
+                    if(t === Event[Event.ACTION]){
+                        this.onBroadcastAction.trigger(n[0], n[1], n[2], n[3])
+                    }else{
                         NativeApi.prototype.handleEvent.call(this, t, n);
                     }
 
@@ -3021,7 +3023,8 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                 ConfigManager.fetch = function (t, o, a, s) {
                     return i.MetaDataManager.fetchAdapterMetaData(t).then(function (i) {
                         var c = ConfigManager.createConfigUrl(a, s, i);
-                        return t.Sdk.logInfo("Requesting configuration from " + c), o.get(c, [], {
+                        t.Sdk.logInfo("Requesting configuration from " + c);
+                        return o.get(c, [], {
                             retries: 5,
                             retryDelay: 5e3,
                             followRedirects: !1,
@@ -3063,24 +3066,24 @@ document.addEventListener('DOMContentLoaded', function () { /*!
 
         z = function (exports) {
             var Campaign = function () {
-                function Campaign(e, gamerId, abGroup) {
+                function Campaign(campaign, gamerId, abGroup) {
                     this._isVideoCached = false;
-                    this._id = e.id;
-                    this._appStoreId = e.appStoreId;
-                    this._appStoreCountry = e.appStoreCountry;
-                    this._gameId = e.gameId;
-                    this._gameName = e.gameName;
-                    this._gameIcon = e.gameIcon;
-                    this._rating = e.rating;
-                    this._ratingCount = e.ratingCount;
-                    this._landscapeImage = e.endScreenLandscape;
-                    this._portraitImage = e.endScreenPortrait;
-                    this._video = e.trailerDownloadable;
-                    this._videoSize = e.trailerDownloadableSize;
-                    this._streamingVideo = e.trailerStreaming;
-                    this._clickAttributionUrl = e.clickAttributionUrl;
-                    this._clickAttributionUrlFollowsRedirects = e.clickAttributionUrlFollowsRedirects;
-                    this._bypassAppSheet = e.bypassAppSheet;
+                    this._id = campaign.id;
+                    this._appStoreId = campaign.appStoreId;
+                    this._appStoreCountry = campaign.appStoreCountry;
+                    this._gameId = campaign.gameId;
+                    this._gameName = campaign.gameName;
+                    this._gameIcon = campaign.gameIcon;
+                    this._rating = campaign.rating;
+                    this._ratingCount = campaign.ratingCount;
+                    this._landscapeImage = campaign.endScreenLandscape;
+                    this._portraitImage = campaign.endScreenPortrait;
+                    this._video = campaign.trailerDownloadable;
+                    this._videoSize = campaign.trailerDownloadableSize;
+                    this._streamingVideo = campaign.trailerStreaming;
+                    this._clickAttributionUrl = campaign.clickAttributionUrl;
+                    this._clickAttributionUrlFollowsRedirects = campaign.clickAttributionUrlFollowsRedirects;
+                    this._bypassAppSheet = campaign.bypassAppSheet;
                     this._gamerId = gamerId;
                     this._abGroup = abGroup;
                 }
@@ -3348,18 +3351,26 @@ document.addEventListener('DOMContentLoaded', function () { /*!
             var CacheManager = function () {
                 function CacheManager(e, t) {
                     var me = this;
-                    this._callbacks = {}, this._fileIds = {}, this._nativeBridge = e, this._wakeUpManager = t,
-                        this._wakeUpManager.onNetworkConnected.subscribe(function () {
+                    this._callbacks = {};
+                    this._fileIds = {};
+                    this._nativeBridge = e;
+                    this._wakeUpManager = t;
+                    this._wakeUpManager.onNetworkConnected.subscribe(function () {
                             return me.onNetworkConnected();
-                        }), this._nativeBridge.Cache.setProgressInterval(500), this._nativeBridge.Cache.onDownloadStarted.subscribe(function (e, t, i, r, o) {
+                        });
+                    this._nativeBridge.Cache.setProgressInterval(500), this._nativeBridge.Cache.onDownloadStarted.subscribe(function (e, t, i, r, o) {
                         return me.onDownloadStarted(e, t, i, r, o);
-                    }), this._nativeBridge.Cache.onDownloadProgress.subscribe(function (e, t, i) {
+                    });
+                    this._nativeBridge.Cache.onDownloadProgress.subscribe(function (e, t, i) {
                         return me.onDownloadProgress(e, t, i);
-                    }), this._nativeBridge.Cache.onDownloadEnd.subscribe(function (e, t, i, r, o, a) {
+                    });
+                    this._nativeBridge.Cache.onDownloadEnd.subscribe(function (e, t, i, r, o, a) {
                         return me.onDownloadEnd(e, t, i, r, o, a);
-                    }), this._nativeBridge.Cache.onDownloadStopped.subscribe(function (e, t, i, r, o, a) {
+                    });
+                    this._nativeBridge.Cache.onDownloadStopped.subscribe(function (e, t, i, r, o, a) {
                         return me.onDownloadStopped(e, t, i, r, o, a);
-                    }), this._nativeBridge.Cache.onDownloadError.subscribe(function (e, t, i) {
+                    });
+                    this._nativeBridge.Cache.onDownloadError.subscribe(function (e, t, i) {
                         return me.onDownloadError(e, t, i);
                     });
                 }
@@ -3546,10 +3557,10 @@ document.addEventListener('DOMContentLoaded', function () { /*!
 
         $ = function (exports) {
             var Request = function () {
-                function Request(e, t) {
+                function Request(nativeBridge, wakeUpManager) {
                     var n = this;
-                    this._nativeBridge = e;
-                    this._wakeUpManager = t;
+                    this._nativeBridge = nativeBridge;
+                    this._wakeUpManager = wakeUpManager;
                     this._nativeBridge.Request.onComplete.subscribe(function (e, t, i, r, o) {
                         return n.onRequestComplete(e, t, i, r, o);
                     });
@@ -3561,86 +3572,136 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                     });
                 }
                 Request.getHeader = function (e, t) {
-                    if (e instanceof Array) for (var n = 0; n < e.length; ++n) {
-                        var i = e[n];
-                        if (i[0].match(new RegExp(t, "i"))) return i[1];
-                    } else for (var r in e) if (e.hasOwnProperty(r) && r.match(new RegExp(t, "i"))) return e[r].toString();
+                    if (e instanceof Array) {
+                        for (var n = 0; n < e.length; ++n) {
+                            var i = e[n];
+                            if (i[0].match(new RegExp(t, "i"))){
+                                return i[1];
+                            }
+                        }
+                    } else {
+                        for (var r in e) {
+                            if (e.hasOwnProperty(r) && r.match(new RegExp(t, "i"))) {
+                                return e[r].toString();
+                            }
+                        }
+                    }
                     return null;
                 };
                 Request.getDefaultRequestOptions = function () {
                     return {
                         retries: 0,
                         retryDelay: 0,
-                        followRedirects: !1,
-                        retryWithConnectionEvents: !1
+                        followRedirects: false,
+                        retryWithConnectionEvents: false
                     };
                 };
                 Request.prototype.get = function (t, n, i) {
-                    void 0 === n && (n = []), "undefined" == typeof i && (i = Request.getDefaultRequestOptions());
-                    var r = Request._callbackId++, o = this.registerCallback(r);
-                    return this.invokeRequest(r, {
+                    void 0 === n && (n = []);
+                    "undefined" == typeof i && (i = Request.getDefaultRequestOptions());
+                    var r = Request._callbackId++,
+                        o = this.registerCallback(r);
+
+                    this.invokeRequest(r, {
                         method: 0,
                         url: t,
                         headers: n,
                         retryCount: 0,
                         options: i
-                    }), o;
+                    });
+                    return o;
                 };
                 Request.prototype.post = function (t, n, i, r) {
-                    void 0 === n && (n = ""), void 0 === i && (i = []), "undefined" == typeof r && (r = Request.getDefaultRequestOptions()),
-                        i.push(["Content-Type", "application/json"]);
-                    var o = Request._callbackId++, a = this.registerCallback(o);
-                    return this.invokeRequest(o, {
+                    void 0 === n && (n = "");
+                    void 0 === i && (i = []);
+                    "undefined" == typeof r && (r = Request.getDefaultRequestOptions());
+                    i.push(["Content-Type", "application/json"]);
+                    var o = Request._callbackId++,
+                        a = this.registerCallback(o);
+
+                    this.invokeRequest(o, {
                         method: 1,
                         url: t,
                         data: n,
                         headers: i,
                         retryCount: 0,
                         options: r
-                    }), a;
+                    });
+                    return a;
                 };
                 Request.prototype.head = function (t, n, i) {
-                    void 0 === n && (n = []), "undefined" == typeof i && (i = Request.getDefaultRequestOptions());
+                    void 0 === n && (n = []);
+                    "undefined" == typeof i && (i = Request.getDefaultRequestOptions());
                     var r = Request._callbackId++, o = this.registerCallback(r);
-                    return this.invokeRequest(r, {
+                    this.invokeRequest(r, {
                         method: 2,
                         url: t,
                         headers: n,
                         retryCount: 0,
                         options: i
-                    }), o;
+                    });
+                    return o;
                 };
                 Request.prototype.registerCallback = function (t) {
                     return new Promise(function (n, i) {
                         var r = {};
-                        r[0] = n, r[1] = i, Request._callbacks[t] = r;
+                        r[0] = n;
+                        r[1] = i;
+                        Request._callbacks[t] = r;
                     });
                 };
                 Request.prototype.invokeRequest = function (t, n) {
-                    switch (Request._requests[t] = n, n.method) {
+                    Request._requests[t] = n;
+                    switch (n.method) {
                         case 0:
-                            return this._nativeBridge.Request.get(t.toString(), n.url, n.headers, Request._connectTimeout, Request._readTimeout);
+                            return this._nativeBridge.Request.get(
+                                t.toString(),
+                                n.url,
+                                n.headers,
+                                Request._connectTimeout,
+                                Request._readTimeout
+                            );
 
                         case 1:
-                            return this._nativeBridge.Request.post(t.toString(), n.url, n.data, n.headers, Request._connectTimeout, Request._readTimeout);
+                            return this._nativeBridge.Request.post(
+                                t.toString(),
+                                n.url,
+                                n.data,
+                                n.headers,
+                                Request._connectTimeout,
+                                Request._readTimeout
+                            );
 
                         case 2:
-                            return this._nativeBridge.Request.head(t.toString(), n.url, n.headers, Request._connectTimeout, Request._readTimeout);
+                            return this._nativeBridge.Request.head(
+                                t.toString(),
+                                n.url,
+                                n.headers,
+                                Request._connectTimeout,
+                                Request._readTimeout
+                            );
 
                         default:
                             throw new Error('Unsupported request method "' + n.method + '"');
                     }
                 };
                 Request.prototype.finishRequest = function (t, n) {
-                    for (var i = [], r = 2; r < arguments.length; r++) i[r - 2] = arguments[r];
+                    for (var i = [], r = 2; r < arguments.length; r++){
+                        i[r - 2] = arguments[r];
+                    }
                     var o = Request._callbacks[t];
-                    o && (o[n].apply(o, i), delete Request._callbacks[t], delete Request._requests[t]);
+                    if(o){
+                        o[n].apply(o, i);
+                        delete Request._callbacks[t];
+                        delete Request._requests[t];
+                    }
                 };
                 Request.prototype.handleFailedRequest = function (e, t, n) {
                     var i = this;
                     t.retryCount < t.options.retries ? (t.retryCount++, setTimeout(function () {
                         i.invokeRequest(e, t);
-                    }, t.options.retryDelay)) : t.options.retryWithConnectionEvents || this.finishRequest(e, 1, [t, n]);
+                    }, t.options.retryDelay)) :
+                    t.options.retryWithConnectionEvents || this.finishRequest(e, 1, [t, n]);
                 };
                 Request.prototype.onRequestComplete = function (t, n, i, r, o) {
                     var a = parseInt(t, 10), s = {
@@ -3680,10 +3741,16 @@ document.addEventListener('DOMContentLoaded', function () { /*!
 
         Z = function (exports) {
             var Session = function () {
-                function Session(e) {
-                    this.showSent = !1, this.startSent = !1, this.firstQuartileSent = !1, this.midpointSent = !1,
-                        this.thirdQuartileSent = !1, this.viewSent = !1, this.skipSent = !1, this.impressionSent = !1,
-                        this._id = e;
+                function Session(id) {
+                    this.showSent = false;
+                    this.startSent = false;
+                    this.firstQuartileSent = false;
+                    this.midpointSent = false;
+                    this.thirdQuartileSent = false;
+                    this.viewSent = false;
+                    this.skipSent = false;
+                    this.impressionSent = false;
+                    this._id = id;
                 }
                 Session.prototype.getId = function () {
                     return this._id;
@@ -3937,17 +4004,16 @@ document.addEventListener('DOMContentLoaded', function () { /*!
 
         te = function (exports) {
             !function (status) {
-                status[
-                    status.NOT_INITIALIZED = 0] = "NOT_INITIALIZED",
-                    status[status.INITIALIZE_FAILED = 1] = "INITIALIZE_FAILED",
-                    status[status.INVALID_ARGUMENT = 2] = "INVALID_ARGUMENT",
-                    status[status.VIDEO_PLAYER_ERROR = 3] = "VIDEO_PLAYER_ERROR",
-                    status[status.INIT_SANITY_CHECK_FAIL = 4] = "INIT_SANITY_CHECK_FAIL",
-                    status[status.AD_BLOCKER_DETECTED = 5] = "AD_BLOCKER_DETECTED",
-                    status[status.FILE_IO_ERROR = 6] = "FILE_IO_ERROR",
-                    status[status.DEVICE_ID_ERROR = 7] = "DEVICE_ID_ERROR",
-                    status[status.SHOW_ERROR = 8] = "SHOW_ERROR",
-                    status[status.INTERNAL_ERROR = 9] = "INTERNAL_ERROR";
+                status[status.NOT_INITIALIZED = 0] = "NOT_INITIALIZED";
+                status[status.INITIALIZE_FAILED = 1] = "INITIALIZE_FAILED";
+                status[status.INVALID_ARGUMENT = 2] = "INVALID_ARGUMENT";
+                status[status.VIDEO_PLAYER_ERROR = 3] = "VIDEO_PLAYER_ERROR";
+                status[status.INIT_SANITY_CHECK_FAIL = 4] = "INIT_SANITY_CHECK_FAIL";
+                status[status.AD_BLOCKER_DETECTED = 5] = "AD_BLOCKER_DETECTED";
+                status[status.FILE_IO_ERROR = 6] = "FILE_IO_ERROR";
+                status[status.DEVICE_ID_ERROR = 7] = "DEVICE_ID_ERROR";
+                status[status.SHOW_ERROR = 8] = "SHOW_ERROR";
+                status[status.INTERNAL_ERROR = 9] = "INTERNAL_ERROR";
             }(exports.UnityAdsError || (exports.UnityAdsError = {}));
             exports.UnityAdsError;
             return exports;
@@ -4095,16 +4161,18 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                     return EventManager.getEventKey(t, n) + ".data";
                 };
                 EventManager.prototype.operativeEvent = function (n, i, r, o, a) {
-                    var s = this;
-                    return this._nativeBridge.Sdk.logInfo("Unity Ads event: sending " + n + " event to " + o),
-                        this._nativeBridge.Storage.set(t.StorageType.PRIVATE, EventManager.getUrlKey(r, i), o), this._nativeBridge.Storage.set(t.StorageType.PRIVATE, EventManager.getDataKey(r, i), a),
-                        this._nativeBridge.Storage.write(t.StorageType.PRIVATE), this._request.post(o, a, [], {
+                    var me = this;
+                    this._nativeBridge.Sdk.logInfo("Unity Ads event: sending " + n + " event to " + o);
+                    this._nativeBridge.Storage.set(t.StorageType.PRIVATE, EventManager.getUrlKey(r, i), o);
+                    this._nativeBridge.Storage.set(t.StorageType.PRIVATE, EventManager.getDataKey(r, i), a);
+                    this._nativeBridge.Storage.write(t.StorageType.PRIVATE);
+                    return this._request.post(o, a, [], {
                         retries: 5,
                         retryDelay: 5e3,
                         followRedirects: !1,
                         retryWithConnectionEvents: !1
                     }).then(function () {
-                        return Promise.all([s._nativeBridge.Storage["delete"](t.StorageType.PRIVATE, EventManager.getEventKey(r, i)), s._nativeBridge.Storage.write(t.StorageType.PRIVATE)]);
+                        return Promise.all([me._nativeBridge.Storage["delete"](t.StorageType.PRIVATE, EventManager.getEventKey(r, i)), me._nativeBridge.Storage.write(t.StorageType.PRIVATE)]);
                     });
                 };
                 EventManager.prototype.clickAttributionEvent = function (e, t, n) {
@@ -4116,8 +4184,8 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                     }) : this._request.get(t);
                 };
                 EventManager.prototype.thirdPartyEvent = function (e, t, n) {
-                    return this._nativeBridge.Sdk.logInfo("Unity Ads third party event: sending " + e + " event to " + n + " (session " + t + ")"),
-                        this._request.get(n, [], {
+                    this._nativeBridge.Sdk.logInfo("Unity Ads third party event: sending " + e + " event to " + n + " (session " + t + ")");
+                    return this._request.get(n, [], {
                             retries: 0,
                             retryDelay: 0,
                             followRedirects: !0,
@@ -4131,13 +4199,13 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                     return Promise.all([this._nativeBridge.Storage.set(t.StorageType.PRIVATE, EventManager.getSessionTimestampKey(n), Date.now()), this._nativeBridge.Storage.write(t.StorageType.PRIVATE)]);
                 };
                 EventManager.prototype.sendUnsentSessions = function () {
-                    var e = this;
+                    var me = this;
                     return this.getUnsentSessions().then(function (t) {
                         var n = t.map(function (t) {
-                            return e.isSessionOutdated(t).then(function (n) {
-                                return n ? e.deleteSession(t) : e.getUnsentOperativeEvents(t).then(function (n) {
+                            return me.isSessionOutdated(t).then(function (n) {
+                                return n ? me.deleteSession(t) : me.getUnsentOperativeEvents(t).then(function (n) {
                                     return Promise.all(n.map(function (n) {
-                                        return e.resendEvent(t, n);
+                                        return me.resendEvent(t, n);
                                     }));
                                 });
                             });
@@ -4160,16 +4228,16 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                     });
                 };
                 EventManager.prototype.getUnsentOperativeEvents = function (e) {
-                    return this._nativeBridge.Storage.getKeys(t.StorageType.PRIVATE, "session." + e + ".operative", !1);
+                    return this._nativeBridge.Storage.getKeys(t.StorageType.PRIVATE, "session." + e + ".operative", false);
                 };
                 EventManager.prototype.resendEvent = function (n, i) {
-                    var r = this;
+                    var me = this;
                     return this.getStoredOperativeEvent(n, i).then(function (e) {
                         var t = e[0], o = e[1];
-                        return r._nativeBridge.Sdk.logInfo("Unity Ads operative event: resending operative event to " + t + " (session " + n + ", event " + i + ")"),
-                            r._request.post(t, o);
+                        me._nativeBridge.Sdk.logInfo("Unity Ads operative event: resending operative event to " + t + " (session " + n + ", event " + i + ")");
+                        return me._request.post(t, o);
                     }).then(function () {
-                        return Promise.all([r._nativeBridge.Storage["delete"](t.StorageType.PRIVATE, EventManager.getEventKey(n, i)), r._nativeBridge.Storage.write(t.StorageType.PRIVATE)]);
+                        return Promise.all([me._nativeBridge.Storage["delete"](t.StorageType.PRIVATE, EventManager.getEventKey(n, i)), me._nativeBridge.Storage.write(t.StorageType.PRIVATE)]);
                     });
                 };
                 EventManager.prototype.getStoredOperativeEvent = function (n, i) {
@@ -4186,8 +4254,8 @@ document.addEventListener('DOMContentLoaded', function () { /*!
 
         oe = function (exports) {
             var Resolve = function () {
-                function Resolve(t) {
-                    this._nativeBridge = t;
+                function Resolve(nativeBridge) {
+                    this._nativeBridge = nativeBridge;
                     this._nativeBridge.Resolve.onComplete.subscribe(function (t, n, i) {
                         return Resolve.onResolveComplete(t, n, i);
                     });
@@ -4209,7 +4277,8 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                     }
                 };
                 Resolve.prototype.resolve = function (t) {
-                    var n = Resolve._callbackId++, i = this.registerCallback(n);
+                    var n = Resolve._callbackId++,
+                        i = this.registerCallback(n);
                     this._nativeBridge.Resolve.resolve(n.toString(), t);
                     return i;
                 };
@@ -4232,7 +4301,7 @@ document.addEventListener('DOMContentLoaded', function () { /*!
         ae = function (exports, t) {
             var WakeUpManager = function () {
                 function WakeUpManager(e) {
-                    var n = this;
+                    var me = this;
                     this.onNetworkConnected = new t.Observable0();
                     this.onScreenOn = new t.Observable0();
                     this.onScreenOff = new t.Observable0();
@@ -4242,14 +4311,14 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                     this.ACTION_SCREEN_OFF = "android.intent.action.SCREEN_OFF";
                     this._nativeBridge = e;
                     this._lastConnected = Date.now();
-                        this._nativeBridge.Connectivity.onConnected.subscribe(function (e, t) {
-                        return n.onConnected(e, t);
+                    this._nativeBridge.Connectivity.onConnected.subscribe(function (e, t) {
+                        return me.onConnected(e, t);
                     });
                     this._nativeBridge.Broadcast.onBroadcastAction.subscribe(function (e, t, i, r) {
-                        return n.onBroadcastAction(e, t, i, r);
+                        return me.onBroadcastAction(e, t, i, r);
                     });
                     this._nativeBridge.Notification.onNotification.subscribe(function (e, t) {
-                        return n.onNotification(e, t);
+                        return me.onNotification(e, t);
                     });
                 }
                 WakeUpManager.prototype.setListenConnectivity = function (e) {
@@ -4323,9 +4392,13 @@ document.addEventListener('DOMContentLoaded', function () { /*!
         ce = function (exports, t, n) {
             var AbstractAdUnit = function () {
                 function AbstractAdUnit(e, t, i) {
-                    this.onStart = new n.Observable0(), this.onNewAdRequestAllowed = new n.Observable0(),
-                        this.onClose = new n.Observable0(), this._showing = !1, this._nativeBridge = e,
-                        this._placement = t, this._campaign = i;
+                    this.onStart = new n.Observable0();
+                    this.onNewAdRequestAllowed = new n.Observable0();
+                    this.onClose = new n.Observable0();
+                    this._showing = !1;
+                    this._nativeBridge = e,
+                    this._placement = t;
+                    this._campaign = i;
                 }
                 AbstractAdUnit.prototype.getPlacement = function () {
                     return this._placement;
@@ -4384,22 +4457,22 @@ document.addEventListener('DOMContentLoaded', function () { /*!
         he = function (exports, t, n, i, r, o, a) {
             var VideoAdUnit = function (AbstractAdUnit) {
                 function VideoAdUnit(t, n, r, a, s) {
-                    var c = this;
+                    var me = this;
                     AbstractAdUnit.call(this, t, n, r);
                     if(t.getPlatform() === o.Platform.IOS){
                         this._onViewControllerDidAppearObserver = this._nativeBridge.IosAdUnit.onViewControllerDidAppear.subscribe(function () {
-                            return c.onViewDidAppear();
+                            return me.onViewDidAppear();
                         })
                     }else{
                         this._activityId = VideoAdUnit._activityIdCounter++;
                         this._onResumeObserver = this._nativeBridge.AndroidAdUnit.onResume.subscribe(function (e) {
-                            return c.onResume(e);
+                            return me.onResume(e);
                         });
                         this._onPauseObserver = this._nativeBridge.AndroidAdUnit.onPause.subscribe(function (e, t) {
-                            return c.onPause(e, t);
+                            return me.onPause(e, t);
                         });
                         this._onDestroyObserver = this._nativeBridge.AndroidAdUnit.onDestroy.subscribe(function (e, t) {
-                            return c.onDestroy(e, t);
+                            return me.onDestroy(e, t);
                         });
                     }
                     this._videoPosition = 0;
@@ -4646,13 +4719,16 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                 function OverlayEventHandlers() {
                 }
                 OverlayEventHandlers.onSkip = function (e, t, a) {
-                    e.VideoPlayer.pause(), a.setVideoActive(!1), a.setFinishState(n.FinishState.SKIPPED),
-                        t.sendSkip(a, a.getVideoPosition()), e.getPlatform() === i.Platform.IOS ? e.IosAdUnit.setViews(["webview"]) : e.AndroidAdUnit.setViews(["webview"]),
-                        e.getPlatform() === i.Platform.ANDROID ? e.AndroidAdUnit.setOrientation(o.ScreenOrientation.SCREEN_ORIENTATION_FULL_SENSOR) : e.getPlatform() === i.Platform.IOS && e.IosAdUnit.setSupportedOrientations(r.UIInterfaceOrientationMask.INTERFACE_ORIENTATION_MASK_ALL),
-                        a.getOverlay().hide(), this.afterSkip(a);
+                    e.VideoPlayer.pause();
+                    a.setVideoActive(!1);
+                    a.setFinishState(n.FinishState.SKIPPED);
+                    t.sendSkip(a, a.getVideoPosition());
+                    e.getPlatform() === i.Platform.IOS ? e.IosAdUnit.setViews(["webview"]) : e.AndroidAdUnit.setViews(["webview"]);
+                    e.getPlatform() === i.Platform.ANDROID ? e.AndroidAdUnit.setOrientation(o.ScreenOrientation.SCREEN_ORIENTATION_FULL_SENSOR) : e.getPlatform() === i.Platform.IOS && e.IosAdUnit.setSupportedOrientations(r.UIInterfaceOrientationMask.INTERFACE_ORIENTATION_MASK_ALL), a.getOverlay().hide(), this.afterSkip(a);
                 };
                 OverlayEventHandlers.afterSkip = function (e) {
-                    e.getEndScreen().show(), e.onNewAdRequestAllowed.trigger();
+                    e.getEndScreen().show();
+                    e.onNewAdRequestAllowed.trigger();
                 };
                 OverlayEventHandlers.onMute = function (e, n, i, r) {
                     e.VideoPlayer.setVolume(new t.Double(r ? 0 : 1)), n.sendMute(i, n.getSession(), r);
