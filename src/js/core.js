@@ -5754,7 +5754,9 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                 };
                 VastAd.prototype.addVideoClickTrackingURLTemplate = function (e) {
                     var creative = this.getCreative();
-                    creative instanceof t.VastCreativeLinear && creative.addVideoClickTrackingURLTemplate(e);
+                    if(creative instanceof t.VastCreativeLinear ){
+                        creative.addVideoClickTrackingURLTemplate(e);
+                    }
                 };
                 return VastAd;
             }();
@@ -5762,31 +5764,43 @@ document.addEventListener('DOMContentLoaded', function () { /*!
             return exports;
         }(we, Te),
 
-        Ne = function (e) {
-            var t = function () {
-                function e(e, t, n, i, r, o, a, s, c) {
-                    this._fileURL = e || null, this._deliveryType = t || "progressive", this._mimeType = i || null,
-                        this._codec = n || null, this._bitrate = r || 0, this._minBitrate = o || 0, this._maxBitrate = a || 0,
-                        this._width = s || 0, this._height = c || 0, this._apiFramework = null, this._scalable = null,
-                        this._maintainAspectRatio = null;
+        Ne = function (exports) {
+            var VastMediaFile = function () {
+                function VastMediaFile(e, t, n, i, r, o, a, s, c) {
+                    this._fileURL = e || null;
+                    this._deliveryType = t || "progressive";
+                    this._mimeType = i || null;
+                    this._codec = n || null;
+                    this._bitrate = r || 0;
+                    this._minBitrate = o || 0;
+                    this._maxBitrate = a || 0;
+                    this._width = s || 0;
+                    this._height = c || 0;
+                    this._apiFramework = null;
+                    this._scalable = null;
+                    this._maintainAspectRatio = null;
                 }
-
-                return e.prototype.getFileURL = function () {
+                VastMediaFile.prototype.getFileURL = function () {
                     return this._fileURL;
-                }, e.prototype.getMIMEType = function () {
+                };
+                VastMediaFile.prototype.getMIMEType = function () {
                     return this._mimeType;
-                }, e;
+                };
+                return VastMediaFile;
             }();
-            return e.VastMediaFile = t, e;
-        }(Ne), function (e, t) {
+            exports.VastMediaFile = VastMediaFile;
+            return exports;
+        }(Ne),
+
+        function (e, t) {
             r = function () {
                 return "function" == typeof t ? t() : t;
             }();
         }(this, function () {
             function e(e) {
                 this.options = e || {
-                        locator: {}
-                    };
+                    locator: {}
+                };
             }
 
             function t(e, t, i) {
@@ -6113,16 +6127,39 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                     }
                 }
 
-                var F = "http://www.w3.org/1999/xhtml", x = {}, W = x.ELEMENT_NODE = 1, q = x.ATTRIBUTE_NODE = 2, K = x.TEXT_NODE = 3, H = x.CDATA_SECTION_NODE = 4, j = x.ENTITY_REFERENCE_NODE = 5, G = x.ENTITY_NODE = 6, Y = x.PROCESSING_INSTRUCTION_NODE = 7, z = x.COMMENT_NODE = 8, Q = x.DOCUMENT_NODE = 9, J = x.DOCUMENT_TYPE_NODE = 10, X = x.DOCUMENT_FRAGMENT_NODE = 11, $ = x.NOTATION_NODE = 12, Z = {}, ee = {}, te = (Z.INDEX_SIZE_ERR = (ee[1] = "Index size error",
+                var F = "http://www.w3.org/1999/xhtml",
+                    x = {},
+                    W = x.ELEMENT_NODE = 1,
+                    q = x.ATTRIBUTE_NODE = 2,
+                    K = x.TEXT_NODE = 3,
+                    H = x.CDATA_SECTION_NODE = 4,
+                    j = x.ENTITY_REFERENCE_NODE = 5,
+                    G = x.ENTITY_NODE = 6,
+                    Y = x.PROCESSING_INSTRUCTION_NODE = 7,
+                    z = x.COMMENT_NODE = 8,
+                    Q = x.DOCUMENT_NODE = 9,
+                    J = x.DOCUMENT_TYPE_NODE = 10,
+                    X = x.DOCUMENT_FRAGMENT_NODE = 11,
+                    $ = x.NOTATION_NODE = 12,
+                    Z = {},
+                    ee = {},
+                    te = (Z.INDEX_SIZE_ERR = (ee[1] = "Index size error",
                     1), Z.DOMSTRING_SIZE_ERR = (ee[2] = "DOMString size error", 2), Z.HIERARCHY_REQUEST_ERR = (ee[3] = "Hierarchy request error",
                     3), Z.WRONG_DOCUMENT_ERR = (ee[4] = "Wrong document", 4), Z.INVALID_CHARACTER_ERR = (ee[5] = "Invalid character",
                     5), Z.NO_DATA_ALLOWED_ERR = (ee[6] = "No data allowed", 6), Z.NO_MODIFICATION_ALLOWED_ERR = (ee[7] = "No modification allowed",
-                    7), Z.NOT_FOUND_ERR = (ee[8] = "Not found", 8)), ne = (Z.NOT_SUPPORTED_ERR = (ee[9] = "Not supported",
+                    7), Z.NOT_FOUND_ERR = (ee[8] = "Not found", 8)),
+                    ne = (Z.NOT_SUPPORTED_ERR = (ee[9] = "Not supported",
                     9), Z.INUSE_ATTRIBUTE_ERR = (ee[10] = "Attribute in use", 10));
-                Z.INVALID_STATE_ERR = (ee[11] = "Invalid state", 11), Z.SYNTAX_ERR = (ee[12] = "Syntax error",
-                    12), Z.INVALID_MODIFICATION_ERR = (ee[13] = "Invalid modification", 13), Z.NAMESPACE_ERR = (ee[14] = "Invalid namespace",
-                    14), Z.INVALID_ACCESS_ERR = (ee[15] = "Invalid access", 15);
-                n.prototype = Error.prototype, e(Z, n), i.prototype = {
+
+                Z.INVALID_STATE_ERR = (ee[11] = "Invalid state", 11);
+                Z.SYNTAX_ERR = (ee[12] = "Syntax error", 12);
+                Z.INVALID_MODIFICATION_ERR = (ee[13] = "Invalid modification", 13);
+                Z.NAMESPACE_ERR = (ee[14] = "Invalid namespace", 14);
+                Z.INVALID_ACCESS_ERR = (ee[15] = "Invalid access", 15);
+
+                n.prototype = Error.prototype;
+                e(Z, n);
+                i.prototype = {
                     length: 0,
                     item: function (e) {
                         return this[e] || null;
@@ -6131,9 +6168,12 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                         for (var e = [], t = 0; t < this.length; t++) B(this[t], e);
                         return e.join("");
                     }
-                }, r.prototype.item = function (e) {
+                };
+                r.prototype.item = function (e) {
                     return o(this), this[e];
-                }, t(r, i), a.prototype = {
+                };
+                t(r, i);
+                a.prototype = {
                     length: 0,
                     item: i.prototype.item,
                     getNamedItem: function (e) {
@@ -6169,7 +6209,8 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                         }
                         return null;
                     }
-                }, l.prototype = {
+                };
+                l.prototype = {
                     hasFeature: function (e, t) {
                         var n = this._features[e.toLowerCase()];
                         return n && (!t || t in n) ? !0 : !1;
@@ -6187,7 +6228,8 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                         var i = new T();
                         return i.name = e, i.nodeName = e, i.publicId = t, i.systemId = n, i;
                     }
-                }, h.prototype = {
+                };
+                h.prototype = {
                     firstChild: null,
                     lastChild: null,
                     previousSibling: null,
@@ -6251,7 +6293,11 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                         var t = this.lookupPrefix(e);
                         return null == t;
                     }
-                }, e(x, h), e(x, h.prototype), f.prototype = {
+                };
+                e(x, h);
+                e(x, h.prototype);
+
+                f.prototype = {
                     nodeName: "#document",
                     nodeType: Q,
                     doctype: null,
@@ -6327,7 +6373,10 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                         return n.ownerDocument = this, n.nodeName = t, n.name = t, n.namespaceURI = e, n.specified = !0,
                             2 == i.length ? (n.prefix = i[0], n.localName = i[1]) : n.localName = t, n;
                     }
-                }, t(f, h), S.prototype = {
+                };
+                t(f, h);
+
+                S.prototype = {
                     nodeType: W,
                     hasAttribute: function (e) {
                         return null != this.getAttributeNode(e);
@@ -6393,7 +6442,9 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                             }), i;
                         });
                     }
-                }, f.prototype.getElementsByTagName = S.prototype.getElementsByTagName, f.prototype.getElementsByTagNameNS = S.prototype.getElementsByTagNameNS,
+                };
+
+                f.prototype.getElementsByTagName = S.prototype.getElementsByTagName, f.prototype.getElementsByTagNameNS = S.prototype.getElementsByTagNameNS,
                     t(S, h), I.prototype.nodeType = q, t(I, h), C.prototype = {
                     data: "",
                     substringData: function (e, t) {
@@ -6415,7 +6466,10 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                         var i = this.data.substring(0, e), r = this.data.substring(e + t);
                         n = i + n + r, this.nodeValue = this.data = n, this.length = n.length;
                     }
-                }, t(C, h), A.prototype = {
+                };
+                t(C, h);
+
+                A.prototype = {
                     nodeName: "#text",
                     nodeType: K,
                     splitText: function (e) {
@@ -6424,44 +6478,78 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                         var i = this.ownerDocument.createTextNode(n);
                         return this.parentNode && this.parentNode.insertBefore(i, this.nextSibling), i;
                     }
-                }, t(A, C), b.prototype = {
+                };
+                t(A, C);
+
+                b.prototype = {
                     nodeName: "#comment",
                     nodeType: z
-                }, t(b, C), O.prototype = {
+                };
+                t(b, C);
+
+                O.prototype = {
                     nodeName: "#cdata-section",
                     nodeType: H
-                }, t(O, C), T.prototype.nodeType = J, t(T, h), w.prototype.nodeType = $, t(w, h),
-                    N.prototype.nodeType = G, t(N, h), R.prototype.nodeType = j, t(R, h), D.prototype.nodeName = "#document-fragment",
-                    D.prototype.nodeType = X, t(D, h), k.prototype.nodeType = Y, t(k, h), P.prototype.serializeToString = function (e, t) {
-                    return e.toString(t);
-                }, h.prototype.toString = function (e) {
-                    var t = [];
-                    return B(this, t, e), t.join("");
                 };
-                try {
-                    Object.defineProperty && (Object.defineProperty(r.prototype, "length", {
-                        get: function () {
-                            return o(this), this.$length;
-                        }
-                    }), Object.defineProperty(h.prototype, "textContent", {
-                        get: function () {
-                            return M(this);
-                        },
-                        set: function (e) {
-                            switch (this.nodeType) {
-                                case 1:
-                                case 11:
-                                    for (; this.firstChild;) this.removeChild(this.firstChild);
-                                    (e || String(e)) && this.appendChild(this.ownerDocument.createTextNode(e));
-                                    break;
+                t(O, C);
 
-                                default:
-                                    this.data = e, this.value = value, this.nodeValue = e;
+                T.prototype.nodeType = J;
+                t(T, h);
+
+                w.prototype.nodeType = $;
+                t(w, h);
+
+                N.prototype.nodeType = G;
+                t(N, h);
+
+                R.prototype.nodeType = j;
+                t(R, h);
+
+                D.prototype.nodeName = "#document-fragment";
+                D.prototype.nodeType = X;
+                t(D, h);
+
+                k.prototype.nodeType = Y;
+                t(k, h);
+
+                P.prototype.serializeToString = function (e, t) {
+                    return e.toString(t);
+                };
+
+                h.prototype.toString = function (e) {
+                    var t = [];
+                    B(this, t, e);
+                    return t.join("");
+                };
+
+                try {
+                    if(Object.defineProperty){
+                        Object.defineProperty(r.prototype, "length", {
+                            get: function () {
+                                return o(this), this.$length;
                             }
-                        }
-                    }), V = function (e, t, n) {
-                        e["$" + t] = n;
-                    });
+                        });
+                        Object.defineProperty(h.prototype, "textContent", {
+                            get: function () {
+                                return M(this);
+                            },
+                            set: function (e) {
+                                switch (this.nodeType) {
+                                    case 1:
+                                    case 11:
+                                        for (; this.firstChild;) this.removeChild(this.firstChild);
+                                        (e || String(e)) && this.appendChild(this.ownerDocument.createTextNode(e));
+                                        break;
+
+                                    default:
+                                        this.data = e, this.value = value, this.nodeValue = e;
+                                }
+                            }
+                        });
+                        V = function (e, t, n) {
+                            e["$" + t] = n;
+                        };
+                    }
                 } catch (ie) {
                 }
                 var re = {
@@ -6469,7 +6557,9 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                     XMLSerializer: P
                 };
                 return re;
-            }, c = function () {
+            },
+
+            c = function () {
                 function e(e, a, l, h, p) {
                     function d(e) {
                         if (e > 65535) {
