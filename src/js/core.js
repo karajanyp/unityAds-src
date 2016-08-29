@@ -3308,7 +3308,8 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                     });
                 };
                 CampaignManager.prototype.createRequestBody = function () {
-                    var e = this, t = [];
+                    var me = this,
+                        t = [];
                     t.push(this._deviceInfo.getFreeSpace());
                     t.push(this._deviceInfo.getNetworkOperator());
                     t.push(this._deviceInfo.getNetworkOperatorName());
@@ -3320,10 +3321,13 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                     };
                     return Promise.all(t).then(function (t) {
                         var i = t[0], r = t[1], o = t[2];
-                        return n.deviceFreeSpace = i, n.networkOperator = r, n.networkOperatorName = o,
-                            a.MetaDataManager.fetchMediationMetaData(e._nativeBridge).then(function (e) {
-                                return e && (n.mediation = e.getDTO()), JSON.stringify(n);
-                            });
+                        n.deviceFreeSpace = i;
+                        n.networkOperator = r;
+                        n.networkOperatorName = o;
+                        return a.MetaDataManager.fetchMediationMetaData(me._nativeBridge).then(function (e) {
+                            e && (n.mediation = e.getDTO());
+                            return JSON.stringify(n);
+                        });
                     });
                 };
                 CampaignManager.CampaignBaseUrl = "https://adserver.unityads.unity3d.com/games";
@@ -3341,8 +3345,8 @@ document.addEventListener('DOMContentLoaded', function () { /*!
 
             var CacheStatus = exports.CacheStatus;
 
-            var o = function () {
-                function e(e, t) {
+            var CacheManager = function () {
+                function CacheManager(e, t) {
                     var me = this;
                     this._callbacks = {}, this._fileIds = {}, this._nativeBridge = e, this._wakeUpManager = t,
                         this._wakeUpManager.onNetworkConnected.subscribe(function () {
@@ -3359,14 +3363,14 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                         return me.onDownloadError(e, t, i);
                     });
                 }
-                e.getDefaultCacheOptions = function () {
+                CacheManager.getDefaultCacheOptions = function () {
                     return {
                         retries: 0
                     };
                 };
-                e.prototype.cache = function (n, i) {
+                CacheManager.prototype.cache = function (n, i) {
                     var o = this;
-                    return "undefined" == typeof i && (i = e.getDefaultCacheOptions()), this._nativeBridge.Cache.isCaching().then(function (e) {
+                    return "undefined" == typeof i && (i = CacheManager.getDefaultCacheOptions()), this._nativeBridge.Cache.isCaching().then(function (e) {
                         return e ? Promise.reject(t.CacheError.FILE_ALREADY_CACHING) : Promise.all([o.shouldCache(n), o.getFileId(n)]).then(function (e) {
                             var t = e[0], a = e[1];
                             if (!t) return Promise.resolve([CacheStatus.OK, a]);
@@ -3375,7 +3379,7 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                         });
                     });
                 };
-                e.prototype.stop = function () {
+                CacheManager.prototype.stop = function () {
                     var e, t = !1;
                     for (e in this._callbacks) if (this._callbacks.hasOwnProperty(e)) {
                         var n = this._callbacks[e];
@@ -3383,7 +3387,7 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                     }
                     t && this._nativeBridge.Cache.stop();
                 };
-                e.prototype.cleanCache = function () {
+                CacheManager.prototype.cleanCache = function () {
                     var e = this;
                     return this._nativeBridge.Cache.getFiles().then(function (t) {
                         if (!t || !t.length) return Promise.resolve();
@@ -3404,7 +3408,7 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                         }), u.push(e._nativeBridge.Storage.write(n.StorageType.PRIVATE)), Promise.all(u);
                     });
                 };
-                e.prototype.getFileId = function (e) {
+                CacheManager.prototype.getFileId = function (e) {
                     var t = this;
                     if (e in this._fileIds) return Promise.resolve(this._fileIds[e]);
                     var n, i = e, r = e.split("/");
@@ -3415,12 +3419,12 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                         return r = n ? t._fileIds[e] = i + "." + n : t._fileIds[e] = i;
                     });
                 };
-                e.prototype.getFileUrl = function (e) {
+                CacheManager.prototype.getFileUrl = function (e) {
                     return this._nativeBridge.Cache.getFilePath(e).then(function (e) {
                         return "file://" + e;
                     });
                 };
-                e.prototype.shouldCache = function (e) {
+                CacheManager.prototype.shouldCache = function (e) {
                     var t = this;
                     return this.getFileId(e).then(function (e) {
                         return t._nativeBridge.Cache.getFileInfo(e).then(function (r) {
@@ -3431,7 +3435,7 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                         });
                     });
                 };
-                e.prototype.downloadFile = function (e, n) {
+                CacheManager.prototype.downloadFile = function (e, n) {
                     var i = this;
                     this._nativeBridge.Cache.download(e, n)["catch"](function (r) {
                         var o = i._callbacks[e];
@@ -3448,7 +3452,7 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                         }
                     });
                 };
-                e.prototype.registerCallback = function (e, t, n) {
+                CacheManager.prototype.registerCallback = function (e, t, n) {
                     var i = this;
                     return new Promise(function (r, o) {
                         var a = {
@@ -3462,7 +3466,7 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                         i._callbacks[e] = a;
                     });
                 };
-                e.prototype.createCacheResponse = function (e, t, n, i, r, o, a) {
+                CacheManager.prototype.createCacheResponse = function (e, t, n, i, r, o, a) {
                     return {
                         fullyDownloaded: e,
                         url: t,
@@ -3473,75 +3477,107 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                         headers: a
                     };
                 };
-                e.prototype.writeCacheResponse = function (e, t) {
-                    this._nativeBridge.Storage.set(n.StorageType.PRIVATE, "cache." + this._fileIds[e], JSON.stringify(t)),
-                        this._nativeBridge.Storage.write(n.StorageType.PRIVATE);
-                }, e.prototype.onDownloadStarted = function (e, t, n, i, r) {
-                    0 === t && this.writeCacheResponse(e, this.createCacheResponse(!1, e, t, n, 0, i, r));
-                }, e.prototype.onDownloadProgress = function (e, t, n) {
+                CacheManager.prototype.writeCacheResponse = function (e, t) {
+                    this._nativeBridge.Storage.set(n.StorageType.PRIVATE, "cache." + this._fileIds[e], JSON.stringify(t));
+                    this._nativeBridge.Storage.write(n.StorageType.PRIVATE);
+                };
+                CacheManager.prototype.onDownloadStarted = function (e, t, n, i, r) {
+                    if(0 === t) {
+                        this.writeCacheResponse(e, this.createCacheResponse(false, e, t, n, 0, i, r));
+                    }
+                };
+                CacheManager.prototype.onDownloadProgress = function (e, t, n) {
                     this._nativeBridge.Sdk.logDebug('Cache progress for "' + e + '": ' + Math.round(t / n * 100) + "%");
-                }, e.prototype.onDownloadEnd = function (e, t, n, i, o, a) {
+                };
+                CacheManager.prototype.onDownloadEnd = function (e, t, n, i, o, a) {
                     var s = this._callbacks[e];
-                    s && (this.writeCacheResponse(e, this.createCacheResponse(!0, e, t, n, i, o, a)),
-                        s.resolve([CacheStatus.OK, s.fileId]), delete this._callbacks[e]);
-                }, e.prototype.onDownloadStopped = function (e, t, n, i, o, a) {
+                    if(s){
+                        this.writeCacheResponse(e, this.createCacheResponse(!0, e, t, n, i, o, a));
+                        s.resolve([CacheStatus.OK, s.fileId]), delete this._callbacks[e];
+                    }
+                };
+                CacheManager.prototype.onDownloadStopped = function (e, t, n, i, o, a) {
                     var s = this._callbacks[e];
-                    s && (this.writeCacheResponse(e, this.createCacheResponse(!1, e, t, n, i, o, a)),
-                        s.resolve([CacheStatus.STOPPED, s.fileId]), delete this._callbacks[e]);
-                }, e.prototype.onDownloadError = function (e, n, i) {
+                    if(s){
+                        this.writeCacheResponse(e, this.createCacheResponse(!1, e, t, n, i, o, a));
+                        s.resolve([CacheStatus.STOPPED, s.fileId]);
+                        delete this._callbacks[e];
+                    }
+                };
+                CacheManager.prototype.onDownloadError = function (e, n, i) {
                     var r = this._callbacks[n];
                     if (r) switch (e) {
                         case t.CacheError[t.CacheError.FILE_IO_ERROR]:
-                            return void this.handleRetry(r, n, e);
+                            this.handleRetry(r, n, e);
+                            return;
 
                         default:
-                            return r.reject(e), void delete this._callbacks[n];
-                    }
-                }, e.prototype.handleRetry = function (e, t, n) {
-                    e.retryCount < e.options.retries ? (e.retryCount++, e.networkRetry = !0) : (e.reject(n),
-                        delete this._callbacks[t]);
-                }, e.prototype.onNetworkConnected = function () {
-                    var e;
-                    for (e in this._callbacks) if (this._callbacks.hasOwnProperty(e)) {
-                        var t = this._callbacks[e];
-                        t.networkRetry && (t.networkRetry = !1, this.downloadFile(e, t.fileId));
+                            r.reject(e);
+                            delete this._callbacks[n];
+                            return
                     }
                 };
-                return e;
+                CacheManager.prototype.handleRetry = function (e, t, n) {
+                    if(e.retryCount < e.options.retries){
+                        e.retryCount++;
+                        e.networkRetry = true;
+                    }else{
+                        e.reject(n);
+                        delete this._callbacks[t];
+                    }
+                };
+                CacheManager.prototype.onNetworkConnected = function () {
+                    var e;
+                    for (e in this._callbacks){
+                        if (this._callbacks.hasOwnProperty(e)) {
+                            var t = this._callbacks[e];
+                            if(t.networkRetry){
+                                t.networkRetry = false;
+                                this.downloadFile(e, t.fileId);
+                            }
+                        }
+                    }
+                };
+                return CacheManager;
             }();
-            exports.CacheManager = o;
+            exports.CacheManager = CacheManager;
             return exports;
         }(X, h, b, G),
 
-        $ = function (e) {
-            var t = function () {
-                function e(e, t) {
+        $ = function (exports) {
+            var Request = function () {
+                function Request(e, t) {
                     var n = this;
-                    this._nativeBridge = e, this._wakeUpManager = t, this._nativeBridge.Request.onComplete.subscribe(function (e, t, i, r, o) {
+                    this._nativeBridge = e;
+                    this._wakeUpManager = t;
+                    this._nativeBridge.Request.onComplete.subscribe(function (e, t, i, r, o) {
                         return n.onRequestComplete(e, t, i, r, o);
-                    }), this._nativeBridge.Request.onFailed.subscribe(function (e, t, i) {
+                    });
+                    this._nativeBridge.Request.onFailed.subscribe(function (e, t, i) {
                         return n.onRequestFailed(e, t, i);
-                    }), this._wakeUpManager.onNetworkConnected.subscribe(function () {
+                    });
+                    this._wakeUpManager.onNetworkConnected.subscribe(function () {
                         return n.onNetworkConnected();
                     });
                 }
-
-                return e.getHeader = function (e, t) {
+                Request.getHeader = function (e, t) {
                     if (e instanceof Array) for (var n = 0; n < e.length; ++n) {
                         var i = e[n];
                         if (i[0].match(new RegExp(t, "i"))) return i[1];
                     } else for (var r in e) if (e.hasOwnProperty(r) && r.match(new RegExp(t, "i"))) return e[r].toString();
                     return null;
-                }, e.getDefaultRequestOptions = function () {
+                };
+                Request.getDefaultRequestOptions = function () {
                     return {
                         retries: 0,
                         retryDelay: 0,
                         followRedirects: !1,
                         retryWithConnectionEvents: !1
                     };
-                }, e.prototype.get = function (t, n, i) {
-                    void 0 === n && (n = []), "undefined" == typeof i && (i = e.getDefaultRequestOptions());
-                    var r = e._callbackId++, o = this.registerCallback(r);
+                };
+                Request.prototype.get = function (t, n, i) {
+                    void 0 === n && (n = []), "undefined" == typeof i && (i = Request.getDefaultRequestOptions());
+                    var r = Request._callbackId++, o = this.registerCallback(r);
                     return this.invokeRequest(r, {
                         method: 0,
                         url: t,
@@ -3549,10 +3585,11 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                         retryCount: 0,
                         options: i
                     }), o;
-                }, e.prototype.post = function (t, n, i, r) {
-                    void 0 === n && (n = ""), void 0 === i && (i = []), "undefined" == typeof r && (r = e.getDefaultRequestOptions()),
+                };
+                Request.prototype.post = function (t, n, i, r) {
+                    void 0 === n && (n = ""), void 0 === i && (i = []), "undefined" == typeof r && (r = Request.getDefaultRequestOptions()),
                         i.push(["Content-Type", "application/json"]);
-                    var o = e._callbackId++, a = this.registerCallback(o);
+                    var o = Request._callbackId++, a = this.registerCallback(o);
                     return this.invokeRequest(o, {
                         method: 1,
                         url: t,
@@ -3561,9 +3598,10 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                         retryCount: 0,
                         options: r
                     }), a;
-                }, e.prototype.head = function (t, n, i) {
-                    void 0 === n && (n = []), "undefined" == typeof i && (i = e.getDefaultRequestOptions());
-                    var r = e._callbackId++, o = this.registerCallback(r);
+                };
+                Request.prototype.head = function (t, n, i) {
+                    void 0 === n && (n = []), "undefined" == typeof i && (i = Request.getDefaultRequestOptions());
+                    var r = Request._callbackId++, o = this.registerCallback(r);
                     return this.invokeRequest(r, {
                         method: 2,
                         url: t,
@@ -3571,73 +3609,92 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                         retryCount: 0,
                         options: i
                     }), o;
-                }, e.prototype.registerCallback = function (t) {
+                };
+                Request.prototype.registerCallback = function (t) {
                     return new Promise(function (n, i) {
                         var r = {};
-                        r[0] = n, r[1] = i, e._callbacks[t] = r;
+                        r[0] = n, r[1] = i, Request._callbacks[t] = r;
                     });
-                }, e.prototype.invokeRequest = function (t, n) {
-                    switch (e._requests[t] = n, n.method) {
+                };
+                Request.prototype.invokeRequest = function (t, n) {
+                    switch (Request._requests[t] = n, n.method) {
                         case 0:
-                            return this._nativeBridge.Request.get(t.toString(), n.url, n.headers, e._connectTimeout, e._readTimeout);
+                            return this._nativeBridge.Request.get(t.toString(), n.url, n.headers, Request._connectTimeout, Request._readTimeout);
 
                         case 1:
-                            return this._nativeBridge.Request.post(t.toString(), n.url, n.data, n.headers, e._connectTimeout, e._readTimeout);
+                            return this._nativeBridge.Request.post(t.toString(), n.url, n.data, n.headers, Request._connectTimeout, Request._readTimeout);
 
                         case 2:
-                            return this._nativeBridge.Request.head(t.toString(), n.url, n.headers, e._connectTimeout, e._readTimeout);
+                            return this._nativeBridge.Request.head(t.toString(), n.url, n.headers, Request._connectTimeout, Request._readTimeout);
 
                         default:
                             throw new Error('Unsupported request method "' + n.method + '"');
                     }
-                }, e.prototype.finishRequest = function (t, n) {
+                };
+                Request.prototype.finishRequest = function (t, n) {
                     for (var i = [], r = 2; r < arguments.length; r++) i[r - 2] = arguments[r];
-                    var o = e._callbacks[t];
-                    o && (o[n].apply(o, i), delete e._callbacks[t], delete e._requests[t]);
-                }, e.prototype.handleFailedRequest = function (e, t, n) {
+                    var o = Request._callbacks[t];
+                    o && (o[n].apply(o, i), delete Request._callbacks[t], delete Request._requests[t]);
+                };
+                Request.prototype.handleFailedRequest = function (e, t, n) {
                     var i = this;
                     t.retryCount < t.options.retries ? (t.retryCount++, setTimeout(function () {
                         i.invokeRequest(e, t);
                     }, t.options.retryDelay)) : t.options.retryWithConnectionEvents || this.finishRequest(e, 1, [t, n]);
-                }, e.prototype.onRequestComplete = function (t, n, i, r, o) {
+                };
+                Request.prototype.onRequestComplete = function (t, n, i, r, o) {
                     var a = parseInt(t, 10), s = {
                         url: n,
                         response: i,
                         responseCode: r,
                         headers: o
-                    }, c = e._requests[a];
-                    if (-1 !== e._allowedResponseCodes.indexOf(r)) if (-1 !== e._redirectResponseCodes.indexOf(r) && c.options.followRedirects) {
-                        var u = c.url = e.getHeader(o, "location");
+                    }, c = Request._requests[a];
+                    if (-1 !== Request._allowedResponseCodes.indexOf(r)) if (-1 !== Request._redirectResponseCodes.indexOf(r) && c.options.followRedirects) {
+                        var u = c.url = Request.getHeader(o, "location");
                         u && u.match(/^https?/i) ? this.invokeRequest(a, c) : this.finishRequest(a, 0, s);
                     } else this.finishRequest(a, 0, s); else this.handleFailedRequest(a, c, "FAILED_AFTER_RETRIES");
-                }, e.prototype.onRequestFailed = function (t, n, i) {
-                    var r = parseInt(t, 10), o = e._requests[r];
+                };
+                Request.prototype.onRequestFailed = function (t, n, i) {
+                    var r = parseInt(t, 10), o = Request._requests[r];
                     this.handleFailedRequest(r, o, i);
-                }, e.prototype.onNetworkConnected = function () {
+                };
+                Request.prototype.onNetworkConnected = function () {
                     var t;
-                    for (t in e._requests) if (e._requests.hasOwnProperty(t)) {
-                        var n = e._requests[t];
+                    for (t in Request._requests) if (Request._requests.hasOwnProperty(t)) {
+                        var n = Request._requests[t];
                         n.options.retryWithConnectionEvents && n.options.retries === n.retryCount && this.invokeRequest(t, n);
                     }
-                }, e._connectTimeout = 3e4, e._readTimeout = 3e4, e._allowedResponseCodes = [200, 501, 300, 301, 302, 303, 304, 305, 306, 307, 308],
-                    e._redirectResponseCodes = [300, 301, 302, 303, 304, 305, 306, 307, 308], e._callbackId = 1,
-                    e._callbacks = {}, e._requests = {}, e;
+                };
+                Request._connectTimeout = 3e4;
+                Request._readTimeout = 3e4;
+                Request._allowedResponseCodes = [200, 501, 300, 301, 302, 303, 304, 305, 306, 307, 308];
+                Request._redirectResponseCodes = [300, 301, 302, 303, 304, 305, 306, 307, 308];
+                Request._callbackId = 1;
+                Request._callbacks = {};
+                Request._requests = {};
+                return Request;
             }();
-            return e.Request = t, e;
-        }($), Z = function (e) {
-            var t = function () {
-                function e(e) {
+            exports.Request = Request;
+            return exports;
+        }($),
+
+        Z = function (exports) {
+            var Session = function () {
+                function Session(e) {
                     this.showSent = !1, this.startSent = !1, this.firstQuartileSent = !1, this.midpointSent = !1,
                         this.thirdQuartileSent = !1, this.viewSent = !1, this.skipSent = !1, this.impressionSent = !1,
                         this._id = e;
                 }
-
-                return e.prototype.getId = function () {
+                Session.prototype.getId = function () {
                     return this._id;
-                }, e;
+                };
+                return Session;
             }();
-            return e.Session = t, e;
-        }(Z), ee = function (exports, t, n, i) {
+            exports.Session = Session;
+            return exports;
+        }(Z),
+
+        ee = function (exports, t, n, i) {
             var SessionManagerEventMetadataCreator = function () {
                 function SessionManagerEventMetadataCreator(eventManager, deviceInfo, nativeBridge) {
                     this._eventManager = eventManager;
@@ -3976,26 +4033,28 @@ document.addEventListener('DOMContentLoaded', function () { /*!
             return exports;
         }(ne, V, a, te),
 
-        ie = function (e) {
-            var t = function () {
-                function e() {
+        ie = function (exports) {
+            var Diagnostics = function () {
+                function Diagnostics() {
                 }
-
-                return e.trigger = function (t, n, i, r) {
+                Diagnostics.trigger = function (t, n, i, r) {
                     var o = [];
-                    return o.push({
+                    o.push({
                         type: "ads.sdk2.diagnostics",
                         msg: n
-                    }), e.createCommonObject(i, r).then(function (n) {
+                    });
+                    return Diagnostics.createCommonObject(i, r).then(function (n) {
                         o.unshift(n);
                         var i = o.map(function (e) {
                             return JSON.stringify(e);
                         }).join("\n");
-                        return t.diagnosticEvent(e.DiagnosticsBaseUrl, i);
+                        return t.diagnosticEvent(Diagnostics.DiagnosticsBaseUrl, i);
                     });
-                }, e.setTestBaseUrl = function (t) {
-                    e.DiagnosticsBaseUrl = t + "/v1/events";
-                }, e.createCommonObject = function (e, t) {
+                };
+                Diagnostics.setTestBaseUrl = function (t) {
+                    Diagnostics.DiagnosticsBaseUrl = t + "/v1/events";
+                };
+                Diagnostics.createCommonObject = function (e, t) {
                     var n = {
                         common: {
                             client: e ? e.getDTO() : null,
@@ -4007,45 +4066,56 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                     })["catch"](function (e) {
                         return n;
                     }) : Promise.resolve(n);
-                }, e.DiagnosticsBaseUrl = "https://httpkafka.unityads.unity3d.com/v1/events", e;
+                };
+                Diagnostics.DiagnosticsBaseUrl = "https://httpkafka.unityads.unity3d.com/v1/events";
+                return Diagnostics;
             }();
-            return e.Diagnostics = t, e;
-        }(ie), re = function (e, t) {
-            var n = function () {
-                function e(e, t) {
+            exports.Diagnostics = Diagnostics;
+            return exports;
+        }(ie),
+
+        re = function (exports, t) {
+            var EventManager = function () {
+                function EventManager(e, t) {
                     this._nativeBridge = e, this._request = t;
                 }
-
-                return e.getSessionKey = function (e) {
+                EventManager.getSessionKey = function (e) {
                     return "session." + e;
-                }, e.getSessionTimestampKey = function (t) {
-                    return e.getSessionKey(t) + ".ts";
-                }, e.getEventKey = function (t, n) {
-                    return e.getSessionKey(t) + ".operative." + n;
-                }, e.getUrlKey = function (t, n) {
-                    return e.getEventKey(t, n) + ".url";
-                }, e.getDataKey = function (t, n) {
-                    return e.getEventKey(t, n) + ".data";
-                }, e.prototype.operativeEvent = function (n, i, r, o, a) {
+                };
+                EventManager.getSessionTimestampKey = function (t) {
+                    return EventManager.getSessionKey(t) + ".ts";
+                };
+                EventManager.getEventKey = function (t, n) {
+                    return EventManager.getSessionKey(t) + ".operative." + n;
+                };
+                EventManager.getUrlKey = function (t, n) {
+                    return EventManager.getEventKey(t, n) + ".url";
+                };
+                EventManager.getDataKey = function (t, n) {
+                    return EventManager.getEventKey(t, n) + ".data";
+                };
+                EventManager.prototype.operativeEvent = function (n, i, r, o, a) {
                     var s = this;
                     return this._nativeBridge.Sdk.logInfo("Unity Ads event: sending " + n + " event to " + o),
-                        this._nativeBridge.Storage.set(t.StorageType.PRIVATE, e.getUrlKey(r, i), o), this._nativeBridge.Storage.set(t.StorageType.PRIVATE, e.getDataKey(r, i), a),
+                        this._nativeBridge.Storage.set(t.StorageType.PRIVATE, EventManager.getUrlKey(r, i), o), this._nativeBridge.Storage.set(t.StorageType.PRIVATE, EventManager.getDataKey(r, i), a),
                         this._nativeBridge.Storage.write(t.StorageType.PRIVATE), this._request.post(o, a, [], {
                         retries: 5,
                         retryDelay: 5e3,
                         followRedirects: !1,
                         retryWithConnectionEvents: !1
                     }).then(function () {
-                        return Promise.all([s._nativeBridge.Storage["delete"](t.StorageType.PRIVATE, e.getEventKey(r, i)), s._nativeBridge.Storage.write(t.StorageType.PRIVATE)]);
+                        return Promise.all([s._nativeBridge.Storage["delete"](t.StorageType.PRIVATE, EventManager.getEventKey(r, i)), s._nativeBridge.Storage.write(t.StorageType.PRIVATE)]);
                     });
-                }, e.prototype.clickAttributionEvent = function (e, t, n) {
+                };
+                EventManager.prototype.clickAttributionEvent = function (e, t, n) {
                     return n ? this._request.get(t, [], {
                         retries: 0,
                         retryDelay: 0,
                         followRedirects: !0,
                         retryWithConnectionEvents: !1
                     }) : this._request.get(t);
-                }, e.prototype.thirdPartyEvent = function (e, t, n) {
+                };
+                EventManager.prototype.thirdPartyEvent = function (e, t, n) {
                     return this._nativeBridge.Sdk.logInfo("Unity Ads third party event: sending " + e + " event to " + n + " (session " + t + ")"),
                         this._request.get(n, [], {
                             retries: 0,
@@ -4053,11 +4123,14 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                             followRedirects: !0,
                             retryWithConnectionEvents: !1
                         });
-                }, e.prototype.diagnosticEvent = function (e, t) {
+                };
+                EventManager.prototype.diagnosticEvent = function (e, t) {
                     return this._request.post(e, t);
-                }, e.prototype.startNewSession = function (n) {
-                    return Promise.all([this._nativeBridge.Storage.set(t.StorageType.PRIVATE, e.getSessionTimestampKey(n), Date.now()), this._nativeBridge.Storage.write(t.StorageType.PRIVATE)]);
-                }, e.prototype.sendUnsentSessions = function () {
+                };
+                EventManager.prototype.startNewSession = function (n) {
+                    return Promise.all([this._nativeBridge.Storage.set(t.StorageType.PRIVATE, EventManager.getSessionTimestampKey(n), Date.now()), this._nativeBridge.Storage.write(t.StorageType.PRIVATE)]);
+                };
+                EventManager.prototype.sendUnsentSessions = function () {
                     var e = this;
                     return this.getUnsentSessions().then(function (t) {
                         var n = t.map(function (t) {
@@ -4071,528 +4144,886 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                         });
                         return Promise.all(n);
                     });
-                }, e.prototype.getUniqueEventId = function () {
+                };
+                EventManager.prototype.getUniqueEventId = function () {
                     return this._nativeBridge.DeviceInfo.getUniqueEventId();
-                }, e.prototype.getUnsentSessions = function () {
+                };
+                EventManager.prototype.getUnsentSessions = function () {
                     return this._nativeBridge.Storage.getKeys(t.StorageType.PRIVATE, "session", !1);
-                }, e.prototype.isSessionOutdated = function (n) {
-                    return this._nativeBridge.Storage.get(t.StorageType.PRIVATE, e.getSessionTimestampKey(n)).then(function (e) {
+                };
+                EventManager.prototype.isSessionOutdated = function (n) {
+                    return this._nativeBridge.Storage.get(t.StorageType.PRIVATE, EventManager.getSessionTimestampKey(n)).then(function (e) {
                         var t = new Date().getTime() - 6048e5, n = new Date().getTime();
                         return !(e > t && n > e);
                     })["catch"](function () {
                         return !0;
                     });
-                }, e.prototype.getUnsentOperativeEvents = function (e) {
+                };
+                EventManager.prototype.getUnsentOperativeEvents = function (e) {
                     return this._nativeBridge.Storage.getKeys(t.StorageType.PRIVATE, "session." + e + ".operative", !1);
-                }, e.prototype.resendEvent = function (n, i) {
+                };
+                EventManager.prototype.resendEvent = function (n, i) {
                     var r = this;
                     return this.getStoredOperativeEvent(n, i).then(function (e) {
                         var t = e[0], o = e[1];
                         return r._nativeBridge.Sdk.logInfo("Unity Ads operative event: resending operative event to " + t + " (session " + n + ", event " + i + ")"),
                             r._request.post(t, o);
                     }).then(function () {
-                        return Promise.all([r._nativeBridge.Storage["delete"](t.StorageType.PRIVATE, e.getEventKey(n, i)), r._nativeBridge.Storage.write(t.StorageType.PRIVATE)]);
+                        return Promise.all([r._nativeBridge.Storage["delete"](t.StorageType.PRIVATE, EventManager.getEventKey(n, i)), r._nativeBridge.Storage.write(t.StorageType.PRIVATE)]);
                     });
-                }, e.prototype.getStoredOperativeEvent = function (n, i) {
-                    return Promise.all([this._nativeBridge.Storage.get(t.StorageType.PRIVATE, e.getUrlKey(n, i)), this._nativeBridge.Storage.get(t.StorageType.PRIVATE, e.getDataKey(n, i))]);
-                }, e.prototype.deleteSession = function (n) {
-                    return Promise.all([this._nativeBridge.Storage["delete"](t.StorageType.PRIVATE, e.getSessionKey(n)), this._nativeBridge.Storage.write(t.StorageType.PRIVATE)]);
-                }, e;
+                };
+                EventManager.prototype.getStoredOperativeEvent = function (n, i) {
+                    return Promise.all([this._nativeBridge.Storage.get(t.StorageType.PRIVATE, EventManager.getUrlKey(n, i)), this._nativeBridge.Storage.get(t.StorageType.PRIVATE, EventManager.getDataKey(n, i))]);
+                };
+                EventManager.prototype.deleteSession = function (n) {
+                    return Promise.all([this._nativeBridge.Storage["delete"](t.StorageType.PRIVATE, EventManager.getSessionKey(n)), this._nativeBridge.Storage.write(t.StorageType.PRIVATE)]);
+                };
+                return EventManager;
             }();
-            return e.EventManager = n, e;
-        }(re, b), oe = function (e) {
-            var t = function () {
-                function e(t) {
-                    this._nativeBridge = t, this._nativeBridge.Resolve.onComplete.subscribe(function (t, n, i) {
-                        return e.onResolveComplete(t, n, i);
-                    }), this._nativeBridge.Resolve.onFailed.subscribe(function (t, n, i, r) {
-                        return e.onResolveFailed(t, n, i, r);
+            exports.EventManager = EventManager;
+            return exports;
+        }(re, b),
+
+        oe = function (exports) {
+            var Resolve = function () {
+                function Resolve(t) {
+                    this._nativeBridge = t;
+                    this._nativeBridge.Resolve.onComplete.subscribe(function (t, n, i) {
+                        return Resolve.onResolveComplete(t, n, i);
+                    });
+                    this._nativeBridge.Resolve.onFailed.subscribe(function (t, n, i, r) {
+                        return Resolve.onResolveFailed(t, n, i, r);
                     });
                 }
-
-                return e.onResolveComplete = function (t, n, i) {
-                    var r = e._callbacks[t];
-                    r && (r[0]([n, i]), delete e._callbacks[t]);
-                }, e.onResolveFailed = function (t, n, i, r) {
-                    var o = e._callbacks[t];
-                    o && (o[1]([i, r]), delete e._callbacks[t]);
-                }, e.prototype.resolve = function (t) {
-                    var n = e._callbackId++, i = this.registerCallback(n);
-                    return this._nativeBridge.Resolve.resolve(n.toString(), t), i;
-                }, e.prototype.registerCallback = function (t) {
+                Resolve.onResolveComplete = function (t, n, i) {
+                    var r = Resolve._callbacks[t];
+                    if(r){
+                        r[0]([n, i]), delete Resolve._callbacks[t];
+                    }
+                };
+                Resolve.onResolveFailed = function (t, n, i, r) {
+                    var o = Resolve._callbacks[t];
+                    if(o){
+                        o[1]([i, r]);
+                        delete Resolve._callbacks[t];
+                    }
+                };
+                Resolve.prototype.resolve = function (t) {
+                    var n = Resolve._callbackId++, i = this.registerCallback(n);
+                    this._nativeBridge.Resolve.resolve(n.toString(), t);
+                    return i;
+                };
+                Resolve.prototype.registerCallback = function (t) {
                     return new Promise(function (n, i) {
                         var r = {};
-                        r[0] = n, r[1] = i, e._callbacks[t] = r;
+                        r[0] = n;
+                        r[1] = i;
+                        Resolve._callbacks[t] = r;
                     });
-                }, e._callbackId = 1, e._callbacks = {}, e;
+                };
+                Resolve._callbackId = 1;
+                Resolve._callbacks = {};
+                return Resolve;
             }();
-            return e.Resolve = t, e;
-        }(oe), ae = function (e, t) {
-            var n = function () {
-                function e(e) {
+            exports.Resolve = Resolve;
+            return exports;
+        }(oe),
+
+        ae = function (exports, t) {
+            var WakeUpManager = function () {
+                function WakeUpManager(e) {
                     var n = this;
-                    this.onNetworkConnected = new t.Observable0(), this.onScreenOn = new t.Observable0(),
-                        this.onScreenOff = new t.Observable0(), this.onAppForeground = new t.Observable0(),
-                        this._screenListener = "screenListener", this.ACTION_SCREEN_ON = "android.intent.action.SCREEN_ON",
-                        this.ACTION_SCREEN_OFF = "android.intent.action.SCREEN_OFF", this._nativeBridge = e,
-                        this._lastConnected = Date.now(), this._nativeBridge.Connectivity.onConnected.subscribe(function (e, t) {
+                    this.onNetworkConnected = new t.Observable0();
+                    this.onScreenOn = new t.Observable0();
+                    this.onScreenOff = new t.Observable0();
+                    this.onAppForeground = new t.Observable0();
+                    this._screenListener = "screenListener";
+                    this.ACTION_SCREEN_ON = "android.intent.action.SCREEN_ON";
+                    this.ACTION_SCREEN_OFF = "android.intent.action.SCREEN_OFF";
+                    this._nativeBridge = e;
+                    this._lastConnected = Date.now();
+                        this._nativeBridge.Connectivity.onConnected.subscribe(function (e, t) {
                         return n.onConnected(e, t);
-                    }), this._nativeBridge.Broadcast.onBroadcastAction.subscribe(function (e, t, i, r) {
+                    });
+                    this._nativeBridge.Broadcast.onBroadcastAction.subscribe(function (e, t, i, r) {
                         return n.onBroadcastAction(e, t, i, r);
-                    }), this._nativeBridge.Notification.onNotification.subscribe(function (e, t) {
+                    });
+                    this._nativeBridge.Notification.onNotification.subscribe(function (e, t) {
                         return n.onNotification(e, t);
                     });
                 }
-
-                return e.prototype.setListenConnectivity = function (e) {
+                WakeUpManager.prototype.setListenConnectivity = function (e) {
                     return this._nativeBridge.Connectivity.setListeningStatus(e);
-                }, e.prototype.setListenScreen = function (e) {
-                    return e ? this._nativeBridge.Broadcast.addBroadcastListener(this._screenListener, [this.ACTION_SCREEN_ON, this.ACTION_SCREEN_OFF]) : this._nativeBridge.Broadcast.removeBroadcastListener(this._screenListener);
-                }, e.prototype.setListenAppForeground = function (t) {
-                    return t ? this._nativeBridge.Notification.addNotificationObserver(e._appForegroundNotification, []) : this._nativeBridge.Notification.removeNotificationObserver(e._appForegroundNotification);
-                }, e.prototype.onConnected = function (e, t) {
-                    var n = 9e5;
-                    this._lastConnected + n < Date.now() && (this._lastConnected = Date.now(), this.onNetworkConnected.trigger());
-                }, e.prototype.onBroadcastAction = function (e, t, n, i) {
-                    if (e === this._screenListener) switch (t) {
-                        case this.ACTION_SCREEN_ON:
-                            this.onScreenOn.trigger();
-                            break;
-
-                        case this.ACTION_SCREEN_OFF:
-                            this.onScreenOff.trigger();
+                };
+                WakeUpManager.prototype.setListenScreen = function (e) {
+                    if(e){
+                        return this._nativeBridge.Broadcast.addBroadcastListener(this._screenListener, [this.ACTION_SCREEN_ON, this.ACTION_SCREEN_OFF]);
+                    }else{
+                        return this._nativeBridge.Broadcast.removeBroadcastListener(this._screenListener);
                     }
-                }, e.prototype.onNotification = function (t, n) {
-                    t === e._appForegroundNotification && this.onAppForeground.trigger();
-                }, e._appForegroundNotification = "UIApplicationDidBecomeActiveNotification", e;
+                };
+                WakeUpManager.prototype.setListenAppForeground = function (t) {
+                    if(t){
+                        return this._nativeBridge.Notification.addNotificationObserver(WakeUpManager._appForegroundNotification, []);
+                    }else{
+                        return this._nativeBridge.Notification.removeNotificationObserver(WakeUpManager._appForegroundNotification);
+                    }
+                };
+                WakeUpManager.prototype.onConnected = function (e, t) {
+                    var n = 9e5;
+                    if(this._lastConnected + n < Date.now()){
+                        this._lastConnected = Date.now();
+                        this.onNetworkConnected.trigger();
+                    }
+                };
+                WakeUpManager.prototype.onBroadcastAction = function (e, t, n, i) {
+                    if (e === this._screenListener) {
+                        switch (t) {
+                            case this.ACTION_SCREEN_ON:
+                                this.onScreenOn.trigger();
+                                break;
+
+                            case this.ACTION_SCREEN_OFF:
+                                this.onScreenOff.trigger();
+                        }
+                    }
+                };
+                WakeUpManager.prototype.onNotification = function (t, n) {
+                    t === WakeUpManager._appForegroundNotification && this.onAppForeground.trigger();
+                };
+                WakeUpManager._appForegroundNotification = "UIApplicationDidBecomeActiveNotification";
+                return WakeUpManager;
             }();
-            return e.WakeUpManager = n, e;
-        }(ae, u), se = function (e) {
+            exports.WakeUpManager = WakeUpManager;
+            return exports;
+        }(ae, u),
+
+        se = function (exports) {
             !function (e) {
-                e[e.SCREEN_ORIENTATION_UNSPECIFIED = -1] = "SCREEN_ORIENTATION_UNSPECIFIED", e[e.SCREEN_ORIENTATION_LANDSCAPE = 0] = "SCREEN_ORIENTATION_LANDSCAPE",
-                    e[e.SCREEN_ORIENTATION_PORTRAIT = 1] = "SCREEN_ORIENTATION_PORTRAIT", e[e.SCREEN_ORIENTATION_USER = 2] = "SCREEN_ORIENTATION_USER",
-                    e[e.SCREEN_ORIENTATION_BEHIND = 3] = "SCREEN_ORIENTATION_BEHIND", e[e.SCREEN_ORIENTATION_SENSOR = 4] = "SCREEN_ORIENTATION_SENSOR",
-                    e[e.SCREEN_ORIENTATION_NOSENSOR = 5] = "SCREEN_ORIENTATION_NOSENSOR", e[e.SCREEN_ORIENTATION_SENSOR_LANDSCAPE = 6] = "SCREEN_ORIENTATION_SENSOR_LANDSCAPE",
-                    e[e.SCREEN_ORIENTATION_SENSOR_PORTRAIT = 7] = "SCREEN_ORIENTATION_SENSOR_PORTRAIT",
-                    e[e.SCREEN_ORIENTATION_REVERSE_LANDSCAPE = 8] = "SCREEN_ORIENTATION_REVERSE_LANDSCAPE",
-                    e[e.SCREEN_ORIENTATION_REVERSE_PORTRAIT = 9] = "SCREEN_ORIENTATION_REVERSE_PORTRAIT",
-                    e[e.SCREEN_ORIENTATION_FULL_SENSOR = 10] = "SCREEN_ORIENTATION_FULL_SENSOR", e[e.SCREEN_ORIENTATION_USER_LANDSCAPE = 11] = "SCREEN_ORIENTATION_USER_LANDSCAPE",
-                    e[e.SCREEN_ORIENTATION_USER_PORTRAIT = 12] = "SCREEN_ORIENTATION_USER_PORTRAIT",
-                    e[e.SCREEN_ORIENTATION_FULL_USER = 13] = "SCREEN_ORIENTATION_FULL_USER", e[e.SCREEN_ORIENTATION_LOCKED = 14] = "SCREEN_ORIENTATION_LOCKED";
-            }(e.ScreenOrientation || (e.ScreenOrientation = {}));
-            e.ScreenOrientation;
-            return e;
-        }(se), ce = function (e, t, n) {
-            var i = function () {
-                function e(e, t, i) {
+                e[e.SCREEN_ORIENTATION_UNSPECIFIED = -1] = "SCREEN_ORIENTATION_UNSPECIFIED";
+                e[e.SCREEN_ORIENTATION_LANDSCAPE = 0] = "SCREEN_ORIENTATION_LANDSCAPE";
+                e[e.SCREEN_ORIENTATION_PORTRAIT = 1] = "SCREEN_ORIENTATION_PORTRAIT";
+                e[e.SCREEN_ORIENTATION_USER = 2] = "SCREEN_ORIENTATION_USER";
+                e[e.SCREEN_ORIENTATION_BEHIND = 3] = "SCREEN_ORIENTATION_BEHIND";
+                e[e.SCREEN_ORIENTATION_SENSOR = 4] = "SCREEN_ORIENTATION_SENSOR";
+                e[e.SCREEN_ORIENTATION_NOSENSOR = 5] = "SCREEN_ORIENTATION_NOSENSOR";
+                e[e.SCREEN_ORIENTATION_SENSOR_LANDSCAPE = 6] = "SCREEN_ORIENTATION_SENSOR_LANDSCAPE";
+                e[e.SCREEN_ORIENTATION_SENSOR_PORTRAIT = 7] = "SCREEN_ORIENTATION_SENSOR_PORTRAIT";
+                e[e.SCREEN_ORIENTATION_REVERSE_LANDSCAPE = 8] = "SCREEN_ORIENTATION_REVERSE_LANDSCAPE";
+                e[e.SCREEN_ORIENTATION_REVERSE_PORTRAIT = 9] = "SCREEN_ORIENTATION_REVERSE_PORTRAIT";
+                e[e.SCREEN_ORIENTATION_FULL_SENSOR = 10] = "SCREEN_ORIENTATION_FULL_SENSOR";
+                e[e.SCREEN_ORIENTATION_USER_LANDSCAPE = 11] = "SCREEN_ORIENTATION_USER_LANDSCAPE";
+                e[e.SCREEN_ORIENTATION_USER_PORTRAIT = 12] = "SCREEN_ORIENTATION_USER_PORTRAIT";
+                e[e.SCREEN_ORIENTATION_FULL_USER = 13] = "SCREEN_ORIENTATION_FULL_USER";
+                e[e.SCREEN_ORIENTATION_LOCKED = 14] = "SCREEN_ORIENTATION_LOCKED";
+            }(exports.ScreenOrientation || (exports.ScreenOrientation = {}));
+            return exports;
+        }(se),
+
+        ce = function (exports, t, n) {
+            var AbstractAdUnit = function () {
+                function AbstractAdUnit(e, t, i) {
                     this.onStart = new n.Observable0(), this.onNewAdRequestAllowed = new n.Observable0(),
                         this.onClose = new n.Observable0(), this._showing = !1, this._nativeBridge = e,
                         this._placement = t, this._campaign = i;
                 }
-
-                return e.prototype.getPlacement = function () {
+                AbstractAdUnit.prototype.getPlacement = function () {
                     return this._placement;
-                }, e.prototype.getCampaign = function () {
+                };
+                AbstractAdUnit.prototype.getCampaign = function () {
                     return this._campaign;
-                }, e.prototype.setFinishState = function (e) {
+                };
+                AbstractAdUnit.prototype.setFinishState = function (e) {
                     this._finishState !== t.FinishState.COMPLETED && (this._finishState = e);
-                }, e.prototype.getFinishState = function () {
+                };
+                AbstractAdUnit.prototype.getFinishState = function () {
                     return this._finishState;
-                }, e.prototype.isShowing = function () {
+                };
+                AbstractAdUnit.prototype.isShowing = function () {
                     return this._showing;
-                }, e.prototype.sendImpressionEvent = function (e, t) {
-                }, e.prototype.sendTrackingEvent = function (e, t, n) {
-                },
-                    e.prototype.sendProgressEvents = function (e, t, n, i) {
-                    }, e;
+                };
+                AbstractAdUnit.prototype.sendImpressionEvent = function (e, t) {
+                };
+                AbstractAdUnit.prototype.sendTrackingEvent = function (e, t, n) {
+                };
+                AbstractAdUnit.prototype.sendProgressEvents = function (e, t, n, i) {
+                };
+                return AbstractAdUnit;
             }();
-            return e.AbstractAdUnit = i, e;
-        }(ce, E, u), ue = function (e) {
-            var t = function () {
-                function e(e) {
+            exports.AbstractAdUnit = AbstractAdUnit;
+            return exports;
+        }(ce, E, u),
+
+        ue = function (exports) {
+            var Double = function () {
+                function Double(e) {
                     this._value = e;
                 }
-
-                return e.prototype.toJSON = function () {
+                Double.prototype.toJSON = function () {
                     return this._value.toFixed(20) + "=double";
-                }, e;
+                };
+                return Double;
             }();
-            return e.Double = t, e;
-        }(ue), le = function (e) {
+            exports.Double = Double;
+            return exports;
+        }(ue),
+
+        le = function (exports) {
             !function (e) {
-                e[e.INTERFACE_ORIENTATION_MASK_PORTRAIT = 2] = "INTERFACE_ORIENTATION_MASK_PORTRAIT",
-                    e[e.INTERFACE_ORIENTATION_MASK_LANDSCAPE_LEFT = 16] = "INTERFACE_ORIENTATION_MASK_LANDSCAPE_LEFT",
-                    e[e.INTERFACE_ORIENTATION_MASK_LANDSCAPE_RIGHT = 8] = "INTERFACE_ORIENTATION_MASK_LANDSCAPE_RIGHT",
-                    e[e.INTERFACE_ORIENTATION_MASK_PORTRAIT_UPSIDE_DOWN = 4] = "INTERFACE_ORIENTATION_MASK_PORTRAIT_UPSIDE_DOWN",
-                    e[e.INTERFACE_ORIENTATION_MASK_LANDSCAPE = 24] = "INTERFACE_ORIENTATION_MASK_LANDSCAPE",
-                    e[e.INTERFACE_ORIENTATION_MASK_ALL = 30] = "INTERFACE_ORIENTATION_MASK_ALL", e[e.INTERFACE_ORIENTATION_MASK_ALL_BUT_UPSIDE_DOWN = 26] = "INTERFACE_ORIENTATION_MASK_ALL_BUT_UPSIDE_DOWN";
-            }(e.UIInterfaceOrientationMask || (e.UIInterfaceOrientationMask = {}));
-            e.UIInterfaceOrientationMask;
-            return e;
+                e[e.INTERFACE_ORIENTATION_MASK_PORTRAIT = 2] = "INTERFACE_ORIENTATION_MASK_PORTRAIT";
+                e[e.INTERFACE_ORIENTATION_MASK_LANDSCAPE_LEFT = 16] = "INTERFACE_ORIENTATION_MASK_LANDSCAPE_LEFT";
+                e[e.INTERFACE_ORIENTATION_MASK_LANDSCAPE_RIGHT = 8] = "INTERFACE_ORIENTATION_MASK_LANDSCAPE_RIGHT";
+                e[e.INTERFACE_ORIENTATION_MASK_PORTRAIT_UPSIDE_DOWN = 4] = "INTERFACE_ORIENTATION_MASK_PORTRAIT_UPSIDE_DOWN";
+                e[e.INTERFACE_ORIENTATION_MASK_LANDSCAPE = 24] = "INTERFACE_ORIENTATION_MASK_LANDSCAPE";
+                e[e.INTERFACE_ORIENTATION_MASK_ALL = 30] = "INTERFACE_ORIENTATION_MASK_ALL";
+                e[e.INTERFACE_ORIENTATION_MASK_ALL_BUT_UPSIDE_DOWN = 26] = "INTERFACE_ORIENTATION_MASK_ALL_BUT_UPSIDE_DOWN";
+            }(exports.UIInterfaceOrientationMask || (exports.UIInterfaceOrientationMask = {}));
+            return exports;
         }(le);
 
-        he = function (e, t, n, i, r, o, a) {
-            var s = function (e) {
-                function i(t, n, r, a, s) {
+        he = function (exports, t, n, i, r, o, a) {
+            var VideoAdUnit = function (AbstractAdUnit) {
+                function VideoAdUnit(t, n, r, a, s) {
                     var c = this;
-                    e.call(this, t, n, r), t.getPlatform() === o.Platform.IOS ? this._onViewControllerDidAppearObserver = this._nativeBridge.IosAdUnit.onViewControllerDidAppear.subscribe(function () {
-                        return c.onViewDidAppear();
-                    }) : (this._activityId = i._activityIdCounter++, this._onResumeObserver = this._nativeBridge.AndroidAdUnit.onResume.subscribe(function (e) {
-                        return c.onResume(e);
-                    }), this._onPauseObserver = this._nativeBridge.AndroidAdUnit.onPause.subscribe(function (e, t) {
-                        return c.onPause(e, t);
-                    }), this._onDestroyObserver = this._nativeBridge.AndroidAdUnit.onDestroy.subscribe(function (e, t) {
-                        return c.onDestroy(e, t);
-                    })), this._videoPosition = 0, this._videoQuartile = 0, this._videoActive = !0, this._watches = 0,
-                        this._overlay = a, this._endScreen = s;
+                    AbstractAdUnit.call(this, t, n, r);
+                    if(t.getPlatform() === o.Platform.IOS){
+                        this._onViewControllerDidAppearObserver = this._nativeBridge.IosAdUnit.onViewControllerDidAppear.subscribe(function () {
+                            return c.onViewDidAppear();
+                        })
+                    }else{
+                        this._activityId = VideoAdUnit._activityIdCounter++;
+                        this._onResumeObserver = this._nativeBridge.AndroidAdUnit.onResume.subscribe(function (e) {
+                            return c.onResume(e);
+                        });
+                        this._onPauseObserver = this._nativeBridge.AndroidAdUnit.onPause.subscribe(function (e, t) {
+                            return c.onPause(e, t);
+                        });
+                        this._onDestroyObserver = this._nativeBridge.AndroidAdUnit.onDestroy.subscribe(function (e, t) {
+                            return c.onDestroy(e, t);
+                        });
+                    }
+                    this._videoPosition = 0;
+                    this._videoQuartile = 0;
+                    this._videoActive = true;
+                    this._watches = 0;
+                    this._overlay = a;
+                    this._endScreen = s;
                 }
-
-                return extend(i, e), i.prototype.show = function () {
-                    var e = this;
-                    if (this._showing = !0, this.onStart.trigger(), this.setVideoActive(!0), this._nativeBridge.getPlatform() === o.Platform.IOS) {
+                extend(VideoAdUnit, AbstractAdUnit);
+                VideoAdUnit.prototype.show = function () {
+                    var me = this;
+                    this._showing = true;
+                    this.onStart.trigger();
+                    this.setVideoActive(true);
+                    if (this._nativeBridge.getPlatform() === o.Platform.IOS) {
                         var n = this._iosOptions.supportedOrientations;
-                        return this._placement.useDeviceOrientationForVideo() || (this._iosOptions.supportedOrientations & a.UIInterfaceOrientationMask.INTERFACE_ORIENTATION_MASK_LANDSCAPE) !== a.UIInterfaceOrientationMask.INTERFACE_ORIENTATION_MASK_LANDSCAPE || (n = a.UIInterfaceOrientationMask.INTERFACE_ORIENTATION_MASK_LANDSCAPE),
-                            this._onNotificationObserver = this._nativeBridge.Notification.onNotification.subscribe(function (t, n) {
-                                return e.onNotification(t, n);
-                            }), this._nativeBridge.Notification.addNotificationObserver(i._audioSessionInterrupt, ["AVAudioSessionInterruptionTypeKey", "AVAudioSessionInterruptionOptionKey"]),
-                            this._nativeBridge.Notification.addNotificationObserver(i._audioSessionRouteChange, []),
-                            this._nativeBridge.Sdk.logInfo("Opening game ad with orientation " + n), this._nativeBridge.IosAdUnit.open(["videoplayer", "webview"], n, !0, !0);
+                        this._placement.useDeviceOrientationForVideo() || (this._iosOptions.supportedOrientations & a.UIInterfaceOrientationMask.INTERFACE_ORIENTATION_MASK_LANDSCAPE) !== a.UIInterfaceOrientationMask.INTERFACE_ORIENTATION_MASK_LANDSCAPE || (n = a.UIInterfaceOrientationMask.INTERFACE_ORIENTATION_MASK_LANDSCAPE);
+                        this._onNotificationObserver = this._nativeBridge.Notification.onNotification.subscribe(function (t, n) {
+                            return me.onNotification(t, n);
+                        });
+                        this._nativeBridge.Notification.addNotificationObserver(VideoAdUnit._audioSessionInterrupt, ["AVAudioSessionInterruptionTypeKey", "AVAudioSessionInterruptionOptionKey"]);
+                        this._nativeBridge.Notification.addNotificationObserver(VideoAdUnit._audioSessionRouteChange, []);
+                        this._nativeBridge.Sdk.logInfo("Opening game ad with orientation " + n);
+                        return this._nativeBridge.IosAdUnit.open(["videoplayer", "webview"], n, true, true);
                     }
                     var r = this._androidOptions.requestedOrientation;
-                    this._placement.useDeviceOrientationForVideo() || (r = t.ScreenOrientation.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
-                    var s = [];
-                    this._placement.disableBackButton() && (s = [4], this._onBackKeyObserver = this._nativeBridge.AndroidAdUnit.onKeyDown.subscribe(function (t, n, i, r) {
-                        return e.onKeyEvent(t);
-                    }));
-                    var c = !0;
-                    return this._nativeBridge.getApiLevel() < 17 && (c = !1), this._nativeBridge.Sdk.logInfo("Opening game ad with orientation " + r + ", hardware acceleration " + (c ? "enabled" : "disabled")),
-                        this._nativeBridge.AndroidAdUnit.open(this._activityId, ["videoplayer", "webview"], r, s, 1, c);
-                }, i.prototype.onKeyEvent = function (e) {
-                    4 !== e || this.isVideoActive() || this.hide();
-                }, i.prototype.hide = function () {
-                    var e = this;
-                    return this.isVideoActive() && this._nativeBridge.VideoPlayer.stop(), this.hideChildren(),
-                        this.unsetReferences(), this._nativeBridge.Listener.sendFinishEvent(this.getPlacement().getId(), this.getFinishState()),
-                        this._nativeBridge.getPlatform() === o.Platform.IOS ? (this._nativeBridge.IosAdUnit.onViewControllerDidAppear.unsubscribe(this._onViewControllerDidAppearObserver),
-                            this._nativeBridge.Notification.onNotification.unsubscribe(this._onNotificationObserver),
-                            this._nativeBridge.Notification.removeNotificationObserver(i._audioSessionInterrupt),
-                            this._nativeBridge.Notification.removeNotificationObserver(i._audioSessionRouteChange),
-                            this._nativeBridge.IosAdUnit.close().then(function () {
-                                e._showing = !1, e.onClose.trigger();
-                            })) : (this._nativeBridge.AndroidAdUnit.onResume.unsubscribe(this._onResumeObserver),
-                            this._nativeBridge.AndroidAdUnit.onPause.unsubscribe(this._onPauseObserver), this._nativeBridge.AndroidAdUnit.onDestroy.unsubscribe(this._onDestroyObserver),
-                            this._nativeBridge.AndroidAdUnit.onKeyDown.unsubscribe(this._onBackKeyObserver),
-                            this._nativeBridge.AndroidAdUnit.close().then(function () {
-                                e._showing = !1, e.onClose.trigger();
-                            }));
-                }, i.prototype.hideChildren = function () {
-                    this.getOverlay().container().parentElement.removeChild(this.getOverlay().container()),
-                        this.getEndScreen().container().parentElement.removeChild(this.getEndScreen().container());
-                }, i.prototype.setNativeOptions = function (e) {
-                    this._nativeBridge.getPlatform() === o.Platform.IOS ? this._iosOptions = e : this._androidOptions = e;
-                }, i.prototype.isShowing = function () {
-                    return this._showing;
-                }, i.prototype.getWatches = function () {
-                    return this._watches;
-                }, i.prototype.getVideoDuration = function () {
-                    return this._videoDuration;
-                }, i.prototype.setVideoDuration = function (e) {
-                    this._videoDuration = e;
-                }, i.prototype.getVideoPosition = function () {
-                    return this._videoPosition;
-                }, i.prototype.setVideoPosition = function (e) {
-                    this._videoPosition = e, this._videoDuration && (this._videoQuartile = Math.floor(4 * this._videoPosition / this._videoDuration));
-                }, i.prototype.getVideoQuartile = function () {
-                    return this._videoQuartile;
-                }, i.prototype.isVideoActive = function () {
-                    return this._videoActive;
-                }, i.prototype.setVideoActive = function (e) {
-                    this._videoActive = e;
-                }, i.prototype.setWatches = function (e) {
-                    this._watches = e;
-                }, i.prototype.getOverlay = function () {
-                    return this._overlay;
-                }, i.prototype.getEndScreen = function () {
-                    return this._endScreen;
-                }, i.prototype.newWatch = function () {
-                    this._watches += 1;
-                }, i.prototype.unsetReferences = function () {
-                    this._endScreen = null, this._overlay = null;
-                }, i.prototype.onResume = function (e) {
-                    this._showing && this.isVideoActive() && e === this._activityId && this._nativeBridge.VideoPlayer.prepare(this.getCampaign().getVideoUrl(), new r.Double(this.getPlacement().muteVideo() ? 0 : 1));
-                }, i.prototype.onPause = function (e, t) {
-                    e && this._showing && t === this._activityId && (this.setFinishState(n.FinishState.SKIPPED),
-                        this.hide());
-                }, i.prototype.onDestroy = function (e, t) {
-                    this._showing && e && t === this._activityId && (this.setFinishState(n.FinishState.SKIPPED),
-                        this.hide());
-                }, i.prototype.onViewDidAppear = function () {
-                    this._showing && this.isVideoActive() && this._nativeBridge.VideoPlayer.prepare(this.getCampaign().getVideoUrl(), new r.Double(this.getPlacement().muteVideo() ? 0 : 1));
-                }, i.prototype.onNotification = function (e, t) {
-                    switch (e) {
-                        case i._appDidBecomeActive:
-                            this._showing && this.isVideoActive() && (this._nativeBridge.Sdk.logInfo("Resuming Unity Ads video playback, app is active"),
-                                this._nativeBridge.VideoPlayer.play());
-                            break;
-
-                        case i._audioSessionInterrupt:
-                            var n = t;
-                            0 === n.AVAudioSessionInterruptionTypeKey && 1 === n.AVAudioSessionInterruptionOptionKey && this._showing && this.isVideoActive() && (this._nativeBridge.Sdk.logInfo("Resuming Unity Ads video playback after audio interrupt"),
-                                this._nativeBridge.VideoPlayer.play());
-                            break;
-
-                        case i._audioSessionRouteChange:
-                            this._showing && this.isVideoActive() && (this._nativeBridge.Sdk.logInfo("Continuing Unity Ads video playback after audio session route change"),
-                                this._nativeBridge.VideoPlayer.play());
+                    if(!this._placement.useDeviceOrientationForVideo()){
+                        r = t.ScreenOrientation.SCREEN_ORIENTATION_SENSOR_LANDSCAPE;
                     }
-                }, i._appDidBecomeActive = "UIApplicationDidBecomeActiveNotification", i._audioSessionInterrupt = "AVAudioSessionInterruptionNotification",
-                    i._audioSessionRouteChange = "AVAudioSessionRouteChangeNotification", i._activityIdCounter = 1,
-                    i;
+                    var s = [];
+                    if(this._placement.disableBackButton()){
+                        s = [4];
+                        this._onBackKeyObserver = this._nativeBridge.AndroidAdUnit.onKeyDown.subscribe(function (t, n, i, r) {
+                            return me.onKeyEvent(t);
+                        });
+                    }
+                    var c = true;
+                    this._nativeBridge.getApiLevel() < 17 && (c = !1);
+                    this._nativeBridge.Sdk.logInfo("Opening game ad with orientation " + r + ", hardware acceleration " + (c ? "enabled" : "disabled"));
+                    return this._nativeBridge.AndroidAdUnit.open(this._activityId, ["videoplayer", "webview"], r, s, 1, c);
+                };
+                VideoAdUnit.prototype.onKeyEvent = function (e) {
+                    4 !== e || this.isVideoActive() || this.hide();
+                };
+                VideoAdUnit.prototype.hide = function () {
+                    var me = this;
+                    this.isVideoActive() && this._nativeBridge.VideoPlayer.stop();
+                    this.hideChildren();
+                    this.unsetReferences();
+                    this._nativeBridge.Listener.sendFinishEvent(this.getPlacement().getId(), this.getFinishState());
+
+                    if(this._nativeBridge.getPlatform() === o.Platform.IOS){
+                        this._nativeBridge.IosAdUnit.onViewControllerDidAppear.unsubscribe(this._onViewControllerDidAppearObserver);
+                        this._nativeBridge.Notification.onNotification.unsubscribe(this._onNotificationObserver);
+                        this._nativeBridge.Notification.removeNotificationObserver(VideoAdUnit._audioSessionInterrupt);
+                        this._nativeBridge.Notification.removeNotificationObserver(VideoAdUnit._audioSessionRouteChange);
+                        return this._nativeBridge.IosAdUnit.close().then(function () {
+                            me._showing = false;
+                            me.onClose.trigger();
+                        })
+                    }else{
+                        this._nativeBridge.AndroidAdUnit.onResume.unsubscribe(this._onResumeObserver);
+                        this._nativeBridge.AndroidAdUnit.onPause.unsubscribe(this._onPauseObserver);
+                        this._nativeBridge.AndroidAdUnit.onDestroy.unsubscribe(this._onDestroyObserver);
+                        this._nativeBridge.AndroidAdUnit.onKeyDown.unsubscribe(this._onBackKeyObserver);
+                        return this._nativeBridge.AndroidAdUnit.close().then(function () {
+                            me._showing = false;
+                            me.onClose.trigger();
+                        });
+                    }
+                };
+                VideoAdUnit.prototype.hideChildren = function () {
+                    this.getOverlay().container().parentElement.removeChild(this.getOverlay().container());
+                    this.getEndScreen().container().parentElement.removeChild(this.getEndScreen().container());
+                };
+                VideoAdUnit.prototype.setNativeOptions = function (options) {
+                    this._nativeBridge.getPlatform() === o.Platform.IOS ? this._iosOptions = options : this._androidOptions = options;
+                };
+                VideoAdUnit.prototype.isShowing = function () {
+                    return this._showing;
+                };
+                VideoAdUnit.prototype.getWatches = function () {
+                    return this._watches;
+                };
+                VideoAdUnit.prototype.getVideoDuration = function () {
+                    return this._videoDuration;
+                };
+                VideoAdUnit.prototype.setVideoDuration = function (duration) {
+                    this._videoDuration = duration;
+                };
+                VideoAdUnit.prototype.getVideoPosition = function () {
+                    return this._videoPosition;
+                };
+                VideoAdUnit.prototype.setVideoPosition = function (position) {
+                    this._videoPosition = position;
+                    if(this._videoDuration){
+                        this._videoQuartile = Math.floor(4 * this._videoPosition / this._videoDuration);
+                    }
+                };
+                VideoAdUnit.prototype.getVideoQuartile = function () {
+                    return this._videoQuartile;
+                };
+                VideoAdUnit.prototype.isVideoActive = function () {
+                    return this._videoActive;
+                };
+                VideoAdUnit.prototype.setVideoActive = function (active) {
+                    this._videoActive = active;
+                };
+                VideoAdUnit.prototype.setWatches = function (watches) {
+                    this._watches = watches;
+                };
+                VideoAdUnit.prototype.getOverlay = function () {
+                    return this._overlay;
+                };
+                VideoAdUnit.prototype.getEndScreen = function () {
+                    return this._endScreen;
+                };
+                VideoAdUnit.prototype.newWatch = function () {
+                    this._watches += 1;
+                };
+                VideoAdUnit.prototype.unsetReferences = function () {
+                    this._endScreen = null, this._overlay = null;
+                };
+                VideoAdUnit.prototype.onResume = function (e) {
+                    if(this._showing && this.isVideoActive() && e === this._activityId){
+                        this._nativeBridge.VideoPlayer.prepare(this.getCampaign().getVideoUrl(), new r.Double(this.getPlacement().muteVideo() ? 0 : 1));
+                    }
+                };
+                VideoAdUnit.prototype.onPause = function (e, t) {
+                    if(e && this._showing && t === this._activityId ){
+                        this.setFinishState(n.FinishState.SKIPPED);
+                        this.hide();
+                    }
+                };
+                VideoAdUnit.prototype.onDestroy = function (e, t) {
+                    if(this._showing && e && t === this._activityId){
+                        this.setFinishState(n.FinishState.SKIPPED);
+                        this.hide();
+                    }
+                };
+                VideoAdUnit.prototype.onViewDidAppear = function () {
+                    if(this._showing && this.isVideoActive() ){
+                        this._nativeBridge.VideoPlayer.prepare(this.getCampaign().getVideoUrl(), new r.Double(this.getPlacement().muteVideo() ? 0 : 1));
+                    }
+                };
+                VideoAdUnit.prototype.onNotification = function (e, t) {
+                    switch (e) {
+                        case VideoAdUnit._appDidBecomeActive:
+                            if(this._showing && this.isVideoActive()){
+                                this._nativeBridge.Sdk.logInfo("Resuming Unity Ads video playback, app is active");
+                                this._nativeBridge.VideoPlayer.play();
+                            }
+                            break;
+
+                        case VideoAdUnit._audioSessionInterrupt:
+                            var n = t;
+                            if(0 === n.AVAudioSessionInterruptionTypeKey && 1 === n.AVAudioSessionInterruptionOptionKey && this._showing && this.isVideoActive()){
+                                this._nativeBridge.Sdk.logInfo("Resuming Unity Ads video playback after audio interrupt");
+                                this._nativeBridge.VideoPlayer.play();
+                            }
+                            break;
+
+                        case VideoAdUnit._audioSessionRouteChange:
+                            if(this._showing && this.isVideoActive()){
+                                this._nativeBridge.Sdk.logInfo("Continuing Unity Ads video playback after audio session route change");
+                                this._nativeBridge.VideoPlayer.play();
+                            }
+                    }
+                };
+                VideoAdUnit._appDidBecomeActive = "UIApplicationDidBecomeActiveNotification";
+                VideoAdUnit._audioSessionInterrupt = "AVAudioSessionInterruptionNotification";
+                VideoAdUnit._audioSessionRouteChange = "AVAudioSessionRouteChangeNotification";
+                VideoAdUnit._activityIdCounter = 1;
+                return VideoAdUnit;
             }(i.AbstractAdUnit);
-            return e.VideoAdUnit = s, e;
+            exports.VideoAdUnit = VideoAdUnit;
+            return exports;
         }(he, se, E, ce, ue, a, le);
 
-        pe = function (e, t) {
-            var n = function (e) {
-                function t(t, n, i, r) {
-                    e.call(this, t, n, i, r, null);
+        pe = function (exports, t) {
+            var VastAdUnit = function (VideoAdUnit) {
+                function VastAdUnit(t, n, i, r) {
+                    VideoAdUnit.call(this, t, n, i, r, null);
                 }
-
-                return extend(t, e), t.prototype.hideChildren = function () {
+                extend(VastAdUnit, VideoAdUnit);
+                VastAdUnit.prototype.hideChildren = function () {
                     var e = this.getOverlay();
                     e.container().parentElement.removeChild(e.container());
-                }, t.prototype.getVast = function () {
+                };
+                VastAdUnit.prototype.getVast = function () {
                     return this.getCampaign().getVast();
-                }, t.prototype.getDuration = function () {
+                };
+                VastAdUnit.prototype.getDuration = function () {
                     return this.getVast().getDuration();
-                }, t.prototype.sendImpressionEvent = function (e, t) {
+                };
+                VastAdUnit.prototype.sendImpressionEvent = function (e, t) {
                     var n = this.getVast().getImpressionUrls();
                     if (n) for (var i = 0, r = n; i < r.length; i++) {
                         var o = r[i];
                         this.sendThirdPartyEvent(e, "vast impression", t, o);
                     }
-                }, t.prototype.sendTrackingEvent = function (e, t, n) {
+                };
+                VastAdUnit.prototype.sendTrackingEvent = function (e, t, n) {
                     var i = this.getVast().getTrackingEventUrls(t);
                     if (i) for (var r = 0, o = i; r < o.length; r++) {
                         var a = o[r];
                         this.sendThirdPartyEvent(e, "vast " + t, n, a);
                     }
-                }, t.prototype.sendProgressEvents = function (e, t, n, i) {
+                };
+                VastAdUnit.prototype.sendProgressEvents = function (e, t, n, i) {
                     this.sendQuartileEvent(e, t, n, i, 1), this.sendQuartileEvent(e, t, n, i, 2), this.sendQuartileEvent(e, t, n, i, 3);
-                }, t.prototype.getVideoClickThroughURL = function () {
+                };
+                VastAdUnit.prototype.getVideoClickThroughURL = function () {
                     var e = this.getVast().getVideoClickThroughURL(), t = new RegExp("^(https?)://.+$");
                     return t.test(e) ? e : null;
-                }, t.prototype.sendVideoClickTrackingEvent = function (e, t) {
+                };
+                VastAdUnit.prototype.sendVideoClickTrackingEvent = function (e, t) {
                     var n = this.getVast().getVideoClickTrackingURLs();
                     if (n) for (var i = 0; i < n.length; i++) this.sendThirdPartyEvent(e, "vast video click", t, n[i]);
-                }, t.prototype.sendQuartileEvent = function (e, t, n, i, r) {
+                };
+                VastAdUnit.prototype.sendQuartileEvent = function (e, t, n, i, r) {
                     var o;
                     if (1 === r && (o = "firstQuartile"), 2 === r && (o = "midpoint"), 3 === r && (o = "thirdQuartile"),
                             this.getTrackingEventUrls(o)) {
                         var a = this.getDuration();
                         a > 0 && n / 1e3 > .25 * a * r && .25 * a * r > i / 1e3 && this.sendTrackingEvent(e, o, t);
                     }
-                }, t.prototype.sendThirdPartyEvent = function (e, t, n, i) {
+                };
+                VastAdUnit.prototype.sendThirdPartyEvent = function (e, t, n, i) {
                     i = i.replace(/%ZONE%/, this.getPlacement().getId()), e.thirdPartyEvent(t, n, i);
-                }, t.prototype.getTrackingEventUrls = function (e) {
+                };
+                VastAdUnit.prototype.getTrackingEventUrls = function (e) {
                     return this.getVast().getTrackingEventUrls(e);
-                }, t;
+                };
+                return VastAdUnit;
             }(t.VideoAdUnit);
-            return e.VastAdUnit = n, e;
-        }(pe, he), de = function (e, t, n, i, r, o) {
-            var a = function () {
-                function e() {
-                }
+            exports.VastAdUnit = VastAdUnit;
+            return exports;
+        }(pe, he),
 
-                return e.onSkip = function (e, t, a) {
+        de = function (exports, t, n, i, r, o) {
+            var OverlayEventHandlers = function () {
+                function OverlayEventHandlers() {
+                }
+                OverlayEventHandlers.onSkip = function (e, t, a) {
                     e.VideoPlayer.pause(), a.setVideoActive(!1), a.setFinishState(n.FinishState.SKIPPED),
                         t.sendSkip(a, a.getVideoPosition()), e.getPlatform() === i.Platform.IOS ? e.IosAdUnit.setViews(["webview"]) : e.AndroidAdUnit.setViews(["webview"]),
                         e.getPlatform() === i.Platform.ANDROID ? e.AndroidAdUnit.setOrientation(o.ScreenOrientation.SCREEN_ORIENTATION_FULL_SENSOR) : e.getPlatform() === i.Platform.IOS && e.IosAdUnit.setSupportedOrientations(r.UIInterfaceOrientationMask.INTERFACE_ORIENTATION_MASK_ALL),
                         a.getOverlay().hide(), this.afterSkip(a);
-                }, e.afterSkip = function (e) {
+                };
+                OverlayEventHandlers.afterSkip = function (e) {
                     e.getEndScreen().show(), e.onNewAdRequestAllowed.trigger();
-                }, e.onMute = function (e, n, i, r) {
+                };
+                OverlayEventHandlers.onMute = function (e, n, i, r) {
                     e.VideoPlayer.setVolume(new t.Double(r ? 0 : 1)), n.sendMute(i, n.getSession(), r);
-                }, e.onCallButton = function (e, t, n) {
+                };
+                OverlayEventHandlers.onCallButton = function (e, t, n) {
                     var r = n.getVideoClickThroughURL();
                     t.sendVideoClickTracking(n, t.getSession()), e.getPlatform() === i.Platform.IOS ? e.UrlScheme.open(r) : e.Intent.launch({
                         action: "android.intent.action.VIEW",
                         uri: r
                     });
-                }, e;
+                };
+                return OverlayEventHandlers;
             }();
-            return e.OverlayEventHandlers = a, e;
+            exports.OverlayEventHandlers = OverlayEventHandlers;
+            return exports;
         }(de, ue, E, a, le, se);
 
-        fe = function (e, t) {
-            var n = function (e) {
-                function t() {
-                    e.apply(this, arguments);
+        fe = function (exports, t) {
+            var VastOverlayEventHandlers = function (OverlayEventHandlers) {
+                function VastOverlayEventHandlers() {
+                    OverlayEventHandlers.apply(this, arguments);
                 }
-
-                return extend(t, e), t.afterSkip = function (e) {
+                extend(VastOverlayEventHandlers, OverlayEventHandlers);
+                VastOverlayEventHandlers.afterSkip = function (e) {
                     e.hide();
-                }, t;
+                };
+                return VastOverlayEventHandlers;
             }(t.OverlayEventHandlers);
-            return e.VastOverlayEventHandlers = n, e;
-        }(fe, de), ve = function (e, t, n) {
-            var i = function () {
-                function e() {
-                }
+            exports.VastOverlayEventHandlers = VastOverlayEventHandlers;
+            return exports;
+        }(fe, de),
 
-                return e.onDownload = function (i, r, o) {
+        ve = function (exports, t, n) {
+            var EndScreenEventHandlers = function () {
+                function EndScreenEventHandlers() {
+                }
+                EndScreenEventHandlers.onDownload = function (i, r, o) {
                     var a = i.getPlatform(), s = o.getCampaign();
-                    s.getClickAttributionUrlFollowsRedirects() ? r.sendClick(o).then(function (e) {
-                        var r = t.Request.getHeader(e.headers, "location");
-                        if (!r) throw new Error("No location found");
-                        a === n.Platform.IOS ? i.UrlScheme.open(r) : i.Intent.launch({
+                    if(s.getClickAttributionUrlFollowsRedirects()){
+                        r.sendClick(o).then(function (e) {
+                            var r = t.Request.getHeader(e.headers, "location");
+                            if (!r){ throw new Error("No location found");}
+                            if(a === n.Platform.IOS){
+                                i.UrlScheme.open(r)
+                            } else{
+                                i.Intent.launch({
+                                    action: "android.intent.action.VIEW",
+                                    uri: r
+                                });
+                            }
+                        })
+                    }else{
+                        r.sendClick(o);
+                        if(a === n.Platform.IOS){
+                            i.AppSheet.canOpen().then(function (t) {
+                                if(t && !s.getBypassAppSheet()){
+                                    EndScreenEventHandlers.openAppSheet(i, {
+                                        id: parseInt(s.getAppStoreId(), 10)
+                                    })
+                                }else{
+                                    i.UrlScheme.open(EndScreenEventHandlers.getAppStoreUrl(a, s));
+                                }
+                            })
+                        }else{
+                            i.Intent.launch({
+                                action: "android.intent.action.VIEW",
+                                uri: EndScreenEventHandlers.getAppStoreUrl(a, s)
+                            });
+                        }
+                    }
+                };
+                EndScreenEventHandlers.onPrivacy = function (e, t) {
+                    if(e.getPlatform() === n.Platform.IOS ){
+                        e.UrlScheme.open(t)
+                    }else if(e.getPlatform() === n.Platform.ANDROID){
+                        e.Intent.launch({
                             action: "android.intent.action.VIEW",
-                            uri: r
+                            uri: t
                         });
-                    }) : (r.sendClick(o), a === n.Platform.IOS ? i.AppSheet.canOpen().then(function (t) {
-                        t && !s.getBypassAppSheet() ? e.openAppSheet(i, {
-                            id: parseInt(s.getAppStoreId(), 10)
-                        }) : i.UrlScheme.open(e.getAppStoreUrl(a, s));
-                    }) : i.Intent.launch({
-                        action: "android.intent.action.VIEW",
-                        uri: e.getAppStoreUrl(a, s)
-                    }));
-                }, e.onPrivacy = function (e, t) {
-                    e.getPlatform() === n.Platform.IOS ? e.UrlScheme.open(t) : e.getPlatform() === n.Platform.ANDROID && e.Intent.launch({
-                        action: "android.intent.action.VIEW",
-                        uri: t
-                    });
-                }, e.onClose = function (e, t) {
+                    }
+                };
+                EndScreenEventHandlers.onClose = function (e, t) {
                     e.getPlatform() !== n.Platform.IOS || t.getCampaign().getBypassAppSheet() || e.AppSheet.destroy({
                         id: parseInt(t.getCampaign().getAppStoreId(), 10)
-                    }), t.hide();
-                }, e.getAppStoreUrl = function (e, t) {
-                    return e === n.Platform.IOS ? "https://itunes.apple.com/" + t.getAppStoreCountry() + "/app/id" + t.getAppStoreId() : "market://details?id=" + t.getAppStoreId();
-                }, e.openAppSheet = function (e, t) {
+                    });
+                    t.hide();
+                };
+                EndScreenEventHandlers.getAppStoreUrl = function (e, t) {
+                    if(e === n.Platform.IOS){
+                        return "https://itunes.apple.com/" + t.getAppStoreCountry() + "/app/id" + t.getAppStoreId();
+                    }else{
+                        return "market://details?id=" + t.getAppStoreId();
+                    }
+                };
+                EndScreenEventHandlers.openAppSheet = function (e, t) {
                     e.AppSheet.present(t).then(function () {
                         return e.AppSheet.destroy(t);
                     })["catch"](function (t) {
                         var n = t[0], i = t[1];
-                        if ("APPSHEET_NOT_FOUND" === n) return e.AppSheet.prepare(i).then(function () {
-                            var t = e.AppSheet.onPrepared.subscribe(function () {
-                                e.AppSheet.present(i).then(function () {
-                                    e.AppSheet.destroy(i);
-                                }), e.AppSheet.onPrepared.unsubscribe(t);
+                        if ("APPSHEET_NOT_FOUND" === n) {
+                            return e.AppSheet.prepare(i).then(function () {
+                                var t = e.AppSheet.onPrepared.subscribe(function () {
+                                    e.AppSheet.present(i).then(function () {
+                                        e.AppSheet.destroy(i);
+                                    }), e.AppSheet.onPrepared.unsubscribe(t);
+                                });
                             });
-                        });
+                        }
                         throw [n, i];
                     });
-                }, e;
+                };
+                return EndScreenEventHandlers;
             }();
-            return e.EndScreenEventHandlers = i, e;
-        }(ve, $, a), ge = function (e, t, n, i, r, o, a, s) {
-            var c = function () {
-                function e() {
-                }
+            exports.EndScreenEventHandlers = EndScreenEventHandlers;
+            return exports;
+        }(ve, $, a),
 
-                return e.isVast = function (e) {
+        ge = function (exports, t, n, i, r, o, a, s) {
+            var VideoEventHandlers = function () {
+                function VideoEventHandlers() {
+                }
+                VideoEventHandlers.isVast = function (e) {
                     return void 0 !== e.getVast;
-                }, e.onVideoPrepared = function (e, n, r) {
+                };
+                VideoEventHandlers.onVideoPrepared = function (e, n, r) {
                     var o = this, a = n.getOverlay();
-                    n.setVideoDuration(r), a.setVideoDuration(r), n.getVideoPosition() > 0 && a.setVideoProgress(n.getVideoPosition()),
-                    n.getPlacement().allowSkip() && a.setSkipVisible(!0), a.setMuteEnabled(!0), a.setVideoDurationEnabled(!0),
-                    this.isVast(n) && n.getVideoClickThroughURL() && a.setCallButtonVisible(!0), e.Storage.get(i.StorageType.PUBLIC, "test.debugOverlayEnabled.value").then(function (e) {
+                    n.setVideoDuration(r);
+                    a.setVideoDuration(r);
+                    if(n.getVideoPosition() > 0 ){
+                        a.setVideoProgress(n.getVideoPosition());
+                    }
+                    if(n.getPlacement().allowSkip()){
+                        a.setSkipVisible(true);
+                    }
+                    a.setMuteEnabled(true);
+                    a.setVideoDurationEnabled(true);
+                    if(this.isVast(n) && n.getVideoClickThroughURL()){
+                        a.setCallButtonVisible(true);
+                    }
+                    e.Storage.get(i.StorageType.PUBLIC, "test.debugOverlayEnabled.value").then(function (e) {
                         if (e === !0) {
                             a.setDebugMessageVisible(!0);
                             var t = "";
                             t = o.isVast(n) ? "Programmatic Ad" : "Performance Ad", a.setDebugMessage(t);
                         }
-                    }), e.VideoPlayer.setVolume(new t.Double(a.isMuted() ? 0 : 1)).then(function () {
-                        n.getVideoPosition() > 0 ? e.VideoPlayer.seekTo(n.getVideoPosition()).then(function () {
-                            e.VideoPlayer.play();
-                        }) : e.VideoPlayer.play();
                     });
-                }, e.onVideoProgress = function (e, t, n, i) {
-                    if (t.sendProgress(n, t.getSession(), i, n.getVideoPosition()), i > 0) {
+                    e.VideoPlayer.setVolume(new t.Double(a.isMuted() ? 0 : 1)).then(function () {
+                        if(n.getVideoPosition() > 0 ){
+                            e.VideoPlayer.seekTo(n.getVideoPosition()).then(function () {
+                                e.VideoPlayer.play();
+                            })
+                        }else{
+                            e.VideoPlayer.play();
+                        }
+                    });
+                };
+                VideoEventHandlers.onVideoProgress = function (e, t, n, i) {
+                    t.sendProgress(n, t.getSession(), i, n.getVideoPosition());
+                    if (i > 0) {
                         var r = n.getVideoPosition();
-                        r > 0 && 100 > i - r ? n.getOverlay().setSpinnerEnabled(!0) : n.getOverlay().setSpinnerEnabled(!1);
+                        if(r > 0 && 100 > i - r ){
+                            n.getOverlay().setSpinnerEnabled(true)
+                        }else{
+                            n.getOverlay().setSpinnerEnabled(false);
+                        }
                         var o = n.getVideoQuartile();
-                        n.setVideoPosition(i), 0 === o && 1 === n.getVideoQuartile() ? t.sendFirstQuartile(n) : 1 === o && 2 === n.getVideoQuartile() ? t.sendMidpoint(n) : 2 === o && 3 === n.getVideoQuartile() && t.sendThirdQuartile(n);
+                        n.setVideoPosition(i);
+                        if(0 === o && 1 === n.getVideoQuartile() ){
+                            t.sendFirstQuartile(n)
+                        }else if(1 === o && 2 === n.getVideoQuartile() ){
+                                t.sendMidpoint(n)
+                        }else if(2 === o && 3 === n.getVideoQuartile() ){
+                            t.sendThirdQuartile(n);
+                        }
                     }
                     n.getOverlay().setVideoProgress(i);
-                }, e.onVideoStart = function (e, t, n) {
-                    t.sendImpressionEvent(n), t.sendStart(n), n.getOverlay().setSpinnerEnabled(!1),
-                        e.VideoPlayer.setProgressEventInterval(250), 0 === n.getWatches() && e.Listener.sendStartEvent(n.getPlacement().getId()),
-                        n.newWatch();
-                }, e.onVideoCompleted = function (e, t, o) {
-                    o.setVideoActive(!1), o.setFinishState(n.FinishState.COMPLETED), t.sendView(o),
-                        e.getPlatform() === r.Platform.IOS ? e.IosAdUnit.setViews(["webview"]) : e.AndroidAdUnit.setViews(["webview"]),
-                        this.afterVideoCompleted(e, o), e.Storage.get(i.StorageType.PUBLIC, "integration_test.value").then(function (t) {
-                        t && (e.getPlatform() === r.Platform.ANDROID ? e.rawInvoke("com.unity3d.ads.test.integration.IntegrationTest", "onVideoCompleted", [o.getPlacement().getId()]) : e.rawInvoke("UADSIntegrationTest", "onVideoCompleted", [o.getPlacement().getId()]));
+                };
+                VideoEventHandlers.onVideoStart = function (e, t, n) {
+                    t.sendImpressionEvent(n);
+                    t.sendStart(n);
+                    n.getOverlay().setSpinnerEnabled(false);
+                    e.VideoPlayer.setProgressEventInterval(250);
+                    if(0 === n.getWatches()){
+                        e.Listener.sendStartEvent(n.getPlacement().getId());
+                    }
+                    n.newWatch();
+                };
+                VideoEventHandlers.onVideoCompleted = function (e, t, o) {
+                    o.setVideoActive(!1);
+                    o.setFinishState(n.FinishState.COMPLETED);
+                    t.sendView(o);
+                    if(e.getPlatform() === r.Platform.IOS ){
+                        e.IosAdUnit.setViews(["webview"])
+                    }else{
+                        e.AndroidAdUnit.setViews(["webview"]);
+                    }
+                    this.afterVideoCompleted(e, o);
+                    e.Storage.get(i.StorageType.PUBLIC, "integration_test.value").then(function (t) {
+                        if(t){
+                            if(e.getPlatform() === r.Platform.ANDROID){
+                                e.rawInvoke("com.unity3d.ads.test.integration.IntegrationTest", "onVideoCompleted", [o.getPlacement().getId()])
+                            }else{
+                                e.rawInvoke("UADSIntegrationTest", "onVideoCompleted", [o.getPlacement().getId()]);
+                            }
+                        }
                     });
-                }, e.onVideoError = function (e, t, i, a) {
-                    t.setVideoActive(!1), t.setFinishState(n.FinishState.ERROR), e.Listener.sendErrorEvent(o.UnityAdsError[o.UnityAdsError.VIDEO_PLAYER_ERROR], "Video player error"),
-                        e.getPlatform() === r.Platform.IOS ? (e.Sdk.logError("Unity Ads video player error"),
-                            e.IosAdUnit.setViews(["webview"])) : (e.Sdk.logError("Unity Ads video player error " + i + " " + a),
-                            e.AndroidAdUnit.setViews(["webview"])), t.getOverlay().hide();
+                };
+                VideoEventHandlers.onVideoError = function (e, t, i, a) {
+                    t.setVideoActive(!1);
+                    t.setFinishState(n.FinishState.ERROR);
+                    e.Listener.sendErrorEvent(o.UnityAdsError[o.UnityAdsError.VIDEO_PLAYER_ERROR], "Video player error");
+                    if(e.getPlatform() === r.Platform.IOS ){
+                        e.Sdk.logError("Unity Ads video player error");
+                        e.IosAdUnit.setViews(["webview"]);
+                    }else{
+                        e.Sdk.logError("Unity Ads video player error " + i + " " + a);
+                        e.AndroidAdUnit.setViews(["webview"]);
+                    }
+                    t.getOverlay().hide();
                     var s = t.getEndScreen();
-                    s && t.getEndScreen().show(), t.onNewAdRequestAllowed.trigger();
-                }, e.afterVideoCompleted = function (e, t) {
-                    t.getOverlay().hide(), t.getEndScreen().show(), t.onNewAdRequestAllowed.trigger(),
-                        e.getPlatform() === r.Platform.ANDROID ? e.AndroidAdUnit.setOrientation(a.ScreenOrientation.SCREEN_ORIENTATION_FULL_SENSOR) : e.getPlatform() === r.Platform.IOS && e.IosAdUnit.setSupportedOrientations(s.UIInterfaceOrientationMask.INTERFACE_ORIENTATION_MASK_ALL);
-                }, e;
+                    s && t.getEndScreen().show();
+                    t.onNewAdRequestAllowed.trigger();
+                };
+                VideoEventHandlers.afterVideoCompleted = function (e, t) {
+                    t.getOverlay().hide();
+                    t.getEndScreen().show();
+                    t.onNewAdRequestAllowed.trigger();
+                    if(e.getPlatform() === r.Platform.ANDROID){
+                        e.AndroidAdUnit.setOrientation(a.ScreenOrientation.SCREEN_ORIENTATION_FULL_SENSOR)
+                    }else if(e.getPlatform() === r.Platform.IOS ){
+                        e.IosAdUnit.setSupportedOrientations(s.UIInterfaceOrientationMask.INTERFACE_ORIENTATION_MASK_ALL);
+                    }
+                };
+                return VideoEventHandlers;
             }();
-            return e.VideoEventHandlers = c, e;
+            exports.VideoEventHandlers = VideoEventHandlers;
+            return exports;
         }(ge, ue, E, b, a, te, se, le);
 
-        _e = function (e, t) {
-            var n = function (e) {
-                function t() {
-                    e.apply(this, arguments);
+        _e = function (exports, t) {
+            var VastVideoEventHandlers = function (VideoEventHandlers) {
+                function VastVideoEventHandlers() {
+                    VideoEventHandlers.apply(this, arguments);
                 }
-
-                return extend(t, e), t.afterVideoCompleted = function (e, t) {
+                extend(VastVideoEventHandlers, VideoEventHandlers);
+                VastVideoEventHandlers.afterVideoCompleted = function (e, t) {
                     t.hide();
-                }, t;
+                };
+                return VastVideoEventHandlers;
             }(t.VideoEventHandlers);
-            return e.VastVideoEventHandlers = n, e;
-        }(_e, ge), t = '<div class="btn-close-region"><a class="btn-close"><span class="icon-close"></span></a></div>\n<div class="campaign-container">\n  <div class="game-background game-background-landscape" style="background-image: url(<%= data.endScreenLandscape %>)"></div>\n  <div class="game-background game-background-portrait" style="background-image: url(<%= data.endScreenPortrait %>)"></div>\n  <div class="end-screen-info-background">\n    <div class="end-screen-stripe"></div>\n    <div class="end-screen-info">\n      <div class="game-info">\n        <div class="game-icon" style="background-image: url(<%= data.gameIcon %>)"></div>\n        <div class="name-container"><%= data.gameName %></div>\n      </div>\n      <div class="store-container">\n        <a class="store-button"></a>\n        <div class="game-store-info">\n          <span class="game-rating">\n            <span class="game-rating-mask" style="width: <%= data.rating %>%">\n            <% for (var i = 0; i < 5; i++) { %><span class="icon-star"></span><% } %>\n            </span>\n            <% for (var i = 0; i < 5; i++) { %><span class="icon-star"></span><% } %>\n          </span>\n          <br class="game-rating-br">\n          <span class="game-rating-count">\n            (<span class="game-rating-count-number"><%= data.ratingCount %></span><span class="game-rating-postfix"> Ratings</span>)\n          </span>\n        </div>\n      </div>\n      <div class="download-container">\n        <a class="btn-download">\n          <span class="download-text">Download For Free</span>\n        </a>\n      </div>\n      <div class="store-badge-container">\n        <a class="btn-store-badge"></a>\n      </div>\n      <div class="unityads-logo"></div>\n    </div>\n    <div class="privacy-button"><span class="icon-info"></span></div>\n  </div>\n</div>\n',
-            me = function (e) {
-                var t = function () {
-                    function e(e) {
-                        var t = this;
-                        this._element = e, this._moved = !1, this._startX = 0, this._startY = 0, this._element.addEventListener("touchstart", function (e) {
-                            return t.onTouchStart(e);
-                        }, !1);
-                    }
+            exports.VastVideoEventHandlers = VastVideoEventHandlers;
+            return exports;
+        }(_e, ge),
 
-                    return e.prototype.onTouchStart = function (e) {
-                        var t = this;
-                        this._onTouchMoveListener = function (e) {
-                            return t.onTouchMove(e);
-                        }, this._onTouchEndListener = function (e) {
-                            return t.onTouchEnd(e);
-                        }, this._onTouchCancelListener = function (e) {
-                            return t.onTouchCancel(e);
-                        }, this._element.addEventListener("touchmove", this._onTouchMoveListener, !1), this._element.addEventListener("touchend", this._onTouchEndListener, !1),
-                            this._element.addEventListener("touchcancel", this._onTouchCancelListener, !1),
-                            this._moved = !1, this._startX = e.touches[0].clientX, this._startY = e.touches[0].clientY;
-                    }, e.prototype.onTouchMove = function (t) {
-                        var n = t.touches[0].clientX, i = t.touches[0].clientY;
-                        (Math.abs(n - this._startX) > e._moveTolerance || Math.abs(i - this._startY) > e._moveTolerance) && (this._moved = !0);
-                    }, e.prototype.onTouchEnd = function (e) {
-                        if (this._element.removeEventListener("touchmove", this._onTouchMoveListener, !1),
-                                this._element.removeEventListener("touchend", this._onTouchEndListener, !1), this._element.removeEventListener("touchcancel", this._onTouchCancelListener, !1),
-                                this._onTouchMoveListener = void 0, this._onTouchEndListener = void 0, this._onTouchCancelListener = void 0,
-                                !this._moved) {
-                            var t = new MouseEvent("click", {
-                                view: window,
-                                bubbles: !0,
-                                cancelable: !0
-                            });
-                            e.stopPropagation(), e.target.dispatchEvent(t) || e.preventDefault();
+        t = '<div class="btn-close-region">' +
+            '   <a class="btn-close">' +
+            '       <span class="icon-close"></span>' +
+            '   </a>' +
+            '</div>\n' +
+            '<div class="campaign-container">\n' +
+            '   <div class="game-background game-background-landscape" style="background-image: url(<%= data.endScreenLandscape %>)"></div>' +
+            '   <div class="game-background game-background-portrait" style="background-image: url(<%= data.endScreenPortrait %>)"></div>\n' +
+            '   <div class="end-screen-info-background">\n' +
+            '       <div class="end-screen-stripe"></div>\n' +
+            '       <div class="end-screen-info">\n' +
+            '           <div class="game-info">\n' +
+            '               <div class="game-icon" style="background-image: url(<%= data.gameIcon %>)"></div>\n' +
+            '               <div class="name-container"><%= data.gameName %></div>\n' +
+            '           </div>\n' +
+            '       <div class="store-container">\n' +
+            '           <a class="store-button"></a>\n' +
+            '           <div class="game-store-info">\n' +
+            '               <span class="game-rating">\n' +
+            '                   <span class="game-rating-mask" style="width: <%= data.rating %>%">\n' +
+            '                   <% for (var i = 0; i < 5; i++) { %><span class="icon-star"></span><% } %>\n' +
+            '                   </span>\n' +
+            '                   <% for (var i = 0; i < 5; i++) { %>' +
+            '                   <span class="icon-star"></span>' +
+            '                   <% } %>\n' +
+            '               </span>\n' +
+            '               <br class="game-rating-br">\n' +
+            '               <span class="game-rating-count">\n' +
+            '                   (<span class="game-rating-count-number"><%= data.ratingCount %></span>' +
+            '                   <span class="game-rating-postfix"> Ratings</span>)\n' +
+            '               </span>\n' +
+            '           </div>\n' +
+            '       </div>\n' +
+            '       <div class="download-container">\n' +
+            '           <a class="btn-download">\n' +
+            '               <span class="download-text">Download For Free</span>\n' +
+            '           </a>\n' +
+            '       </div>\n' +
+            '       <div class="store-badge-container">\n' +
+            '           <a class="btn-store-badge"></a>\n' +
+            '       </div>\n' +
+            '       <div class="unityads-logo"></div>\n' +
+            '   </div>\n' +
+            '   <div class="privacy-button">' +
+            '       <span class="icon-info"></span>' +
+            '   </div>\n' +
+            '</div>\n' +
+            '</div>\n',
+
+        me = function (exports) {
+            var Tap = function () {
+                function Tap(elem) {
+                    var me = this;
+                    this._element = elem;
+                    this._moved = false;
+                    this._startX = 0;
+                    this._startY = 0;
+                    this._element.addEventListener("touchstart", function (e) {
+                        return me.onTouchStart(e);
+                    }, false);
+                }
+                Tap.prototype.onTouchStart = function (e) {
+                    var me = this;
+                    this._onTouchMoveListener = function (e) {
+                        return me.onTouchMove(e);
+                    };
+                    this._onTouchEndListener = function (e) {
+                        return me.onTouchEnd(e);
+                    };
+                    this._onTouchCancelListener = function (e) {
+                        return me.onTouchCancel(e);
+                    };
+                    this._element.addEventListener("touchmove", this._onTouchMoveListener, false);
+                    this._element.addEventListener("touchend", this._onTouchEndListener, false);
+                    this._element.addEventListener("touchcancel", this._onTouchCancelListener, false);
+                    this._moved = false;
+                    this._startX = e.touches[0].clientX;
+                    this._startY = e.touches[0].clientY;
+                };
+                Tap.prototype.onTouchMove = function (t) {
+                    var x = t.touches[0].clientX,
+                        y = t.touches[0].clientY;
+                    if(Math.abs(x - this._startX) > Tap._moveTolerance || Math.abs(y - this._startY) > Tap._moveTolerance){
+                        this._moved = true;
+                    }
+                };
+                Tap.prototype.onTouchEnd = function (e) {
+                    this._element.removeEventListener("touchmove", this._onTouchMoveListener, false);
+                    this._element.removeEventListener("touchend", this._onTouchEndListener, false);
+                    this._element.removeEventListener("touchcancel", this._onTouchCancelListener, false);
+                    this._onTouchMoveListener = void 0;
+                    this._onTouchEndListener = void 0;
+                    this._onTouchCancelListener = void 0;
+
+                    if (!this._moved) {
+                        var t = new MouseEvent("click", {
+                            view: window,
+                            bubbles: true,
+                            cancelable: true
+                        });
+                        e.stopPropagation();
+                        if(!e.target.dispatchEvent(t)){
+                            e.preventDefault();
                         }
-                    }, e.prototype.onTouchCancel = function (e) {
-                        this._moved = !1, this._startX = 0, this._startY = 0;
-                    }, e._moveTolerance = 10, e;
-                }();
-                return e.Tap = t, e;
-            }(me),
+                    }
+                };
+                Tap.prototype.onTouchCancel = function (e) {
+                    this._moved = false;
+                    this._startX = 0;
+                    this._startY = 0;
+                };
+                Tap._moveTolerance = 10;
+                return Tap;
+            }();
+            exports.Tap = Tap;
+            return exports;
+        }(me),
 
         ye = function (exports, t) {
             var View = function () {
@@ -4801,7 +5232,7 @@ document.addEventListener('DOMContentLoaded', function () { /*!
 
         Ce = function (e, t, n, i, r) {
             var Overlay = function (View) {
-                function Layer(n) {
+                function Overlay(n) {
                     var me = this;
                     View.call(this, "overlay");
                     this.onSkip = new r.Observable1();
@@ -4838,8 +5269,8 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                         selector: ".call-button"
                     }];
                 }
-                extend(Layer, View);
-                Layer.prototype.render = function () {
+                extend(Overlay, View);
+                Overlay.prototype.render = function () {
                     View.prototype.render.call(this);
                     this._skipElement = this._container.querySelector(".skip-button");
                     this._spinnerElement = this._container.querySelector(".buffering-spinner");
@@ -4850,37 +5281,37 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                     this._debugMessageElement = this._container.querySelector(".debug-message-text");
                     this._callButtonElement = this._container.querySelector(".call-button");
                 };
-                Layer.prototype.setSpinnerEnabled = function (spinnerEnabled) {
+                Overlay.prototype.setSpinnerEnabled = function (spinnerEnabled) {
                     if(this._spinnerEnabled !== spinnerEnabled){
                         this._spinnerEnabled = spinnerEnabled;
                         this._spinnerElement.style.display = spinnerEnabled ? "block" : "none";
                     }
                 };
-                Layer.prototype.setSkipVisible = function (skipVisible) {
+                Overlay.prototype.setSkipVisible = function (skipVisible) {
                     if(this._skipVisible !== skipVisible){
                         this._skipElement.style.display = skipVisible ? "block" : "none";
                     }
                 };
-                Layer.prototype.setSkipEnabled = function (skipEnabled) {
+                Overlay.prototype.setSkipEnabled = function (skipEnabled) {
                     if(this._skipEnabled !== skipEnabled ){
                         this._skipEnabled = skipEnabled;
                     }
                 };
-                Layer.prototype.setSkipDuration = function (duration) {
+                Overlay.prototype.setSkipDuration = function (duration) {
                     this._skipDuration = this._skipRemaining = 1000 * duration;
                     this.setSkipText(duration);
                 };
-                Layer.prototype.setVideoDurationEnabled = function (durationEnabled) {
+                Overlay.prototype.setVideoDurationEnabled = function (durationEnabled) {
                     if(this._videoDurationEnabled !== durationEnabled ){
                         this._videoDurationEnabled = durationEnabled;
                         this._videoDurationElement.style.display = durationEnabled ? "block" : "none";
                     }
                 };
-                Layer.prototype.setVideoDuration = function (millisconds) {
+                Overlay.prototype.setVideoDuration = function (millisconds) {
                     this._videoDuration = millisconds;
                     this._videoDurationCounterElement.innerHTML = Math.round(millisconds / 1000).toString();
                 };
-                Layer.prototype.setVideoProgress = function (playedMillisconds) {
+                Overlay.prototype.setVideoProgress = function (playedMillisconds) {
                     this._videoProgress = playedMillisconds;
                     if(this._skipEnabled && this._skipRemaining > 0 ){
                         this._skipRemaining = Math.round((this._skipDuration - playedMillisconds) / 1000);
@@ -4892,42 +5323,42 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                         this._videoDurationCounterElement.innerHTML = "0";
                     }
                 };
-                Layer.prototype.setMuteEnabled = function (muteEnabled) {
+                Overlay.prototype.setMuteEnabled = function (muteEnabled) {
                     if(this._muteEnabled !== muteEnabled ){
                         this._muteEnabled = muteEnabled;
                         this._muteButtonElement.style.display = muteEnabled ? "block" : "none";
                     }
                 };
-                Layer.prototype.setDebugMessage = function (msg) {
+                Overlay.prototype.setDebugMessage = function (msg) {
                     this._debugMessageElement.innerHTML = msg;
                 };
-                Layer.prototype.setDebugMessageVisible = function (isVisible) {
+                Overlay.prototype.setDebugMessageVisible = function (isVisible) {
                     if(this._debugMessageVisible !== isVisible ){
                         this._debugMessageElement.style.display = isVisible ? "block" : "none";
                     }
                 };
-                Layer.prototype.setCallButtonVisible = function (isVisible) {
+                Overlay.prototype.setCallButtonVisible = function (isVisible) {
                     if(this._callButtonVisible !== isVisible ){
                         this._callButtonElement.style.display = isVisible ? "block" : "none";
                     }
                 };
-                Layer.prototype.isMuted = function () {
+                Overlay.prototype.isMuted = function () {
                     return this._muted;
                 };
-                Layer.prototype.setSkipText = function (e) {
+                Overlay.prototype.setSkipText = function (e) {
                     if(0 >= e ){
                         this._skipElement.innerHTML = "Skip Video"
                     }else{
                         this._skipDurationElement.innerHTML = e.toString();
                     }
                 };
-                Layer.prototype.onSkipEvent = function (e) {
+                Overlay.prototype.onSkipEvent = function (e) {
                     e.preventDefault();
                     if(this._skipEnabled && this._videoProgress > this._skipDuration ){
                         this.onSkip.trigger(this._videoProgress);
                     }
                 };
-                Layer.prototype.onMuteEvent = function (e) {
+                Overlay.prototype.onMuteEvent = function (e) {
                     e.preventDefault();
                     if(this._muted){
                         this._muteButtonElement.classList.remove("muted");
@@ -4938,11 +5369,11 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                     }
                     this.onMute.trigger(this._muted);
                 };
-                Layer.prototype.onCallButtonEvent = function (e) {
+                Overlay.prototype.onCallButtonEvent = function (e) {
                     e.preventDefault();
                     this.onCallButton.trigger(true);
                 };
-                return Layer;
+                return Overlay;
             }(n.View);
             e.Overlay = Overlay;
             return e;
@@ -5192,89 +5623,146 @@ document.addEventListener('DOMContentLoaded', function () { /*!
 
 
 
-        Te = function (e, t) {
-            var n = function (e) {
-                function t(t, n, i, r, o, a, s) {
-                    e.call(this, "linear"), this._duration = t || 0, this._skipDelay = n || null, this._mediaFiles = i || [],
+        Te = function (exports, t) {
+            var VastCreativeLinear = function (VastCreative) {
+                function VastCreativeLinear(t, n, i, r, o, a, s) {
+                    VastCreative.call(this, "linear"), this._duration = t || 0, this._skipDelay = n || null, this._mediaFiles = i || [],
                         this._videoClickThroughURLTemplate = r || null, this._videoClickTrackingURLTemplates = o || [],
                         this._videoCustomClickURLTemplates = a || [], this._adParameters = s || null;
                 }
+                extend(VastCreativeLinear, VastCreative);
 
-                return extend(t, e), t.prototype.getDuration = function () {
+                VastCreativeLinear.prototype.getDuration = function () {
                     return this._duration;
-                }, t.prototype.setDuration = function (e) {
+                };
+                VastCreativeLinear.prototype.setDuration = function (e) {
                     this._duration = e;
-                }, t.prototype.getSkipDelay = function () {
+                };
+                VastCreativeLinear.prototype.getSkipDelay = function () {
                     return this._skipDelay;
-                }, t.prototype.setSkipDelay = function (e) {
+                };
+                VastCreativeLinear.prototype.setSkipDelay = function (e) {
                     this._skipDelay = e;
-                }, t.prototype.getMediaFiles = function () {
+                };
+                VastCreativeLinear.prototype.getMediaFiles = function () {
                     return this._mediaFiles;
-                }, t.prototype.addMediaFile = function (e) {
+                };
+                VastCreativeLinear.prototype.addMediaFile = function (e) {
                     this._mediaFiles.push(e);
-                }, t.prototype.getVideoClickThroughURLTemplate = function () {
+                };
+                VastCreativeLinear.prototype.getVideoClickThroughURLTemplate = function () {
                     return this._videoClickThroughURLTemplate;
-                }, t.prototype.setVideoClickThroughURLTemplate = function (e) {
+                };
+                VastCreativeLinear.prototype.setVideoClickThroughURLTemplate = function (e) {
                     this._videoClickThroughURLTemplate = e;
-                }, t.prototype.getVideoClickTrackingURLTemplates = function () {
+                };
+                VastCreativeLinear.prototype.getVideoClickTrackingURLTemplates = function () {
                     return this._videoClickTrackingURLTemplates;
-                }, t.prototype.addVideoClickTrackingURLTemplate = function (e) {
+                };
+                VastCreativeLinear.prototype.addVideoClickTrackingURLTemplate = function (e) {
                     this._videoClickTrackingURLTemplates.push(e);
-                }, t.prototype.getVideoCustomClickURLTemplates = function () {
+                };
+                VastCreativeLinear.prototype.getVideoCustomClickURLTemplates = function () {
                     return this._videoCustomClickURLTemplates;
-                }, t.prototype.getAdParameters = function () {
+                };
+                VastCreativeLinear.prototype.getAdParameters = function () {
                     return this._adParameters;
-                }, t;
+                };
+                return VastCreativeLinear;
             }(t.VastCreative);
-            return e.VastCreativeLinear = n, e;
-        }(Te, Creative), we = function (e, t) {
-            var n = function () {
-                function e(e, t, n, i, r) {
-                    this._id = e, this._creatives = t || [], this._errorURLTemplates = n || [], this._impressionURLTemplates = i || [],
-                        this._wrapperURLs = r || [];
-                }
+            exports.VastCreativeLinear = VastCreativeLinear;
+            return exports;
+        }(Te, Creative),
 
-                return e.prototype.getId = function () {
+        we = function (exports, t) {
+            var VastAd = function () {
+                function VastAd(id, creatives, errorURLTemplates, impressionURLTemplates, wrapperURLs) {
+                    this._id = id;
+                    this._creatives = creatives || [];
+                    this._errorURLTemplates = errorURLTemplates || [];
+                    this._impressionURLTemplates = impressionURLTemplates || [];
+                    this._wrapperURLs = wrapperURLs || [];
+                }
+                VastAd.prototype.getId = function () {
                     return this._id;
-                }, e.prototype.setId = function (e) {
-                    this._id = e;
-                }, e.prototype.getCreatives = function () {
+                };
+                VastAd.prototype.setId = function (id) {
+                    this._id = id;
+                };
+                VastAd.prototype.getCreatives = function () {
                     return this._creatives;
-                }, e.prototype.getCreative = function () {
-                    return this.getCreatives() && this.getCreatives().length > 0 ? this.getCreatives()[0] : null;
-                }, e.prototype.addCreative = function (e) {
-                    this._creatives.push(e);
-                }, e.prototype.getErrorURLTemplates = function () {
+                };
+                VastAd.prototype.getCreative = function () {
+                    if(this.getCreatives() && this.getCreatives().length > 0){
+                        return this.getCreatives()[0];
+                    }else{
+                        return null;
+                    }
+                };
+                VastAd.prototype.addCreative = function (creative) {
+                    this._creatives.push(creative);
+                };
+                VastAd.prototype.getErrorURLTemplates = function () {
                     return this._errorURLTemplates;
-                }, e.prototype.addErrorURLTemplate = function (e) {
-                    this._errorURLTemplates.push(e);
-                }, e.prototype.getImpressionURLTemplates = function () {
+                };
+                VastAd.prototype.addErrorURLTemplate = function (template) {
+                    this._errorURLTemplates.push(template);
+                };
+                VastAd.prototype.getImpressionURLTemplates = function () {
                     return this._impressionURLTemplates;
-                }, e.prototype.addImpressionURLTemplate = function (e) {
-                    this._impressionURLTemplates.push(e);
-                }, e.prototype.getWrapperURL = function () {
+                };
+                VastAd.prototype.addImpressionURLTemplate = function (template) {
+                    this._impressionURLTemplates.push(template);
+                };
+                VastAd.prototype.getWrapperURL = function () {
                     return this._wrapperURLs[0];
-                }, e.prototype.addWrapperURL = function (e) {
-                    this._wrapperURLs.push(e);
-                }, e.prototype.getTrackingEventUrls = function (e) {
-                    var t = this.getCreative();
-                    return t && t.getTrackingEvents() ? t.getTrackingEvents()[e] : null;
-                }, e.prototype.getDuration = function () {
-                    var e = this.getCreative();
-                    return e ? e.getDuration() : null;
-                }, e.prototype.getVideoClickThroughURLTemplate = function () {
-                    var e = this.getCreative();
-                    return e instanceof t.VastCreativeLinear ? e.getVideoClickThroughURLTemplate() : null;
-                }, e.prototype.getVideoClickTrackingURLTemplates = function () {
-                    var e = this.getCreative();
-                    return e instanceof t.VastCreativeLinear ? e.getVideoClickTrackingURLTemplates() : null;
-                }, e.prototype.addVideoClickTrackingURLTemplate = function (e) {
-                    var n = this.getCreative();
-                    n instanceof t.VastCreativeLinear && n.addVideoClickTrackingURLTemplate(e);
-                }, e;
+                };
+                VastAd.prototype.addWrapperURL = function (url) {
+                    this._wrapperURLs.push(url);
+                };
+                VastAd.prototype.getTrackingEventUrls = function (eventName) {
+                    var creative = this.getCreative();
+                    if(creative && creative.getTrackingEvents()){
+                        return creative.getTrackingEvents()[eventName];
+                    }else{
+                        return null;
+                    }
+                };
+                VastAd.prototype.getDuration = function () {
+                    var creative = this.getCreative();
+                    if(creative){
+                        return creative.getDuration()
+                    }else{
+                        return null;
+                    }
+                };
+                VastAd.prototype.getVideoClickThroughURLTemplate = function () {
+                    var creative = this.getCreative();
+                    if(creative instanceof t.VastCreativeLinear){
+                        return creative.getVideoClickThroughURLTemplate();
+                    }else{
+                        return null;
+                    }
+                };
+                VastAd.prototype.getVideoClickTrackingURLTemplates = function () {
+                    var creative = this.getCreative();
+                    if(creative instanceof t.VastCreativeLinear){
+                        return creative.getVideoClickTrackingURLTemplates()
+                    } else{
+                        null;
+                    }
+                };
+                VastAd.prototype.addVideoClickTrackingURLTemplate = function (e) {
+                    var creative = this.getCreative();
+                    creative instanceof t.VastCreativeLinear && creative.addVideoClickTrackingURLTemplate(e);
+                };
+                return VastAd;
             }();
-            return e.VastAd = n, e;
-        }(we, Te), Ne = function (e) {
+            exports.VastAd = VastAd;
+            return exports;
+        }(we, Te),
+
+        Ne = function (e) {
             var t = function () {
                 function e(e, t, n, i, r, o, a, s, c) {
                     this._fileURL = e || null, this._deliveryType = t || "progressive", this._mimeType = i || null,
