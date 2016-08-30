@@ -5358,7 +5358,7 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                     this.onClose.trigger();
                 };
                 return Privacy;
-            }(n.WebView);
+            }(n.View);
             exports.Privacy = Privacy;
             return exports;
         }(Se, n, ye, Ee, u);
