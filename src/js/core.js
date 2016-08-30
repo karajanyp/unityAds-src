@@ -572,35 +572,35 @@ document.addEventListener('DOMContentLoaded', function () { /*!
 
         s = function (exports, t) {
             var BatchInvocation = function () {
-                function e(e) {
+                function BatchInvocation(nativeBridge) {
                     this._batch = [];
-                    this._nativeBridge = e;
+                    this._nativeBridge = nativeBridge;
                 }
-                e.prototype.queue = function (e, n, i) {
-                    void 0 === i && (i = []);
+                BatchInvocation.prototype.queue = function (apiClass, method, args) {
+                    void 0 === args && (args = []);
                     switch (this._nativeBridge.getPlatform()) {
                         case t.Platform.ANDROID:
-                            return this.rawQueue("com.unity3d.ads.api." + e, n, i);
+                            return this.rawQueue("com.unity3d.ads.api." + apiClass, method, args);
 
                         case t.Platform.IOS:
-                            return this.rawQueue("UADSApi" + e, n, i);
+                            return this.rawQueue("UADSApi" + apiClass, method, args);
 
                         default:
-                            return this.rawQueue(e, n, i);
+                            return this.rawQueue(apiClass, method, args);
                     }
                 };
-                e.prototype.rawQueue = function (e, t, n) {
+                BatchInvocation.prototype.rawQueue = function (apiClass, method, args) {
                     var me = this;
-                    void 0 === n && (n = []);
+                    void 0 === args && (args = []);
                     return new Promise(function (r, o) {
-                        var a = me._nativeBridge.registerCallback(r, o);
-                        me._batch.push([e, t, n, a.toString()]);
+                        var id = me._nativeBridge.registerCallback(r, o);
+                        me._batch.push([apiClass, method, args, id.toString()]);
                     });
                 };
-                e.prototype.getBatch = function () {
+                BatchInvocation.prototype.getBatch = function () {
                     return this._batch;
                 };
-                return e;
+                return BatchInvocation;
             }();
             exports.BatchInvocation = BatchInvocation;
             return exports;
@@ -793,11 +793,11 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                 BroadcastApi.prototype.removeAllBroadcastListeners = function () {
                     return this._nativeBridge.invoke(this._apiClass, "removeAllBroadcastListeners", []);
                 };
-                BroadcastApi.prototype.handleEvent = function (t, n) {
-                    if(t === Event[Event.ACTION]){
-                        this.onBroadcastAction.trigger(n[0], n[1], n[2], n[3])
+                BroadcastApi.prototype.handleEvent = function (e, data) {
+                    if(e === Event[Event.ACTION]){
+                        this.onBroadcastAction.trigger(data[0], data[1], data[2], data[3])
                     }else{
-                        NativeApi.prototype.handleEvent.call(this, t, n);
+                        NativeApi.prototype.handleEvent.call(this, e, data);
                     }
 
 
@@ -881,30 +881,30 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                 CacheApi.prototype.getTotalSpace = function () {
                     return this._nativeBridge.invoke(this._apiClass, "getTotalSpace");
                 };
-                CacheApi.prototype.handleEvent = function (t, n) {
-                    switch (t) {
+                CacheApi.prototype.handleEvent = function (e, d) {
+                    switch (e) {
                         case Event[Event.DOWNLOAD_STARTED]:
-                            this.onDownloadStarted.trigger(n[0], n[1], n[2], n[3], n[4]);
+                            this.onDownloadStarted.trigger(d[0], d[1], d[2], d[3], d[4]);
                             break;
 
                         case Event[Event.DOWNLOAD_PROGRESS]:
-                            this.onDownloadProgress.trigger(n[0], n[1], n[2]);
+                            this.onDownloadProgress.trigger(d[0], d[1], d[2]);
                             break;
 
                         case Event[Event.DOWNLOAD_END]:
-                            this.onDownloadEnd.trigger(n[0], n[1], n[2], n[3], n[4], n[5]);
+                            this.onDownloadEnd.trigger(d[0], d[1], d[2], d[3], d[4], d[5]);
                             break;
 
                         case Event[Event.DOWNLOAD_STOPPED]:
-                            this.onDownloadStopped.trigger(n[0], n[1], n[2], n[3], n[4], n[5]);
+                            this.onDownloadStopped.trigger(d[0], d[1], d[2], d[3], d[4], d[5]);
                             break;
 
                         case Event[Event.DOWNLOAD_ERROR]:
-                            this.onDownloadError.trigger(n[0], n[1], n[2]);
+                            this.onDownloadError.trigger(d[0], d[1], d[2]);
                             break;
 
                         default:
-                            NativeApi.prototype.handleEvent.call(this, t, n);
+                            NativeApi.prototype.handleEvent.call(this, e, d);
                     }
                 };
                 return CacheApi;
@@ -932,10 +932,10 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                 ConnectivityApi.prototype.setListeningStatus = function (e) {
                     return this._nativeBridge.invoke(this._apiClass, "setConnectionMonitoring", [e]);
                 };
-                ConnectivityApi.prototype.handleEvent = function (t, n) {
-                    switch (t) {
+                ConnectivityApi.prototype.handleEvent = function (e, d) {
+                    switch (e) {
                         case Event[Event.CONNECTED]:
-                            this.onConnected.trigger(n[0], n[1]);
+                            this.onConnected.trigger(d[0], d[1]);
                             break;
 
                         case Event[Event.DISCONNECTED]:
@@ -946,7 +946,7 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                             break;
 
                         default:
-                            NativeApi.prototype.handleEvent.call(this, t, n);
+                            NativeApi.prototype.handleEvent.call(this, e, d);
                     }
                 };
                 return ConnectivityApi;
@@ -992,18 +992,18 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                 RequestApi.prototype.getReadTimeout = function () {
                     return this._nativeBridge.invoke(this._apiClass, "getReadTimeout");
                 };
-                RequestApi.prototype.handleEvent = function (t, n) {
-                    switch (t) {
+                RequestApi.prototype.handleEvent = function (e, d) {
+                    switch (e) {
                         case RequestEvent[RequestEvent.COMPLETE]:
-                            this.onComplete.trigger(n[0], n[1], n[2], n[3], n[4]);
+                            this.onComplete.trigger(d[0], d[1], d[2], d[3], d[4]);
                             break;
 
                         case RequestEvent[RequestEvent.FAILED]:
-                            this.onFailed.trigger(n[0], n[1], n[2]);
+                            this.onFailed.trigger(d[0], d[1], d[2]);
                             break;
 
                         default:
-                            NativeApi.prototype.handleEvent.call(this, t, n);
+                            NativeApi.prototype.handleEvent.call(this, e, d);
                     }
                 };
                 return RequestApi;
@@ -1029,18 +1029,18 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                 }
                 extend(IosVideoPlayerApi, NativeApi);
 
-                IosVideoPlayerApi.prototype.handleEvent = function (e, t) {
+                IosVideoPlayerApi.prototype.handleEvent = function (e, d) {
                     switch (e) {
                         case Event[Event.LIKELY_TO_KEEP_UP]:
-                            this.onLikelyToKeepUp.trigger(t[0], t[1]);
+                            this.onLikelyToKeepUp.trigger(d[0], d[1]);
                             break;
 
                         case Event[Event.BUFFER_EMPTY]:
-                            this.onBufferEmpty.trigger(t[0], t[1]);
+                            this.onBufferEmpty.trigger(d[0], d[1]);
                             break;
 
                         case Event[Event.BUFFER_FULL]:
-                            this.onBufferFull.trigger(t[0], t[1]);
+                            this.onBufferFull.trigger(d[0], d[1]);
                             break;
 
                         default:
@@ -1069,10 +1069,10 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                 AndroidVideoPlayerApi.prototype.setInfoListenerEnabled = function (e) {
                     return this._nativeBridge.invoke(this._apiClass, "setInfoListenerEnabled", [e]);
                 };
-                AndroidVideoPlayerApi.prototype.handleEvent = function (e, t) {
+                AndroidVideoPlayerApi.prototype.handleEvent = function (e, d) {
                     switch (e) {
                         case i[i.INFO]:
-                            this.onInfo.trigger(t[0], t[1], t[2]);
+                            this.onInfo.trigger(d[0], d[1], d[2]);
                             break;
 
                         default:
@@ -1970,7 +1970,7 @@ document.addEventListener('DOMContentLoaded', function () { /*!
 
             var CallbackStatus = exports.CallbackStatus;
             var NativeBridge = function () {
-                function Bridge(backend, platform, autoBatchEnabled) {
+                function NativeBridge(backend, platform, autoBatchEnabled) {
                     void 0 === platform && (platform = _.Platform.TEST);
                     void 0 === autoBatchEnabled && (autoBatchEnabled = true);
                     this.AppSheet = null;
@@ -2018,8 +2018,8 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                     this.UrlScheme = new S.UrlSchemeApi(this);
                 }
 
-                Bridge.convertStatus = function (e) {
-                    switch (e) {
+                NativeBridge.convertStatus = function (status) {
+                    switch (status) {
                         case CallbackStatus[CallbackStatus.OK]:
                             return CallbackStatus.OK;
 
@@ -2027,21 +2027,29 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                             return CallbackStatus.ERROR;
 
                         default:
-                            throw new Error("Status string is not valid: " + e);
+                            throw new Error("Status string is not valid: " + status);
                     }
                 };
-                Bridge.prototype.registerCallback = function (e, t) {
-                    var n = this._callbackId++;
-                    this._callbackTable[n] = new g.CallbackContainer(e, t);
-                    return n;
+                NativeBridge.prototype.registerCallback = function (resolve, reject) {
+                    var id = this._callbackId++;
+                    this._callbackTable[id] = new g.CallbackContainer(resolve, reject);
+                    return id;
                 };
-                Bridge.prototype.invoke = function (apiClass, method, args) {
+
+                /**
+                 * JS Call Native
+                 *
+                 * @param nativeClass {String} Native类的类名，如"Broadcast"
+                 * @param nativeMethod {String} Native方法名，如"addBroadcastListener"
+                 * @param parameters {Array} Native方法的实参列表，如[]
+                 */
+                NativeBridge.prototype.invoke = function (nativeClass, nativeMethod, parameters) {
                     var me = this;
                     if (this._autoBatchEnabled) {
                         if(!this._autoBatch){
                             this._autoBatch = new t.BatchInvocation(this);
                         }
-                        var o = this._autoBatch.queue(apiClass, method, args);
+                        var o = this._autoBatch.queue(nativeClass, nativeMethod, parameters);
 
                         if( !this._autoBatchTimer){
                             this._autoBatchTimer = setTimeout(function () {
@@ -2052,132 +2060,183 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                         }
                         return o;
                     }
-                    var a = new t.BatchInvocation(this),
-                        o = a.queue(apiClass, method, args);
+                    var batch = new t.BatchInvocation(this),
+                        promise = batch.queue(nativeClass, nativeMethod, parameters);
 
-                    this.invokeBatch(a);
-                    return o;
+                    this.invokeBatch(batch);
+                    return promise;
                 };
-                Bridge.prototype.rawInvoke = function (e, n, i) {
-                    var r = new t.BatchInvocation(this),
-                        o = r.rawQueue(e, n, i);
-                    this.invokeBatch(r);
-                    return o;
-                };
-                Bridge.prototype.handleCallback = function (t) {
-                    var me = this;
-                    t.forEach(function (t) {
-                        var i = parseInt(t.shift(), 10),
-                            r = Bridge.convertStatus(t.shift()),
-                            o = t.shift(),
-                            a = me._callbackTable[i];
 
-                        if (!a) {
-                            throw new Error("Unable to find matching callback object from callback id " + i);
+                /**
+                 * JS Call Native
+                 *
+                 * @param nativeFullPathClass {String} Native类的全路径类名，如"com.unity3d.ads.api.Broadcast"
+                 * @param nativeMethod {String} Native方法名，如"addBroadcastListener"
+                 * @param parameters {Array} Native方法的实参列表，如[]
+                 *
+                 * batch.batch = [[nativeFullPathClass, nativeMethod, parameters, callbackId]]
+                 */
+                NativeBridge.prototype.rawInvoke = function (nativeFullPathClass, nativeMethod, parameters) {
+                    var batch = new t.BatchInvocation(this),
+                        promise = batch.rawQueue(nativeFullPathClass, nativeMethod, parameters);
+                    this.invokeBatch(batch);
+                    return promise;
+                };
+
+                /**
+                 * JS Call Native
+                 * JS端批量调用Java端接口 className.methodName(parameters)。
+                 * 调用完毕后Native端会调用WebView的接口：window.nativeBridge.handleCallback(jsCallbackId, callbackStatus, paramList);
+                 *
+                 * @param batch {Array} 批量参数，结构为：[[nativeClassName, nativeMethodName, nativeParamList, jsCallbackId]]
+                 */
+                NativeBridge.prototype.invokeBatch = function (batch) {
+                    this._backend.handleInvocation(JSON.stringify(batch.getBatch()).replace(NativeBridge._doubleRegExp, "$1"));
+                };
+
+                /**
+                 * JS Call Native. JS端调用Native端接口
+                 * JS执行Native的接口。在Android环境中，会调用以下接口:
+                 *
+                 * WebViewBridgeInterface.handleCallback(nativeCallbackId, callbackStatus)
+                 *
+                 * @param nativeCallbackId {String} Java回调方法id
+                 * @param callbackStatus {String} 回调状态，作为实参传入nativeCallbackId所表示的方法中
+                 */
+                NativeBridge.prototype.invokeCallback = function (nativeCallbackId, callbackStatus) {
+                    var parameters = [];
+                    for (var i = 2; i < arguments.length; i++){
+                        parameters[i - 2] = arguments[i];
+                    }
+                    this._backend.handleCallback(nativeCallbackId, callbackStatus, JSON.stringify(parameters));
+                };
+
+                /**
+                 * Native call JS. Native端调用JS端接口
+                 * 此方法用于Native端调用JS端接口: window.jsClassName.jsMethodName(jsParams).
+                 * 调用完毕后JS端会再次调用Native端的接口。在Android环境中，会调用以下接口:
+                 *
+                 * WebViewBridgeInterface.handleCallback
+                 *
+                 * window.nativeBridge.invokeCallback(callbackId, callbackStatus, param1, param2...);
+                 * @param Array args [[jsClassName, jsMethodName, nativeCallbackId, jsParams...]]
+                 */
+                NativeBridge.prototype.handleInvocation = function (args) {
+                    var me = this,
+                        jsClassName = args.shift(), //className
+                        jsMethodName = args.shift(), //methodName
+                        nativeCallbackId = args.shift();
+
+                    args.push(function (status) {
+                        var extArgs = [];
+                        for (var i = 1; i < arguments.length; i++) {
+                            extArgs[i - 1] = arguments[i];
                         }
-                        1 === o.length && (o = o[0]);
-                        switch (r) {
+                        me.invokeCallback.apply(me, [nativeCallbackId, CallbackStatus[status]].concat(extArgs));
+                    });
+                    window[jsClassName][jsMethodName].apply(window[jsClassName], args);
+                };
+                /**
+                 * 此方法用于Native端调用JS端接口(Native call JS)
+                 * @param callbackGroup [[jsCallbackId, callbackStatus, callbackData]]
+                 */
+                NativeBridge.prototype.handleCallback = function (callbackGroup) {
+                    var me = this;
+                    callbackGroup.forEach(function (arg) {
+                        var jsCallbackId = parseInt(arg.shift(), 10),
+                            callbackStatus = NativeBridge.convertStatus(arg.shift()),
+                            callbackData = arg.shift(),
+                            callbackContainer = me._callbackTable[jsCallbackId];
+
+                        if (!callbackContainer) {
+                            throw new Error("Unable to find matching callback object from callback id " + jsCallbackId);
+                        }
+                        //只有一个参数时不使用数组
+                        if(1 === callbackData.length){
+                            callbackData = callbackData[0];
+                        }
+                        switch (callbackStatus) {
                             case CallbackStatus.OK:
-                                a.resolve(o);
+                                callbackContainer.resolve(callbackData);
                                 break;
 
                             case CallbackStatus.ERROR:
-                                a.reject(o);
+                                callbackContainer.reject(callbackData);
                         }
-                        delete me._callbackTable[i];
+                        delete me._callbackTable[jsCallbackId];
                     });
                 };
 
-                Bridge.prototype.handleEvent = function (e) {
-                    var t = e.shift(),
-                        n = e.shift();
+                /**
+                 * 此方法用于Native端调用JS端接口(Native call JS)
+                 * @param parameters [eventCategoryName, eventName, param1, param2...]
+                 */
+                NativeBridge.prototype.handleEvent = function (parameters) {
+                    var eventCategoryName = parameters.shift(),
+                        eventName = parameters.shift();
 
-                    switch (t) {
+                    switch (eventCategoryName) {
                         case s.EventCategory[s.EventCategory.APPSHEET]:
-                            this.AppSheet.handleEvent(n, e);
+                            this.AppSheet.handleEvent(eventName, parameters);
                             break;
 
                         case s.EventCategory[s.EventCategory.ADUNIT]:
-                            this.getPlatform() === _.Platform.IOS ? this.IosAdUnit.handleEvent(n, e) : this.AndroidAdUnit.handleEvent(n, e);
+                            if(this.getPlatform() === _.Platform.IOS){
+                                this.IosAdUnit.handleEvent(eventName, parameters)
+                            }else{
+                                this.AndroidAdUnit.handleEvent(eventName, parameters);
+                            }
                             break;
 
                         case s.EventCategory[s.EventCategory.BROADCAST]:
-                            this.Broadcast.handleEvent(n, e);
+                            this.Broadcast.handleEvent(eventName, parameters);
                             break;
 
                         case s.EventCategory[s.EventCategory.CACHE]:
-                            this.Cache.handleEvent(n, e);
+                            this.Cache.handleEvent(eventName, parameters);
                             break;
 
                         case s.EventCategory[s.EventCategory.CONNECTIVITY]:
-                            this.Connectivity.handleEvent(n, e);
+                            this.Connectivity.handleEvent(eventName, parameters);
                             break;
 
                         case s.EventCategory[s.EventCategory.NOTIFICATION]:
-                            this.Notification.handleEvent(n, e);
+                            this.Notification.handleEvent(eventName, parameters);
                             break;
 
                         case s.EventCategory[s.EventCategory.REQUEST]:
-                            this.Request.handleEvent(n, e);
+                            this.Request.handleEvent(eventName, parameters);
                             break;
 
                         case s.EventCategory[s.EventCategory.RESOLVE]:
-                            this.Resolve.handleEvent(n, e);
+                            this.Resolve.handleEvent(eventName, parameters);
                             break;
 
                         case s.EventCategory[s.EventCategory.VIDEOPLAYER]:
-                            this.VideoPlayer.handleEvent(n, e);
+                            this.VideoPlayer.handleEvent(eventName, parameters);
                             break;
 
                         case s.EventCategory[s.EventCategory.STORAGE]:
-                            this.Storage.handleEvent(n, e);
+                            this.Storage.handleEvent(eventName, parameters);
                             break;
 
                         default:
-                            throw new Error("Unknown event category: " + t);
+                            throw new Error("Unknown event category: " + eventCategoryName);
                     }
                 };
-
-                Bridge.prototype.handleInvocation = function (e) {
-                    var me = this,
-                        className = e.shift(), //className
-                        methodName = e.shift(), //methodName
-                        r = e.shift();
-
-                    e.push(function (status) {
-                        for (var arr = [], i = 1; i < arguments.length; i++) {
-                            arr[i - 1] = arguments[i];
-                        }
-                        me.invokeCallback.apply(me, [r, CallbackStatus[status]].concat(arr));
-                    });
-                    window[className][methodName].apply(window[className], e);
-                };
-
-                Bridge.prototype.setApiLevel = function (level) {
+                NativeBridge.prototype.setApiLevel = function (level) {
                     this._apiLevel = level;
                 };
 
-                Bridge.prototype.getApiLevel = function () {
+                NativeBridge.prototype.getApiLevel = function () {
                     return this._apiLevel;
                 };
 
-                Bridge.prototype.getPlatform = function () {
+                NativeBridge.prototype.getPlatform = function () {
                     return this._platform;
                 };
-
-                Bridge.prototype.invokeBatch = function (t) {
-                    this._backend.handleInvocation(JSON.stringify(t.getBatch()).replace(Bridge._doubleRegExp, "$1"));
-                };
-
-                Bridge.prototype.invokeCallback = function (e, t) {
-                    for (var n = [], i = 2; i < arguments.length; i++){
-                        n[i - 2] = arguments[i];
-                    }
-                    this._backend.handleCallback(e, t, JSON.stringify(n));
-                };
-
-                Bridge._doubleRegExp = /"(\d+\.\d+)=double"/g; //version:"1.2=double" => version:1.2
-                return Bridge;
+                NativeBridge._doubleRegExp = /"(\d+\.\d+)=double"/g; //version:"1.2=double" => version:1.2
+                return NativeBridge;
             }();
             exports.NativeBridge = NativeBridge;
             return exports;
@@ -7481,11 +7540,11 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                     });
                 };
 
-                WebView.prototype.showError = function (e, t, n) {
-                    this._nativeBridge.Sdk.logError("Show invocation failed: " + n);
-                    this._nativeBridge.Listener.sendErrorEvent(f.UnityAdsError[f.UnityAdsError.SHOW_ERROR], n);
-                    if( e ){
-                        this._nativeBridge.Listener.sendFinishEvent(t, d.FinishState.ERROR);
+                WebView.prototype.showError = function (finished, placementId, msg) {
+                    this._nativeBridge.Sdk.logError("Show invocation failed: " + msg);
+                    this._nativeBridge.Listener.sendErrorEvent(f.UnityAdsError[f.UnityAdsError.SHOW_ERROR], msg);
+                    if( finished ){
+                        this._nativeBridge.Listener.sendFinishEvent(placementId, d.FinishState.ERROR);
                     }
                 };
                 WebView.prototype.setPlacementStates = function (state) {
