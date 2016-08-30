@@ -776,8 +776,8 @@ document.addEventListener('DOMContentLoaded', function () { /*!
             }(Event || (Event = {}));
 
             var BroadcastApi = function (NativeApi) {
-                function BroadcastApi(t) {
-                    NativeApi.call(this, t, "Broadcast");
+                function BroadcastApi(nativeBridge) {
+                    NativeApi.call(this, nativeBridge, "Broadcast");
                     this.onBroadcastAction = new n.Observable4();
                 }
                 extend(BroadcastApi, NativeApi);
@@ -829,8 +829,8 @@ document.addEventListener('DOMContentLoaded', function () { /*!
             var Event = exports.CacheEvent;
 
             var CacheApi = function (NativeApi) {
-                function CacheApi(n) {
-                    NativeApi.call(this, n, "Cache");
+                function CacheApi(nativeBridge) {
+                    NativeApi.call(this, nativeBridge, "Cache");
                     this.onDownloadStarted = new t.Observable5();
                     this.onDownloadProgress = new t.Observable3();
                     this.onDownloadEnd = new t.Observable6();
@@ -922,8 +922,10 @@ document.addEventListener('DOMContentLoaded', function () { /*!
             }(Event || (Event = {}));
 
             var ConnectivityApi = function (NativeApi) {
-                function ConnectivityApi(n) {
-                    NativeApi.call(this, n, "Connectivity"), this.onConnected = new t.Observable2(), this.onDisconnected = new t.Observable0();
+                function ConnectivityApi(nativeBridge) {
+                    NativeApi.call(this, nativeBridge, "Connectivity");
+                    this.onConnected = new t.Observable2();
+                    this.onDisconnected = new t.Observable0();
                 }
                 extend(ConnectivityApi, NativeApi);
 
@@ -962,8 +964,10 @@ document.addEventListener('DOMContentLoaded', function () { /*!
             var RequestEvent = exports.RequestEvent;
 
             var RequestApi = function (NativeApi) {
-                function RequestApi(n) {
-                    NativeApi.call(this, n, "Request"), this.onComplete = new t.Observable5(), this.onFailed = new t.Observable3();
+                function RequestApi(nativeBridge) {
+                    NativeApi.call(this, nativeBridge, "Request");
+                    this.onComplete = new t.Observable5();
+                    this.onFailed = new t.Observable3();
                 }
                 extend(RequestApi, NativeApi);
 
@@ -1017,8 +1021,8 @@ document.addEventListener('DOMContentLoaded', function () { /*!
             }(Event || (Event = {}));
 
             var IosVideoPlayerApi = function (NativeApi) {
-                function IosVideoPlayerApi(n) {
-                    NativeApi.call(this, n, "VideoPlayer");
+                function IosVideoPlayerApi(nativeBridge) {
+                    NativeApi.call(this, nativeBridge, "VideoPlayer");
                     this.onLikelyToKeepUp = new t.Observable2();
                     this.onBufferEmpty = new t.Observable2();
                     this.onBufferFull = new t.Observable2();
@@ -1056,8 +1060,8 @@ document.addEventListener('DOMContentLoaded', function () { /*!
             }(i || (i = {}));
 
             var AndroidVideoPlayerApi = function (NativeApi) {
-                function AndroidVideoPlayerApi(t) {
-                    NativeApi.call(this, t, "VideoPlayer");
+                function AndroidVideoPlayerApi(nativeBridge) {
+                    NativeApi.call(this, nativeBridge, "VideoPlayer");
                     this.onInfo = new n.Observable3();
                 }
                 extend(AndroidVideoPlayerApi, NativeApi);
@@ -1099,8 +1103,8 @@ document.addEventListener('DOMContentLoaded', function () { /*!
             }(Event || (Event = {}));
 
             var VideoPlayerApi = function (NativeApi) {
-                function VideoPlayerApi(n) {
-                    NativeApi.call(this, n, "VideoPlayer");
+                function VideoPlayerApi(nativeBridge) {
+                    NativeApi.call(this, nativeBridge, "VideoPlayer");
                     this.onError = new t.Observable3();
                     this.onProgress = new t.Observable1();
                     this.onCompleted = new t.Observable1();
@@ -1110,10 +1114,10 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                     this.onSeek = new t.Observable1();
                     this.onStop = new t.Observable1();
 
-                    if(n.getPlatform() === i.Platform.IOS){
-                        this.Ios = new r.IosVideoPlayerApi(n);
-                    }else if(n.getPlatform() === i.Platform.ANDROID){
-                        this.Android = new o.AndroidVideoPlayerApi(n);
+                    if(nativeBridge.getPlatform() === i.Platform.IOS){
+                        this.Ios = new r.IosVideoPlayerApi(nativeBridge);
+                    }else if(nativeBridge.getPlatform() === i.Platform.ANDROID){
+                        this.Android = new o.AndroidVideoPlayerApi(nativeBridge);
                     }
                 }
                 extend(VideoPlayerApi, NativeApi);
@@ -1217,8 +1221,10 @@ document.addEventListener('DOMContentLoaded', function () { /*!
             var ResolveEvent = exports.ResolveEvent;
 
             var ResolveApi = function (NativeApi) {
-                function ResolveApi(n) {
-                    NativeApi.call(this, n, "Resolve"), this.onComplete = new t.Observable3(), this.onFailed = new t.Observable4();
+                function ResolveApi(nativeBridge) {
+                    NativeApi.call(this, nativeBridge, "Resolve");
+                    this.onComplete = new t.Observable3();
+                    this.onFailed = new t.Observable4();
                 }
                 extend(ResolveApi, NativeApi);
 
@@ -1247,8 +1253,8 @@ document.addEventListener('DOMContentLoaded', function () { /*!
 
         y = function (exports, t) {
             var IntentApi = function (NativeApi) {
-                function IntentApi(t) {
-                    NativeApi.call(this, t, "Intent");
+                function IntentApi(nativeBridge) {
+                    NativeApi.call(this, nativeBridge, "Intent");
                 }
                 extend(IntentApi, NativeApi);
 
@@ -1273,8 +1279,8 @@ document.addEventListener('DOMContentLoaded', function () { /*!
 
         S = function (exports, t, n) {
             var ListenerApi = function (NativeApi) {
-                function ListenerApi(t) {
-                    NativeApi.call(this, t, "Listener");
+                function ListenerApi(nativeBridge) {
+                    NativeApi.call(this, nativeBridge, "Listener");
                 }
                 extend(ListenerApi, NativeApi);
                 ListenerApi.prototype.sendReadyEvent = function (e) {
@@ -1345,8 +1351,8 @@ document.addEventListener('DOMContentLoaded', function () { /*!
 
         C = function (exports, t, n) {
             var PlacementApi = function (NativeApi) {
-                function PlacementApi(t) {
-                    NativeApi.call(this, t, "Placement");
+                function PlacementApi(nativeBridge) {
+                    NativeApi.call(this, nativeBridge, "Placement");
                 }
                 extend(PlacementApi, NativeApi);
 
@@ -1369,8 +1375,8 @@ document.addEventListener('DOMContentLoaded', function () { /*!
 
         A = function (exports, t) {
             var SdkApi = function (NativeApi) {
-                function SdkApi(t) {
-                    NativeApi.call(this, t, "Sdk");
+                function SdkApi(nativeBridge) {
+                    NativeApi.call(this, nativeBridge, "Sdk");
                 }
                 extend(SdkApi, NativeApi);
                 SdkApi.prototype.loadComplete = function () {
@@ -1427,8 +1433,8 @@ document.addEventListener('DOMContentLoaded', function () { /*!
             }(exports.StorageError || (exports.StorageError = {}));
 
             var StorageApi = function (NativeApi) {
-                function StorageApi(t) {
-                    NativeApi.call(this, t, "Storage");
+                function StorageApi(nativeBridge) {
+                    NativeApi.call(this, nativeBridge, "Storage");
                 }
                 extend(StorageApi, NativeApi);
                 StorageApi.prototype.read = function (e) {
@@ -1470,8 +1476,8 @@ document.addEventListener('DOMContentLoaded', function () { /*!
             var StorageType = exports.StorageType;
 
             var AndroidDeviceInfoApi = function (NativeApi) {
-                function AndroidDeviceInfoApi(t) {
-                    NativeApi.call(this, t, "DeviceInfo");
+                function AndroidDeviceInfoApi(nativeBridge) {
+                    NativeApi.call(this, nativeBridge, "DeviceInfo");
                 }
                 extend(AndroidDeviceInfoApi, NativeApi);
                 AndroidDeviceInfoApi.prototype.getAndroidId = function () {
@@ -1518,8 +1524,8 @@ document.addEventListener('DOMContentLoaded', function () { /*!
 
         T = function (exports, t) {
             var IosDeviceInfoApi = function (NativeApi) {
-                function IosDeviceInfoApi(t) {
-                    NativeApi.call(this, t, "DeviceInfo");
+                function IosDeviceInfoApi(nativeBridge) {
+                    NativeApi.call(this, nativeBridge, "DeviceInfo");
                 }
                 extend(IosDeviceInfoApi, NativeApi);
                 IosDeviceInfoApi.prototype.getScreenScale = function () {
@@ -1551,12 +1557,12 @@ document.addEventListener('DOMContentLoaded', function () { /*!
 
         w = function (exports, t, n, i, r) {
             var DeviceInfoApi = function (NativeApi) {
-                function DeviceInfoApi(t) {
-                    NativeApi.call(this, t, "DeviceInfo");
-                    if(t.getPlatform() === r.Platform.IOS ){
-                        this.Ios = new i.IosDeviceInfoApi(t)
+                function DeviceInfoApi(nativeBridge) {
+                    NativeApi.call(this, nativeBridge, "DeviceInfo");
+                    if(nativeBridge.getPlatform() === r.Platform.IOS ){
+                        this.Ios = new i.IosDeviceInfoApi(nativeBridge)
                     }else{
-                        this.Android = new n.AndroidDeviceInfoApi(t);
+                        this.Android = new n.AndroidDeviceInfoApi(nativeBridge);
                     }
                 }
                 extend(DeviceInfoApi, NativeApi);
@@ -1636,8 +1642,8 @@ document.addEventListener('DOMContentLoaded', function () { /*!
 
             var Event = exports.AppSheetEvent;
             var AppSheetApi = function (NativeApi) {
-                function AppSheetApi(t) {
-                    NativeApi.call(this, t, "AppSheet");
+                function AppSheetApi(nativeBridge) {
+                    NativeApi.call(this, nativeBridge, "AppSheet");
 
                     this.onPrepared = new n.Observable1();
                     this.onOpen = new n.Observable1();
@@ -1725,8 +1731,8 @@ document.addEventListener('DOMContentLoaded', function () { /*!
 
             var AndroidAdUnitApi = function (NativeApi) {
 
-                function AndroidAdUnitApi(n) {
-                    NativeApi.call(this, n, "AdUnit");
+                function AndroidAdUnitApi(nativeBridge) {
+                    NativeApi.call(this, nativeBridge, "AdUnit");
 
                     this.onStart = new t.Observable1();
                     this.onCreate = new t.Observable1();
@@ -1825,8 +1831,8 @@ document.addEventListener('DOMContentLoaded', function () { /*!
             }(Status || (Status = {}));
 
             var IosAdUnitApi = function (NativeApi) {
-                function IosAdUnitApi(n) {
-                    NativeApi.call(this, n, "AdUnit");
+                function IosAdUnitApi(nativeBridge) {
+                    NativeApi.call(this, nativeBridge, "AdUnit");
                     this.onViewControllerInit = new t.Observable0();
                     this.onViewControllerDidLoad = new t.Observable0();
                     this.onViewControllerDidAppear = new t.Observable0();
@@ -1911,8 +1917,9 @@ document.addEventListener('DOMContentLoaded', function () { /*!
             }(Event || (Event = {}));
 
             var NotificationApi = function (NativeApi) {
-                function NotificationApi(t) {
-                    NativeApi.call(this, t, "Notification"), this.onNotification = new n.Observable2();
+                function NotificationApi(nativeBridge) {
+                    NativeApi.call(this, nativeBridge, "Notification");
+                    this.onNotification = new n.Observable2();
                 }
                 extend(NotificationApi, NativeApi);
                 NotificationApi.prototype.addNotificationObserver = function (e, t) {
@@ -1942,8 +1949,8 @@ document.addEventListener('DOMContentLoaded', function () { /*!
 
         B = function (exports, t) {
             var UrlSchemeApi = function (NativeApi) {
-                function UrlSchemeApi(t) {
-                    NativeApi.call(this, t, "UrlScheme");
+                function UrlSchemeApi(nativeBridge) {
+                    NativeApi.call(this, nativeBridge, "UrlScheme");
                 }
                 extend(UrlSchemeApi, NativeApi);
                 UrlSchemeApi.prototype.open = function (e) {
@@ -1963,9 +1970,9 @@ document.addEventListener('DOMContentLoaded', function () { /*!
 
             var CallbackStatus = exports.CallbackStatus;
             var NativeBridge = function () {
-                function Bridge(e, t, s) {
-                    void 0 === t && (t = _.Platform.TEST);
-                    void 0 === s && (s = true);
+                function Bridge(backend, platform, autoBatchEnabled) {
+                    void 0 === platform && (platform = _.Platform.TEST);
+                    void 0 === autoBatchEnabled && (autoBatchEnabled = true);
                     this.AppSheet = null;
                     this.AndroidAdUnit = null;
                     this.Broadcast = null;
@@ -1986,11 +1993,15 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                     this._callbackId = 1;
                     this._callbackTable = {};
                     this._autoBatchInterval = 50;
-                    this._autoBatchEnabled = s;
-                    this._platform = t;
-                    this._backend = e;
+                    this._autoBatchEnabled = autoBatchEnabled;
+                    this._platform = platform;
+                    this._backend = backend;
                     this.AppSheet = new v.AppSheetApi(this);
-                    t === _.Platform.IOS ? this.IosAdUnit = new y.IosAdUnitApi(this) : this.AndroidAdUnit = new m.AndroidAdUnitApi(this);
+                    if(platform === _.Platform.IOS){
+                        this.IosAdUnit = new y.IosAdUnitApi(this);
+                    } else{
+                        this.AndroidAdUnit = new m.AndroidAdUnitApi(this);
+                    }
                     this.Broadcast = new n.BroadcastApi(this);
                     this.Cache = new i.CacheApi(this);
                     this.Connectivity = new r.ConnectivityApi(this);
@@ -2024,11 +2035,13 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                     this._callbackTable[n] = new g.CallbackContainer(e, t);
                     return n;
                 };
-                Bridge.prototype.invoke = function (e, n, i) {
+                Bridge.prototype.invoke = function (apiClass, method, args) {
                     var me = this;
                     if (this._autoBatchEnabled) {
-                        this._autoBatch || (this._autoBatch = new t.BatchInvocation(this));
-                        var o = this._autoBatch.queue(e, n, i);
+                        if(!this._autoBatch){
+                            this._autoBatch = new t.BatchInvocation(this);
+                        }
+                        var o = this._autoBatch.queue(apiClass, method, args);
 
                         if( !this._autoBatchTimer){
                             this._autoBatchTimer = setTimeout(function () {
@@ -2040,7 +2053,7 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                         return o;
                     }
                     var a = new t.BatchInvocation(this),
-                        o = a.queue(e, n, i);
+                        o = a.queue(apiClass, method, args);
 
                     this.invokeBatch(a);
                     return o;
@@ -3349,16 +3362,17 @@ document.addEventListener('DOMContentLoaded', function () { /*!
             var CacheStatus = exports.CacheStatus;
 
             var CacheManager = function () {
-                function CacheManager(e, t) {
+                function CacheManager(nativeBridge, wakeUpManager) {
                     var me = this;
                     this._callbacks = {};
                     this._fileIds = {};
-                    this._nativeBridge = e;
-                    this._wakeUpManager = t;
+                    this._nativeBridge = nativeBridge;
+                    this._wakeUpManager = wakeUpManager;
                     this._wakeUpManager.onNetworkConnected.subscribe(function () {
                             return me.onNetworkConnected();
                         });
-                    this._nativeBridge.Cache.setProgressInterval(500), this._nativeBridge.Cache.onDownloadStarted.subscribe(function (e, t, i, r, o) {
+                    this._nativeBridge.Cache.setProgressInterval(500);
+                    this._nativeBridge.Cache.onDownloadStarted.subscribe(function (e, t, i, r, o) {
                         return me.onDownloadStarted(e, t, i, r, o);
                     });
                     this._nativeBridge.Cache.onDownloadProgress.subscribe(function (e, t, i) {
@@ -3599,10 +3613,10 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                 Request.prototype.get = function (t, n, i) {
                     void 0 === n && (n = []);
                     "undefined" == typeof i && (i = Request.getDefaultRequestOptions());
-                    var r = Request._callbackId++,
-                        o = this.registerCallback(r);
+                    var id = Request._callbackId++,
+                        o = this.registerCallback(id);
 
-                    this.invokeRequest(r, {
+                    this.invokeRequest(id, {
                         method: 0,
                         url: t,
                         headers: n,
@@ -3616,10 +3630,10 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                     void 0 === i && (i = []);
                     "undefined" == typeof r && (r = Request.getDefaultRequestOptions());
                     i.push(["Content-Type", "application/json"]);
-                    var o = Request._callbackId++,
-                        a = this.registerCallback(o);
+                    var id = Request._callbackId++,
+                        a = this.registerCallback(id);
 
-                    this.invokeRequest(o, {
+                    this.invokeRequest(id, {
                         method: 1,
                         url: t,
                         data: n,
@@ -3697,33 +3711,53 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                     }
                 };
                 Request.prototype.handleFailedRequest = function (e, t, n) {
-                    var i = this;
-                    t.retryCount < t.options.retries ? (t.retryCount++, setTimeout(function () {
-                        i.invokeRequest(e, t);
-                    }, t.options.retryDelay)) :
-                    t.options.retryWithConnectionEvents || this.finishRequest(e, 1, [t, n]);
+                    var me = this;
+                    if(t.retryCount < t.options.retries ){
+                        t.retryCount++;
+                        setTimeout(function () {
+                            me.invokeRequest(e, t);
+                        }, t.options.retryDelay)
+                    }else{
+                        t.options.retryWithConnectionEvents || this.finishRequest(e, 1, [t, n]);
+                    }
                 };
-                Request.prototype.onRequestComplete = function (t, n, i, r, o) {
-                    var a = parseInt(t, 10), s = {
-                        url: n,
-                        response: i,
-                        responseCode: r,
-                        headers: o
-                    }, c = Request._requests[a];
-                    if (-1 !== Request._allowedResponseCodes.indexOf(r)) if (-1 !== Request._redirectResponseCodes.indexOf(r) && c.options.followRedirects) {
-                        var u = c.url = Request.getHeader(o, "location");
-                        u && u.match(/^https?/i) ? this.invokeRequest(a, c) : this.finishRequest(a, 0, s);
-                    } else this.finishRequest(a, 0, s); else this.handleFailedRequest(a, c, "FAILED_AFTER_RETRIES");
+                Request.prototype.onRequestComplete = function (id, url, response, responseCode, headers) {
+                    var key = parseInt(id, 10),
+                        s = {
+                            url: url,
+                            response: response,
+                            responseCode: responseCode,
+                            headers: headers
+                        },
+                        req = Request._requests[key];
+                    if (-1 !== Request._allowedResponseCodes.indexOf(responseCode)){
+                        if (-1 !== Request._redirectResponseCodes.indexOf(responseCode) && req.options.followRedirects) {
+                            var url = req.url = Request.getHeader(headers, "location");
+                            if(url && url.match(/^https?/i)){
+                                this.invokeRequest(key, req)
+                            }else{
+                                this.finishRequest(key, 0, s);
+                            }
+                        } else {
+                            this.finishRequest(key, 0, s);
+                        }
+                    }else{
+                        this.handleFailedRequest(key, req, "FAILED_AFTER_RETRIES");
+                    }
                 };
                 Request.prototype.onRequestFailed = function (t, n, i) {
                     var r = parseInt(t, 10), o = Request._requests[r];
                     this.handleFailedRequest(r, o, i);
                 };
                 Request.prototype.onNetworkConnected = function () {
-                    var t;
-                    for (t in Request._requests) if (Request._requests.hasOwnProperty(t)) {
-                        var n = Request._requests[t];
-                        n.options.retryWithConnectionEvents && n.options.retries === n.retryCount && this.invokeRequest(t, n);
+                    var key;
+                    for (key in Request._requests){
+                        if (Request._requests.hasOwnProperty(key)) {
+                            var n = Request._requests[key];
+                            if(n.options.retryWithConnectionEvents && n.options.retries === n.retryCount){
+                                this.invokeRequest(key, n);
+                            }
+                        }
                     }
                 };
                 Request._connectTimeout = 3e4;
@@ -3768,10 +3802,10 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                     this._deviceInfo = deviceInfo;
                     this._nativeBridge = nativeBridge;
                 }
-                SessionManagerEventMetadataCreator.prototype.createUniqueEventMetadata = function (adUnit, t, sid) {
+                SessionManagerEventMetadataCreator.prototype.createUniqueEventMetadata = function (adUnit, session, gamerServerId) {
                     var me = this;
                     return this._eventManager.getUniqueEventId().then(function (e) {
-                        return me.getInfoJson(adUnit, e, t, sid);
+                        return me.getInfoJson(adUnit, e, session, gamerServerId);
                     });
                 };
                 SessionManagerEventMetadataCreator.prototype.getInfoJson = function (adUnit, eventId, n, sid) {
@@ -3837,7 +3871,7 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                 SessionManager.prototype.setSession = function (session) {
                     this._currentSession = session;
                 };
-                SessionManager.prototype.sendShow = function (e) {
+                SessionManager.prototype.sendShow = function (adUnit) {
                     var me = this;
                     if (this._currentSession) {
                         if (this._currentSession.showSent){
@@ -3847,9 +3881,9 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                     }
                     var n = function (n) {
                         var i = n[0], r = n[1];
-                        me._eventManager.operativeEvent("show", i, r.sessionId, me.createShowEventUrl(e), JSON.stringify(r));
+                        me._eventManager.operativeEvent("show", i, r.sessionId, me.createShowEventUrl(adUnit), JSON.stringify(r));
                     };
-                    return this._eventMetadataCreator.createUniqueEventMetadata(e, this._currentSession, this._gamerServerId).then(n);
+                    return this._eventMetadataCreator.createUniqueEventMetadata(adUnit, this._currentSession, this._gamerServerId).then(n);
                 };
                 SessionManager.prototype.sendImpressionEvent = function (e) {
                     if (this._currentSession) {
@@ -3861,7 +3895,7 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                     e.sendImpressionEvent(this._eventManager, this._currentSession.getId());
                     e.sendTrackingEvent(this._eventManager, "creativeView", this._currentSession.getId());
                 };
-                SessionManager.prototype.sendStart = function (e) {
+                SessionManager.prototype.sendStart = function (adUnit) {
                     var me = this;
                     if (this._currentSession) {
                         if (this._currentSession.startSent) {
@@ -3871,15 +3905,15 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                     }
                     var n = function (n) {
                         var i = n[0], r = n[1];
-                        me._eventManager.operativeEvent("start", i, r.sessionId, me.createVideoEventUrl(e, "video_start"), JSON.stringify(r));
-                        e.sendTrackingEvent(me._eventManager, "start", r.sessionId);
+                        me._eventManager.operativeEvent("start", i, r.sessionId, me.createVideoEventUrl(adUnit, "video_start"), JSON.stringify(r));
+                        adUnit.sendTrackingEvent(me._eventManager, "start", r.sessionId);
                     };
-                    return this._eventMetadataCreator.createUniqueEventMetadata(e, this._currentSession, this._gamerServerId).then(n);
+                    return this._eventMetadataCreator.createUniqueEventMetadata(adUnit, this._currentSession, this._gamerServerId).then(n);
                 };
-                SessionManager.prototype.sendProgress = function (e, t, n, i) {
-                    t && e.sendProgressEvents(this._eventManager, t.getId(), n, i);
+                SessionManager.prototype.sendProgress = function (adUnit, session, n, position) {
+                    session && adUnit.sendProgressEvents(this._eventManager, session.getId(), n, position);
                 };
-                SessionManager.prototype.sendFirstQuartile = function (e) {
+                SessionManager.prototype.sendFirstQuartile = function (adUnit) {
                     var me = this;
                     if (this._currentSession) {
                         if (this._currentSession.firstQuartileSent){
@@ -3889,11 +3923,11 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                     }
                     var n = function (n) {
                         var i = n[0], r = n[1];
-                        me._eventManager.operativeEvent("first_quartile", i, r.sessionId, me.createVideoEventUrl(e, "first_quartile"), JSON.stringify(r));
+                        me._eventManager.operativeEvent("first_quartile", i, r.sessionId, me.createVideoEventUrl(adUnit, "first_quartile"), JSON.stringify(r));
                     };
-                    return this._eventMetadataCreator.createUniqueEventMetadata(e, this._currentSession, this._gamerServerId).then(n);
+                    return this._eventMetadataCreator.createUniqueEventMetadata(adUnit, this._currentSession, this._gamerServerId).then(n);
                 };
-                SessionManager.prototype.sendMidpoint = function (e) {
+                SessionManager.prototype.sendMidpoint = function (adUnit) {
                     var me = this;
                     if (this._currentSession) {
                         if (this._currentSession.midpointSent) {
@@ -3903,11 +3937,11 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                     }
                     var n = function (n) {
                         var i = n[0], r = n[1];
-                        me._eventManager.operativeEvent("midpoint", i, r.sessionId, me.createVideoEventUrl(e, "midpoint"), JSON.stringify(r));
+                        me._eventManager.operativeEvent("midpoint", i, r.sessionId, me.createVideoEventUrl(adUnit, "midpoint"), JSON.stringify(r));
                     };
-                    return this._eventMetadataCreator.createUniqueEventMetadata(e, this._currentSession, this._gamerServerId).then(n);
+                    return this._eventMetadataCreator.createUniqueEventMetadata(adUnit, this._currentSession, this._gamerServerId).then(n);
                 };
-                SessionManager.prototype.sendThirdQuartile = function (e) {
+                SessionManager.prototype.sendThirdQuartile = function (adUnit) {
                     var me = this;
                     if (this._currentSession) {
                         if (this._currentSession.thirdQuartileSent){
@@ -3917,11 +3951,11 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                     }
                     var n = function (n) {
                         var i = n[0], r = n[1];
-                        me._eventManager.operativeEvent("third_quartile", i, r.sessionId, me.createVideoEventUrl(e, "third_quartile"), JSON.stringify(r));
+                        me._eventManager.operativeEvent("third_quartile", i, r.sessionId, me.createVideoEventUrl(adUnit, "third_quartile"), JSON.stringify(r));
                     };
-                    return this._eventMetadataCreator.createUniqueEventMetadata(e, this._currentSession, this._gamerServerId).then(n);
+                    return this._eventMetadataCreator.createUniqueEventMetadata(adUnit, this._currentSession, this._gamerServerId).then(n);
                 };
-                SessionManager.prototype.sendSkip = function (e, t) {
+                SessionManager.prototype.sendSkip = function (adUnit, position) {
                     var me = this;
                     if (this._currentSession) {
                         if (this._currentSession.skipSent){
@@ -3931,10 +3965,10 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                     }
                     var i = function (i) {
                         var r = i[0], o = i[1];
-                        t && (o.skippedAt = t);
-                        me._eventManager.operativeEvent("skip", r, me._currentSession.getId(), me.createVideoEventUrl(e, "video_skip"), JSON.stringify(o));
+                        position && (o.skippedAt = position);
+                        me._eventManager.operativeEvent("skip", r, me._currentSession.getId(), me.createVideoEventUrl(adUnit, "video_skip"), JSON.stringify(o));
                     };
-                    this._eventMetadataCreator.createUniqueEventMetadata(e, this._currentSession, this._gamerServerId).then(i);
+                    this._eventMetadataCreator.createUniqueEventMetadata(adUnit, this._currentSession, this._gamerServerId).then(i);
                 };
                 SessionManager.prototype.sendView = function (e) {
                     var me = this;
@@ -3951,32 +3985,32 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                     };
                     return this._eventMetadataCreator.createUniqueEventMetadata(e, this._currentSession, this._gamerServerId).then(n);
                 };
-                SessionManager.prototype.sendClick = function (e) {
+                SessionManager.prototype.sendClick = function (adUnit) {
                     var t = this,
-                        n = e.getCampaign(),
+                        n = adUnit.getCampaign(),
                         i = function (n) {
                             var i = n[0], r = n[1];
-                            t._eventManager.operativeEvent("click", i, t._currentSession.getId(), t.createClickEventUrl(e), JSON.stringify(r));
+                            t._eventManager.operativeEvent("click", i, t._currentSession.getId(), t.createClickEventUrl(adUnit), JSON.stringify(r));
                         };
-                    this._eventMetadataCreator.createUniqueEventMetadata(e, this._currentSession, this._gamerServerId).then(i);
+                    this._eventMetadataCreator.createUniqueEventMetadata(adUnit, this._currentSession, this._gamerServerId).then(i);
                     if(n.getClickAttributionUrl()){
                         return this._eventManager.clickAttributionEvent(this._currentSession.getId(), n.getClickAttributionUrl(), n.getClickAttributionUrlFollowsRedirects())
                     }else{
                         return Promise.reject("Missing click attribution url");
                     }
                 };
-                SessionManager.prototype.sendMute = function (e, t, n) {
+                SessionManager.prototype.sendMute = function (adUnit, session, n) {
                     if(n){
-                        e.sendTrackingEvent(this._eventManager, "mute", t.getId())
+                        adUnit.sendTrackingEvent(this._eventManager, "mute", session.getId())
                     }else{
-                        e.sendTrackingEvent(this._eventManager, "unmute", t.getId());
+                        adUnit.sendTrackingEvent(this._eventManager, "unmute", session.getId());
                     }
                 };
-                SessionManager.prototype.sendVideoClickTracking = function (e, t) {
-                    e.sendVideoClickTrackingEvent(this._eventManager, t.getId());
+                SessionManager.prototype.sendVideoClickTracking = function (adUnit, session) {
+                    adUnit.sendVideoClickTrackingEvent(this._eventManager, session.getId());
                 };
-                SessionManager.prototype.setGamerServerId = function (e) {
-                    this._gamerServerId = e;
+                SessionManager.prototype.setGamerServerId = function (id) {
+                    this._gamerServerId = id;
                 };
                 SessionManager.prototype.createShowEventUrl = function (adUnit) {
                     var campaign = adUnit.getCampaign();
@@ -4142,17 +4176,18 @@ document.addEventListener('DOMContentLoaded', function () { /*!
 
         re = function (exports, t) {
             var EventManager = function () {
-                function EventManager(e, t) {
-                    this._nativeBridge = e, this._request = t;
+                function EventManager(nativeBridge, request) {
+                    this._nativeBridge = nativeBridge;
+                        this._request = request;
                 }
-                EventManager.getSessionKey = function (e) {
-                    return "session." + e;
+                EventManager.getSessionKey = function (key) {
+                    return "session." + key;
                 };
-                EventManager.getSessionTimestampKey = function (t) {
-                    return EventManager.getSessionKey(t) + ".ts";
+                EventManager.getSessionTimestampKey = function (key) {
+                    return EventManager.getSessionKey(key) + ".ts";
                 };
-                EventManager.getEventKey = function (t, n) {
-                    return EventManager.getSessionKey(t) + ".operative." + n;
+                EventManager.getEventKey = function (key, e) {
+                    return EventManager.getSessionKey(key) + ".operative." + e;
                 };
                 EventManager.getUrlKey = function (t, n) {
                     return EventManager.getEventKey(t, n) + ".url";
@@ -4266,7 +4301,8 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                 Resolve.onResolveComplete = function (t, n, i) {
                     var r = Resolve._callbacks[t];
                     if(r){
-                        r[0]([n, i]), delete Resolve._callbacks[t];
+                        r[0]([n, i]);
+                        delete Resolve._callbacks[t];
                     }
                 };
                 Resolve.onResolveFailed = function (t, n, i, r) {
@@ -4300,7 +4336,7 @@ document.addEventListener('DOMContentLoaded', function () { /*!
 
         ae = function (exports, t) {
             var WakeUpManager = function () {
-                function WakeUpManager(e) {
+                function WakeUpManager(nativeBridge) {
                     var me = this;
                     this.onNetworkConnected = new t.Observable0();
                     this.onScreenOn = new t.Observable0();
@@ -4309,7 +4345,7 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                     this._screenListener = "screenListener";
                     this.ACTION_SCREEN_ON = "android.intent.action.SCREEN_ON";
                     this.ACTION_SCREEN_OFF = "android.intent.action.SCREEN_OFF";
-                    this._nativeBridge = e;
+                    this._nativeBridge = nativeBridge;
                     this._lastConnected = Date.now();
                     this._nativeBridge.Connectivity.onConnected.subscribe(function (e, t) {
                         return me.onConnected(e, t);
@@ -4321,8 +4357,8 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                         return me.onNotification(e, t);
                     });
                 }
-                WakeUpManager.prototype.setListenConnectivity = function (e) {
-                    return this._nativeBridge.Connectivity.setListeningStatus(e);
+                WakeUpManager.prototype.setListenConnectivity = function (status) {
+                    return this._nativeBridge.Connectivity.setListeningStatus(status);
                 };
                 WakeUpManager.prototype.setListenScreen = function (e) {
                     if(e){
@@ -4391,14 +4427,14 @@ document.addEventListener('DOMContentLoaded', function () { /*!
 
         ce = function (exports, t, n) {
             var AbstractAdUnit = function () {
-                function AbstractAdUnit(e, t, i) {
+                function AbstractAdUnit(nativeBridge, placement, campaign) {
                     this.onStart = new n.Observable0();
                     this.onNewAdRequestAllowed = new n.Observable0();
                     this.onClose = new n.Observable0();
-                    this._showing = !1;
-                    this._nativeBridge = e,
-                    this._placement = t;
-                    this._campaign = i;
+                    this._showing = false;
+                    this._nativeBridge = nativeBridge;
+                    this._placement = placement;
+                    this._campaign = campaign;
                 }
                 AbstractAdUnit.prototype.getPlacement = function () {
                     return this._placement;
@@ -4406,8 +4442,10 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                 AbstractAdUnit.prototype.getCampaign = function () {
                     return this._campaign;
                 };
-                AbstractAdUnit.prototype.setFinishState = function (e) {
-                    this._finishState !== t.FinishState.COMPLETED && (this._finishState = e);
+                AbstractAdUnit.prototype.setFinishState = function (state) {
+                    if(this._finishState !== t.FinishState.COMPLETED){
+                        this._finishState = state;
+                    }
                 };
                 AbstractAdUnit.prototype.getFinishState = function () {
                     return this._finishState;
@@ -4415,11 +4453,11 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                 AbstractAdUnit.prototype.isShowing = function () {
                     return this._showing;
                 };
-                AbstractAdUnit.prototype.sendImpressionEvent = function (e, t) {
+                AbstractAdUnit.prototype.sendImpressionEvent = function (eventManager, sessionId) {
                 };
-                AbstractAdUnit.prototype.sendTrackingEvent = function (e, t, n) {
+                AbstractAdUnit.prototype.sendTrackingEvent = function (eventManager, eventName, sessionId) {
                 };
-                AbstractAdUnit.prototype.sendProgressEvents = function (e, t, n, i) {
+                AbstractAdUnit.prototype.sendProgressEvents = function (eventManager, sessionId, n, i) {
                 };
                 return AbstractAdUnit;
             }();
@@ -4429,8 +4467,8 @@ document.addEventListener('DOMContentLoaded', function () { /*!
 
         ue = function (exports) {
             var Double = function () {
-                function Double(e) {
-                    this._value = e;
+                function Double(num) {
+                    this._value = num;
                 }
                 Double.prototype.toJSON = function () {
                     return this._value.toFixed(20) + "=double";
@@ -4456,10 +4494,10 @@ document.addEventListener('DOMContentLoaded', function () { /*!
 
         he = function (exports, t, n, i, r, o, a) {
             var VideoAdUnit = function (AbstractAdUnit) {
-                function VideoAdUnit(t, n, r, a, s) {
+                function VideoAdUnit(nativeBridge, placement, campaign, overlay, endScreen) {
                     var me = this;
-                    AbstractAdUnit.call(this, t, n, r);
-                    if(t.getPlatform() === o.Platform.IOS){
+                    AbstractAdUnit.call(this, nativeBridge, placement, campaign);
+                    if(nativeBridge.getPlatform() === o.Platform.IOS){
                         this._onViewControllerDidAppearObserver = this._nativeBridge.IosAdUnit.onViewControllerDidAppear.subscribe(function () {
                             return me.onViewDidAppear();
                         })
@@ -4479,8 +4517,8 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                     this._videoQuartile = 0;
                     this._videoActive = true;
                     this._watches = 0;
-                    this._overlay = a;
-                    this._endScreen = s;
+                    this._overlay = overlay;
+                    this._endScreen = endScreen;
                 }
                 extend(VideoAdUnit, AbstractAdUnit);
                 VideoAdUnit.prototype.show = function () {
@@ -4490,7 +4528,8 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                     this.setVideoActive(true);
                     if (this._nativeBridge.getPlatform() === o.Platform.IOS) {
                         var n = this._iosOptions.supportedOrientations;
-                        this._placement.useDeviceOrientationForVideo() || (this._iosOptions.supportedOrientations & a.UIInterfaceOrientationMask.INTERFACE_ORIENTATION_MASK_LANDSCAPE) !== a.UIInterfaceOrientationMask.INTERFACE_ORIENTATION_MASK_LANDSCAPE || (n = a.UIInterfaceOrientationMask.INTERFACE_ORIENTATION_MASK_LANDSCAPE);
+                        this._placement.useDeviceOrientationForVideo() ||
+                        (this._iosOptions.supportedOrientations & a.UIInterfaceOrientationMask.INTERFACE_ORIENTATION_MASK_LANDSCAPE) !== a.UIInterfaceOrientationMask.INTERFACE_ORIENTATION_MASK_LANDSCAPE || (n = a.UIInterfaceOrientationMask.INTERFACE_ORIENTATION_MASK_LANDSCAPE);
                         this._onNotificationObserver = this._nativeBridge.Notification.onNotification.subscribe(function (t, n) {
                             return me.onNotification(t, n);
                         });
@@ -4499,9 +4538,9 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                         this._nativeBridge.Sdk.logInfo("Opening game ad with orientation " + n);
                         return this._nativeBridge.IosAdUnit.open(["videoplayer", "webview"], n, true, true);
                     }
-                    var r = this._androidOptions.requestedOrientation;
+                    var orientation = this._androidOptions.requestedOrientation;
                     if(!this._placement.useDeviceOrientationForVideo()){
-                        r = t.ScreenOrientation.SCREEN_ORIENTATION_SENSOR_LANDSCAPE;
+                        orientation = t.ScreenOrientation.SCREEN_ORIENTATION_SENSOR_LANDSCAPE;
                     }
                     var s = [];
                     if(this._placement.disableBackButton()){
@@ -4510,17 +4549,21 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                             return me.onKeyEvent(t);
                         });
                     }
-                    var c = true;
-                    this._nativeBridge.getApiLevel() < 17 && (c = !1);
-                    this._nativeBridge.Sdk.logInfo("Opening game ad with orientation " + r + ", hardware acceleration " + (c ? "enabled" : "disabled"));
-                    return this._nativeBridge.AndroidAdUnit.open(this._activityId, ["videoplayer", "webview"], r, s, 1, c);
+                    var acceleration = true;
+                    if(this._nativeBridge.getApiLevel() < 17 ){
+                        acceleration = false;
+                    }
+                    this._nativeBridge.Sdk.logInfo("Opening game ad with orientation " + orientation + ", hardware acceleration " + (acceleration ? "enabled" : "disabled"));
+                    return this._nativeBridge.AndroidAdUnit.open(this._activityId, ["videoplayer", "webview"], orientation, s, 1, acceleration);
                 };
                 VideoAdUnit.prototype.onKeyEvent = function (e) {
                     4 !== e || this.isVideoActive() || this.hide();
                 };
                 VideoAdUnit.prototype.hide = function () {
                     var me = this;
-                    this.isVideoActive() && this._nativeBridge.VideoPlayer.stop();
+                    if(this.isVideoActive()){
+                        this._nativeBridge.VideoPlayer.stop();
+                    }
                     this.hideChildren();
                     this.unsetReferences();
                     this._nativeBridge.Listener.sendFinishEvent(this.getPlacement().getId(), this.getFinishState());
@@ -4550,7 +4593,11 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                     this.getEndScreen().container().parentElement.removeChild(this.getEndScreen().container());
                 };
                 VideoAdUnit.prototype.setNativeOptions = function (options) {
-                    this._nativeBridge.getPlatform() === o.Platform.IOS ? this._iosOptions = options : this._androidOptions = options;
+                    if(this._nativeBridge.getPlatform() === o.Platform.IOS){
+                        this._iosOptions = options
+                    } else {
+                        this._androidOptions = options;
+                    }
                 };
                 VideoAdUnit.prototype.isShowing = function () {
                     return this._showing;
@@ -4655,13 +4702,13 @@ document.addEventListener('DOMContentLoaded', function () { /*!
 
         pe = function (exports, t) {
             var VastAdUnit = function (VideoAdUnit) {
-                function VastAdUnit(t, n, i, r) {
-                    VideoAdUnit.call(this, t, n, i, r, null);
+                function VastAdUnit(nativeBridge, placement, campaign, overlay) {
+                    VideoAdUnit.call(this, nativeBridge, placement, campaign, overlay, null);
                 }
                 extend(VastAdUnit, VideoAdUnit);
                 VastAdUnit.prototype.hideChildren = function () {
-                    var e = this.getOverlay();
-                    e.container().parentElement.removeChild(e.container());
+                    var overlay = this.getOverlay();
+                    overlay.container().parentElement.removeChild(overlay.container());
                 };
                 VastAdUnit.prototype.getVast = function () {
                     return this.getCampaign().getVast();
@@ -4669,22 +4716,28 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                 VastAdUnit.prototype.getDuration = function () {
                     return this.getVast().getDuration();
                 };
-                VastAdUnit.prototype.sendImpressionEvent = function (e, t) {
-                    var n = this.getVast().getImpressionUrls();
-                    if (n) for (var i = 0, r = n; i < r.length; i++) {
-                        var o = r[i];
-                        this.sendThirdPartyEvent(e, "vast impression", t, o);
+                VastAdUnit.prototype.sendImpressionEvent = function (eventManager, sessionId) {
+                    var urls = this.getVast().getImpressionUrls();
+                    if (urls){
+                        for (var i = 0, r = urls; i < r.length; i++) {
+                            var url = r[i];
+                            this.sendThirdPartyEvent(eventManager, "vast impression", sessionId, url);
+                        }
                     }
                 };
-                VastAdUnit.prototype.sendTrackingEvent = function (e, t, n) {
-                    var i = this.getVast().getTrackingEventUrls(t);
-                    if (i) for (var r = 0, o = i; r < o.length; r++) {
-                        var a = o[r];
-                        this.sendThirdPartyEvent(e, "vast " + t, n, a);
+                VastAdUnit.prototype.sendTrackingEvent = function (eventManager, eventName, sessionId) {
+                    var urls = this.getVast().getTrackingEventUrls(eventName);
+                    if (urls){
+                        for (var r = 0, o = urls; r < o.length; r++) {
+                            var url = o[r];
+                            this.sendThirdPartyEvent(eventManager, "vast " + eventName, sessionId, url);
+                        }
                     }
                 };
                 VastAdUnit.prototype.sendProgressEvents = function (e, t, n, i) {
-                    this.sendQuartileEvent(e, t, n, i, 1), this.sendQuartileEvent(e, t, n, i, 2), this.sendQuartileEvent(e, t, n, i, 3);
+                    this.sendQuartileEvent(e, t, n, i, 1);
+                    this.sendQuartileEvent(e, t, n, i, 2);
+                    this.sendQuartileEvent(e, t, n, i, 3);
                 };
                 VastAdUnit.prototype.getVideoClickThroughURL = function () {
                     var e = this.getVast().getVideoClickThroughURL(), t = new RegExp("^(https?)://.+$");
@@ -4696,14 +4749,19 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                 };
                 VastAdUnit.prototype.sendQuartileEvent = function (e, t, n, i, r) {
                     var o;
-                    if (1 === r && (o = "firstQuartile"), 2 === r && (o = "midpoint"), 3 === r && (o = "thirdQuartile"),
-                            this.getTrackingEventUrls(o)) {
+                    1 === r && (o = "firstQuartile");
+                    2 === r && (o = "midpoint");
+                    3 === r && (o = "thirdQuartile");
+                    if (this.getTrackingEventUrls(o)) {
                         var a = this.getDuration();
-                        a > 0 && n / 1e3 > .25 * a * r && .25 * a * r > i / 1e3 && this.sendTrackingEvent(e, o, t);
+                        if(a > 0 && n / 1e3 > .25 * a * r && .25 * a * r > i / 1e3){
+                            this.sendTrackingEvent(e, o, t);
+                        }
                     }
                 };
                 VastAdUnit.prototype.sendThirdPartyEvent = function (e, t, n, i) {
-                    i = i.replace(/%ZONE%/, this.getPlacement().getId()), e.thirdPartyEvent(t, n, i);
+                    i = i.replace(/%ZONE%/, this.getPlacement().getId());
+                    e.thirdPartyEvent(t, n, i);
                 };
                 VastAdUnit.prototype.getTrackingEventUrls = function (e) {
                     return this.getVast().getTrackingEventUrls(e);
@@ -4718,27 +4776,43 @@ document.addEventListener('DOMContentLoaded', function () { /*!
             var OverlayEventHandlers = function () {
                 function OverlayEventHandlers() {
                 }
-                OverlayEventHandlers.onSkip = function (e, t, a) {
-                    e.VideoPlayer.pause();
-                    a.setVideoActive(!1);
-                    a.setFinishState(n.FinishState.SKIPPED);
-                    t.sendSkip(a, a.getVideoPosition());
-                    e.getPlatform() === i.Platform.IOS ? e.IosAdUnit.setViews(["webview"]) : e.AndroidAdUnit.setViews(["webview"]);
-                    e.getPlatform() === i.Platform.ANDROID ? e.AndroidAdUnit.setOrientation(o.ScreenOrientation.SCREEN_ORIENTATION_FULL_SENSOR) : e.getPlatform() === i.Platform.IOS && e.IosAdUnit.setSupportedOrientations(r.UIInterfaceOrientationMask.INTERFACE_ORIENTATION_MASK_ALL), a.getOverlay().hide(), this.afterSkip(a);
+                OverlayEventHandlers.onSkip = function (nativeBridge, sessionManager, adUnit) {
+                    nativeBridge.VideoPlayer.pause();
+                    adUnit.setVideoActive(false);
+                    adUnit.setFinishState(n.FinishState.SKIPPED);
+                    sessionManager.sendSkip(adUnit, adUnit.getVideoPosition());
+                    if(nativeBridge.getPlatform() === i.Platform.IOS){
+                        nativeBridge.IosAdUnit.setViews(["webview"])
+                    }else{
+                        nativeBridge.AndroidAdUnit.setViews(["webview"]);
+                    }
+                    if(nativeBridge.getPlatform() === i.Platform.ANDROID){
+                        nativeBridge.AndroidAdUnit.setOrientation(o.ScreenOrientation.SCREEN_ORIENTATION_FULL_SENSOR);
+                    }else if(nativeBridge.getPlatform() === i.Platform.IOS){
+                        nativeBridge.IosAdUnit.setSupportedOrientations(r.UIInterfaceOrientationMask.INTERFACE_ORIENTATION_MASK_ALL)
+                    }
+                    adUnit.getOverlay().hide();
+                    this.afterSkip(adUnit);
                 };
-                OverlayEventHandlers.afterSkip = function (e) {
-                    e.getEndScreen().show();
-                    e.onNewAdRequestAllowed.trigger();
+                OverlayEventHandlers.afterSkip = function (adUnit) {
+                    adUnit.getEndScreen().show();
+                    adUnit.onNewAdRequestAllowed.trigger();
                 };
-                OverlayEventHandlers.onMute = function (e, n, i, r) {
-                    e.VideoPlayer.setVolume(new t.Double(r ? 0 : 1)), n.sendMute(i, n.getSession(), r);
+                OverlayEventHandlers.onMute = function (nativeBridge, sessionManager, i, r) {
+                    nativeBridge.VideoPlayer.setVolume(new t.Double(r ? 0 : 1));
+                    sessionManager.sendMute(i, sessionManager.getSession(), r);
                 };
-                OverlayEventHandlers.onCallButton = function (e, t, n) {
-                    var r = n.getVideoClickThroughURL();
-                    t.sendVideoClickTracking(n, t.getSession()), e.getPlatform() === i.Platform.IOS ? e.UrlScheme.open(r) : e.Intent.launch({
-                        action: "android.intent.action.VIEW",
-                        uri: r
-                    });
+                OverlayEventHandlers.onCallButton = function (nativeBridge, sessionManager, adUnit) {
+                    var url = adUnit.getVideoClickThroughURL();
+                    sessionManager.sendVideoClickTracking(adUnit, sessionManager.getSession());
+                    if(nativeBridge.getPlatform() === i.Platform.IOS){
+                        nativeBridge.UrlScheme.open(url)
+                    }else{
+                        nativeBridge.Intent.launch({
+                            action: "android.intent.action.VIEW",
+                            uri: url
+                        });
+                    }
                 };
                 return OverlayEventHandlers;
             }();
@@ -4765,75 +4839,76 @@ document.addEventListener('DOMContentLoaded', function () { /*!
             var EndScreenEventHandlers = function () {
                 function EndScreenEventHandlers() {
                 }
-                EndScreenEventHandlers.onDownload = function (i, r, o) {
-                    var a = i.getPlatform(), s = o.getCampaign();
-                    if(s.getClickAttributionUrlFollowsRedirects()){
-                        r.sendClick(o).then(function (e) {
-                            var r = t.Request.getHeader(e.headers, "location");
-                            if (!r){ throw new Error("No location found");}
-                            if(a === n.Platform.IOS){
-                                i.UrlScheme.open(r)
+                EndScreenEventHandlers.onDownload = function (nativeBridge, sessionManager, adUnit) {
+                    var platform = nativeBridge.getPlatform(),
+                        campaign = adUnit.getCampaign();
+                    if(campaign.getClickAttributionUrlFollowsRedirects()){
+                        sessionManager.sendClick(adUnit).then(function (e) {
+                            var url = t.Request.getHeader(e.headers, "location");
+                            if (!url){ throw new Error("No location found");}
+                            if(platform === n.Platform.IOS){
+                                nativeBridge.UrlScheme.open(url)
                             } else{
-                                i.Intent.launch({
+                                nativeBridge.Intent.launch({
                                     action: "android.intent.action.VIEW",
-                                    uri: r
+                                    uri: url
                                 });
                             }
                         })
                     }else{
-                        r.sendClick(o);
-                        if(a === n.Platform.IOS){
-                            i.AppSheet.canOpen().then(function (t) {
-                                if(t && !s.getBypassAppSheet()){
-                                    EndScreenEventHandlers.openAppSheet(i, {
-                                        id: parseInt(s.getAppStoreId(), 10)
+                        sessionManager.sendClick(adUnit);
+                        if(platform === n.Platform.IOS){
+                            nativeBridge.AppSheet.canOpen().then(function (t) {
+                                if(t && !campaign.getBypassAppSheet()){
+                                    EndScreenEventHandlers.openAppSheet(nativeBridge, {
+                                        id: parseInt(campaign.getAppStoreId(), 10)
                                     })
                                 }else{
-                                    i.UrlScheme.open(EndScreenEventHandlers.getAppStoreUrl(a, s));
+                                    nativeBridge.UrlScheme.open(EndScreenEventHandlers.getAppStoreUrl(platform, campaign));
                                 }
                             })
                         }else{
-                            i.Intent.launch({
+                            nativeBridge.Intent.launch({
                                 action: "android.intent.action.VIEW",
-                                uri: EndScreenEventHandlers.getAppStoreUrl(a, s)
+                                uri: EndScreenEventHandlers.getAppStoreUrl(platform, campaign)
                             });
                         }
                     }
                 };
-                EndScreenEventHandlers.onPrivacy = function (e, t) {
-                    if(e.getPlatform() === n.Platform.IOS ){
-                        e.UrlScheme.open(t)
-                    }else if(e.getPlatform() === n.Platform.ANDROID){
-                        e.Intent.launch({
+                EndScreenEventHandlers.onPrivacy = function (nativeBridge, url) {
+                    if(nativeBridge.getPlatform() === n.Platform.IOS ){
+                        nativeBridge.UrlScheme.open(url)
+                    }else if(nativeBridge.getPlatform() === n.Platform.ANDROID){
+                        nativeBridge.Intent.launch({
                             action: "android.intent.action.VIEW",
-                            uri: t
+                            uri: url
                         });
                     }
                 };
-                EndScreenEventHandlers.onClose = function (e, t) {
-                    e.getPlatform() !== n.Platform.IOS || t.getCampaign().getBypassAppSheet() || e.AppSheet.destroy({
-                        id: parseInt(t.getCampaign().getAppStoreId(), 10)
+                EndScreenEventHandlers.onClose = function (nativeBridge, adUnit) {
+                    nativeBridge.getPlatform() !== n.Platform.IOS || adUnit.getCampaign().getBypassAppSheet() || nativeBridge.AppSheet.destroy({
+                        id: parseInt(adUnit.getCampaign().getAppStoreId(), 10)
                     });
-                    t.hide();
+                    adUnit.hide();
                 };
-                EndScreenEventHandlers.getAppStoreUrl = function (e, t) {
-                    if(e === n.Platform.IOS){
-                        return "https://itunes.apple.com/" + t.getAppStoreCountry() + "/app/id" + t.getAppStoreId();
+                EndScreenEventHandlers.getAppStoreUrl = function (platform, campaign) {
+                    if(platform === n.Platform.IOS){
+                        return "https://itunes.apple.com/" + campaign.getAppStoreCountry() + "/app/id" + campaign.getAppStoreId();
                     }else{
-                        return "market://details?id=" + t.getAppStoreId();
+                        return "market://details?id=" + campaign.getAppStoreId();
                     }
                 };
-                EndScreenEventHandlers.openAppSheet = function (e, t) {
-                    e.AppSheet.present(t).then(function () {
-                        return e.AppSheet.destroy(t);
+                EndScreenEventHandlers.openAppSheet = function (nativeBridge, t) {
+                    nativeBridge.AppSheet.present(t).then(function () {
+                        return nativeBridge.AppSheet.destroy(t);
                     })["catch"](function (t) {
                         var n = t[0], i = t[1];
                         if ("APPSHEET_NOT_FOUND" === n) {
-                            return e.AppSheet.prepare(i).then(function () {
-                                var t = e.AppSheet.onPrepared.subscribe(function () {
-                                    e.AppSheet.present(i).then(function () {
-                                        e.AppSheet.destroy(i);
-                                    }), e.AppSheet.onPrepared.unsubscribe(t);
+                            return nativeBridge.AppSheet.prepare(i).then(function () {
+                                var t = nativeBridge.AppSheet.onPrepared.subscribe(function () {
+                                    nativeBridge.AppSheet.present(i).then(function () {
+                                        nativeBridge.AppSheet.destroy(i);
+                                    }), nativeBridge.AppSheet.onPrepared.unsubscribe(t);
                                 });
                             });
                         }
@@ -4850,116 +4925,117 @@ document.addEventListener('DOMContentLoaded', function () { /*!
             var VideoEventHandlers = function () {
                 function VideoEventHandlers() {
                 }
-                VideoEventHandlers.isVast = function (e) {
-                    return void 0 !== e.getVast;
+                VideoEventHandlers.isVast = function (adUnit) {
+                    return void 0 !== adUnit.getVast;
                 };
-                VideoEventHandlers.onVideoPrepared = function (e, n, r) {
-                    var o = this, a = n.getOverlay();
-                    n.setVideoDuration(r);
-                    a.setVideoDuration(r);
-                    if(n.getVideoPosition() > 0 ){
-                        a.setVideoProgress(n.getVideoPosition());
+                VideoEventHandlers.onVideoPrepared = function (nativeBridge, adUnit, duration) {
+                    var me = this, overlay = adUnit.getOverlay();
+                    adUnit.setVideoDuration(duration);
+                    overlay.setVideoDuration(duration);
+                    if(adUnit.getVideoPosition() > 0 ){
+                        overlay.setVideoProgress(adUnit.getVideoPosition());
                     }
-                    if(n.getPlacement().allowSkip()){
-                        a.setSkipVisible(true);
+                    if(adUnit.getPlacement().allowSkip()){
+                        overlay.setSkipVisible(true);
                     }
-                    a.setMuteEnabled(true);
-                    a.setVideoDurationEnabled(true);
-                    if(this.isVast(n) && n.getVideoClickThroughURL()){
-                        a.setCallButtonVisible(true);
+                    overlay.setMuteEnabled(true);
+                    overlay.setVideoDurationEnabled(true);
+                    if(this.isVast(adUnit) && adUnit.getVideoClickThroughURL()){
+                        overlay.setCallButtonVisible(true);
                     }
-                    e.Storage.get(i.StorageType.PUBLIC, "test.debugOverlayEnabled.value").then(function (e) {
-                        if (e === !0) {
-                            a.setDebugMessageVisible(!0);
-                            var t = "";
-                            t = o.isVast(n) ? "Programmatic Ad" : "Performance Ad", a.setDebugMessage(t);
+                    nativeBridge.Storage.get(i.StorageType.PUBLIC, "test.debugOverlayEnabled.value").then(function (e) {
+                        if (e === true) {
+                            overlay.setDebugMessageVisible(true);
+                            var msg = "";
+                            msg = me.isVast(adUnit) ? "Programmatic Ad" : "Performance Ad";
+                            overlay.setDebugMessage(msg);
                         }
                     });
-                    e.VideoPlayer.setVolume(new t.Double(a.isMuted() ? 0 : 1)).then(function () {
-                        if(n.getVideoPosition() > 0 ){
-                            e.VideoPlayer.seekTo(n.getVideoPosition()).then(function () {
-                                e.VideoPlayer.play();
+                    nativeBridge.VideoPlayer.setVolume(new t.Double(overlay.isMuted() ? 0 : 1)).then(function () {
+                        if(adUnit.getVideoPosition() > 0 ){
+                            nativeBridge.VideoPlayer.seekTo(adUnit.getVideoPosition()).then(function () {
+                                nativeBridge.VideoPlayer.play();
                             })
                         }else{
-                            e.VideoPlayer.play();
+                            nativeBridge.VideoPlayer.play();
                         }
                     });
                 };
-                VideoEventHandlers.onVideoProgress = function (e, t, n, i) {
-                    t.sendProgress(n, t.getSession(), i, n.getVideoPosition());
+                VideoEventHandlers.onVideoProgress = function (nativeBridge, sessionManager, adUnit, i) {
+                    sessionManager.sendProgress(adUnit, sessionManager.getSession(), i, adUnit.getVideoPosition());
                     if (i > 0) {
-                        var r = n.getVideoPosition();
+                        var r = adUnit.getVideoPosition();
                         if(r > 0 && 100 > i - r ){
-                            n.getOverlay().setSpinnerEnabled(true)
+                            adUnit.getOverlay().setSpinnerEnabled(true)
                         }else{
-                            n.getOverlay().setSpinnerEnabled(false);
+                            adUnit.getOverlay().setSpinnerEnabled(false);
                         }
-                        var o = n.getVideoQuartile();
-                        n.setVideoPosition(i);
-                        if(0 === o && 1 === n.getVideoQuartile() ){
-                            t.sendFirstQuartile(n)
-                        }else if(1 === o && 2 === n.getVideoQuartile() ){
-                                t.sendMidpoint(n)
-                        }else if(2 === o && 3 === n.getVideoQuartile() ){
-                            t.sendThirdQuartile(n);
+                        var o = adUnit.getVideoQuartile();
+                        adUnit.setVideoPosition(i);
+                        if(0 === o && 1 === adUnit.getVideoQuartile() ){
+                            sessionManager.sendFirstQuartile(adUnit)
+                        }else if(1 === o && 2 === adUnit.getVideoQuartile() ){
+                                sessionManager.sendMidpoint(adUnit)
+                        }else if(2 === o && 3 === adUnit.getVideoQuartile() ){
+                            sessionManager.sendThirdQuartile(adUnit);
                         }
                     }
-                    n.getOverlay().setVideoProgress(i);
+                    adUnit.getOverlay().setVideoProgress(i);
                 };
-                VideoEventHandlers.onVideoStart = function (e, t, n) {
-                    t.sendImpressionEvent(n);
-                    t.sendStart(n);
-                    n.getOverlay().setSpinnerEnabled(false);
-                    e.VideoPlayer.setProgressEventInterval(250);
-                    if(0 === n.getWatches()){
-                        e.Listener.sendStartEvent(n.getPlacement().getId());
+                VideoEventHandlers.onVideoStart = function (nativeBridge, sessionManager, adUnit) {
+                    sessionManager.sendImpressionEvent(adUnit);
+                    sessionManager.sendStart(adUnit);
+                    adUnit.getOverlay().setSpinnerEnabled(false);
+                    nativeBridge.VideoPlayer.setProgressEventInterval(250);
+                    if(0 === adUnit.getWatches()){
+                        nativeBridge.Listener.sendStartEvent(adUnit.getPlacement().getId());
                     }
-                    n.newWatch();
+                    adUnit.newWatch();
                 };
-                VideoEventHandlers.onVideoCompleted = function (e, t, o) {
-                    o.setVideoActive(!1);
-                    o.setFinishState(n.FinishState.COMPLETED);
-                    t.sendView(o);
-                    if(e.getPlatform() === r.Platform.IOS ){
-                        e.IosAdUnit.setViews(["webview"])
+                VideoEventHandlers.onVideoCompleted = function (nativeBridge, sessionManager, adUnit) {
+                    adUnit.setVideoActive(!1);
+                    adUnit.setFinishState(n.FinishState.COMPLETED);
+                    sessionManager.sendView(adUnit);
+                    if(nativeBridge.getPlatform() === r.Platform.IOS ){
+                        nativeBridge.IosAdUnit.setViews(["webview"])
                     }else{
-                        e.AndroidAdUnit.setViews(["webview"]);
+                        nativeBridge.AndroidAdUnit.setViews(["webview"]);
                     }
-                    this.afterVideoCompleted(e, o);
-                    e.Storage.get(i.StorageType.PUBLIC, "integration_test.value").then(function (t) {
+                    this.afterVideoCompleted(nativeBridge, adUnit);
+                    nativeBridge.Storage.get(i.StorageType.PUBLIC, "integration_test.value").then(function (t) {
                         if(t){
-                            if(e.getPlatform() === r.Platform.ANDROID){
-                                e.rawInvoke("com.unity3d.ads.test.integration.IntegrationTest", "onVideoCompleted", [o.getPlacement().getId()])
+                            if(nativeBridge.getPlatform() === r.Platform.ANDROID){
+                                nativeBridge.rawInvoke("com.unity3d.ads.test.integration.IntegrationTest", "onVideoCompleted", [adUnit.getPlacement().getId()])
                             }else{
-                                e.rawInvoke("UADSIntegrationTest", "onVideoCompleted", [o.getPlacement().getId()]);
+                                nativeBridge.rawInvoke("UADSIntegrationTest", "onVideoCompleted", [adUnit.getPlacement().getId()]);
                             }
                         }
                     });
                 };
-                VideoEventHandlers.onVideoError = function (e, t, i, a) {
-                    t.setVideoActive(!1);
-                    t.setFinishState(n.FinishState.ERROR);
-                    e.Listener.sendErrorEvent(o.UnityAdsError[o.UnityAdsError.VIDEO_PLAYER_ERROR], "Video player error");
-                    if(e.getPlatform() === r.Platform.IOS ){
-                        e.Sdk.logError("Unity Ads video player error");
-                        e.IosAdUnit.setViews(["webview"]);
+                VideoEventHandlers.onVideoError = function (nativeBridge, adUnit, i, a) {
+                    adUnit.setVideoActive(!1);
+                    adUnit.setFinishState(n.FinishState.ERROR);
+                    nativeBridge.Listener.sendErrorEvent(o.UnityAdsError[o.UnityAdsError.VIDEO_PLAYER_ERROR], "Video player error");
+                    if(nativeBridge.getPlatform() === r.Platform.IOS ){
+                        nativeBridge.Sdk.logError("Unity Ads video player error");
+                        nativeBridge.IosAdUnit.setViews(["webview"]);
                     }else{
-                        e.Sdk.logError("Unity Ads video player error " + i + " " + a);
-                        e.AndroidAdUnit.setViews(["webview"]);
+                        nativeBridge.Sdk.logError("Unity Ads video player error " + i + " " + a);
+                        nativeBridge.AndroidAdUnit.setViews(["webview"]);
                     }
-                    t.getOverlay().hide();
-                    var s = t.getEndScreen();
-                    s && t.getEndScreen().show();
-                    t.onNewAdRequestAllowed.trigger();
+                    adUnit.getOverlay().hide();
+                    var s = adUnit.getEndScreen();
+                    s && adUnit.getEndScreen().show();
+                    adUnit.onNewAdRequestAllowed.trigger();
                 };
-                VideoEventHandlers.afterVideoCompleted = function (e, t) {
-                    t.getOverlay().hide();
-                    t.getEndScreen().show();
-                    t.onNewAdRequestAllowed.trigger();
-                    if(e.getPlatform() === r.Platform.ANDROID){
-                        e.AndroidAdUnit.setOrientation(a.ScreenOrientation.SCREEN_ORIENTATION_FULL_SENSOR)
-                    }else if(e.getPlatform() === r.Platform.IOS ){
-                        e.IosAdUnit.setSupportedOrientations(s.UIInterfaceOrientationMask.INTERFACE_ORIENTATION_MASK_ALL);
+                VideoEventHandlers.afterVideoCompleted = function (nativeBridge, adUnit) {
+                    adUnit.getOverlay().hide();
+                    adUnit.getEndScreen().show();
+                    adUnit.onNewAdRequestAllowed.trigger();
+                    if(nativeBridge.getPlatform() === r.Platform.ANDROID){
+                        nativeBridge.AndroidAdUnit.setOrientation(a.ScreenOrientation.SCREEN_ORIENTATION_FULL_SENSOR)
+                    }else if(nativeBridge.getPlatform() === r.Platform.IOS ){
+                        nativeBridge.IosAdUnit.setSupportedOrientations(s.UIInterfaceOrientationMask.INTERFACE_ORIENTATION_MASK_ALL);
                     }
                 };
                 return VideoEventHandlers;
@@ -5107,18 +5183,18 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                     this._id = id;
                 }
                 View.prototype.render = function () {
-                    var e = this;
+                    var me = this;
                     this._container = document.createElement("div");
                     this._container.id = this._id;
                     this._container.innerHTML = this._template.render(this._templateData);
                     this._bindings.forEach(function (interaction) {
-                        var i = e._container.querySelectorAll(interaction.selector);
-                        for (var r = 0; r < i.length; ++r) {
-                            var o = i[r];
+                        var elems = me._container.querySelectorAll(interaction.selector);
+                        for (var r = 0; r < elems.length; ++r) {
+                            var el = elems[r];
                             if("click" === interaction.event ){
-                                interaction.tap = new t.Tap(o);
+                                interaction.tap = new t.Tap(el);
                             }
-                            o.addEventListener(interaction.event, interaction.listener, false);
+                            el.addEventListener(interaction.event, interaction.listener, false);
                         }
                     });
                 };
@@ -5189,10 +5265,10 @@ document.addEventListener('DOMContentLoaded', function () { /*!
         n = '<div class="pop-up">\n  <% if(!data.isCoppaCompliant) { %>\n  <div class="privacy-text">\n    This advertisement has been served by Unity Ads.\n    Unity Ads collects and uses information gathered through your use of your apps in order to create an individualized and more relevant user experience, to predict your preferences, and to show you ads that are more likely to interest you (¡°personalized ads¡±).\n    Please read our <a href="https://unity3d.com/legal/privacy-policy">Privacy Policy</a> for a full description of our data practices.\n    You may be able to opt-out of Unity Ads¡¯ collection and use of your mobile app data for personalized ads through your device settings.\n  </div>\n  <% } else { %>\n  <div class="privacy-simple-text">\n    This advertisement has been served by Unity Ads. Please read our <a href="https://unity3d.com/legal/privacy-policy">Privacy Policy</a> for a full description of our data practices.\n  </div>\n  <% } %>\n  <div class="ok-button">Ok</div>\n</div>\n';
 
         Se = function (exports, t, n, i, r) {
-            var Privacy = function (View) {
+            var Privacy = function (WebView) {
                 function Privacy(n) {
                     var me = this;
-                    View.call(this, "privacy");
+                    WebView.call(this, "privacy");
                     this.onPrivacy = new r.Observable1();
                     this.onClose = new r.Observable0();
                     this._template = new i.Template(t);
@@ -5213,7 +5289,7 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                         selector: "a"
                     }];
                 }
-                extend(Privacy, View);
+                extend(Privacy, WebView);
                 Privacy.prototype.onPrivacyEvent = function (e) {
                     e.preventDefault();
                     this.onPrivacy.trigger(e.target.href);
@@ -5223,16 +5299,16 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                     this.onClose.trigger();
                 };
                 return Privacy;
-            }(n.View);
+            }(n.WebView);
             exports.Privacy = Privacy;
             return exports;
         }(Se, n, ye, Ee, u);
 
         Ie = function (exports, t, n, i, r, o) {
-            var EndScreen = function (View) {
+            var EndScreen = function (WebView) {
                 function EndScreen(n, o) {
                     var a = this;
-                    View.call(this, "end-screen");
+                    WebView.call(this, "end-screen");
                     this.onDownload = new r.Observable0();
                     this.onPrivacy = new r.Observable1();
                     this.onClose = new r.Observable0();
@@ -5270,9 +5346,9 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                         selector: ".privacy-button"
                     }];
                 }
-                extend(EndScreen, View);
+                extend(EndScreen, WebView);
                 EndScreen.prototype.show = function () {
-                    View.prototype.show.call(this);
+                    WebView.prototype.show.call(this);
                     var t = this._container.querySelector(".name-container");
                     t.innerHTML = this._gameName + " ";
                 };
@@ -5285,21 +5361,21 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                     this.onClose.trigger();
                 };
                 EndScreen.prototype.onPrivacyEvent = function (e) {
-                    var t = this;
+                    var me = this;
                     e.preventDefault();
-                    var n = new o.Privacy(this._coppaCompliant);
-                    n.render();
-                    document.body.appendChild(n.container());
-                    n.onPrivacy.subscribe(function (e) {
-                        t.onPrivacy.trigger(e);
+                    var privacy = new o.Privacy(this._coppaCompliant);
+                    privacy.render();
+                    document.body.appendChild(privacy.container());
+                    privacy.onPrivacy.subscribe(function (e) {
+                        me.onPrivacy.trigger(e);
                     });
-                    n.onClose.subscribe(function () {
-                        n.hide();
-                        n.container().parentElement.removeChild(n.container());
+                    privacy.onClose.subscribe(function () {
+                        privacy.hide();
+                        privacy.container().parentElement.removeChild(privacy.container());
                     });
                 };
                 return EndScreen;
-            }(n.View);
+            }(n.WebView);
             exports.EndScreen = EndScreen;
             return exports;
         }(Ie, t, ye, Ee, u, Se),
@@ -5307,21 +5383,21 @@ document.addEventListener('DOMContentLoaded', function () { /*!
         i = '<div class="skip-button">You can skip this video in <span class="skip-duration">0</span> seconds</div>\n<div class="buffering-spinner">\n    <div class="spinner-animation"></div>\n    <div class="spinner-text">Buffering</div>\n</div>\n<div class="mute-button <%= data.muted ? \'muted\' : \'\' %>">\n    <div class="mute-icon"><span class="icon-volume"></span></div>\n    <div class="unmute-icon"><span class="icon-volume-mute"></span></div>\n</div>\n<div class="video-duration-text">This video ends in <span class="video-duration">0</span> seconds</div>\n<div class="call-button">Learn More</div>\n<div class="debug-message-text"></div>';
 
         Ce = function (e, t, n, i, r) {
-            var Overlay = function (View) {
-                function Overlay(n) {
+            var Overlay = function (WebView) {
+                function Overlay(muted) {
                     var me = this;
-                    View.call(this, "overlay");
+                    WebView.call(this, "overlay");
                     this.onSkip = new r.Observable1();
                     this.onMute = new r.Observable1();
                     this.onCallButton = new r.Observable1();
                     this._spinnerEnabled = false;
-                    this._skipVisible = false,
+                    this._skipVisible = false;
                     this._videoDurationEnabled = false;
                     this._muteEnabled = false;
                     this._debugMessageVisible = false;
                     this._callButtonVisible = false;
                     this._template = new i.Template(t);
-                    this._muted = n;
+                    this._muted = muted;
                     this._templateData = {
                         muted: this._muted
                     };
@@ -5345,9 +5421,9 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                         selector: ".call-button"
                     }];
                 }
-                extend(Overlay, View);
+                extend(Overlay, WebView);
                 Overlay.prototype.render = function () {
-                    View.prototype.render.call(this);
+                    WebView.prototype.render.call(this);
                     this._skipElement = this._container.querySelector(".skip-button");
                     this._spinnerElement = this._container.querySelector(".buffering-spinner");
                     this._skipDurationElement = this._container.querySelector(".skip-duration");
@@ -5450,7 +5526,7 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                     this.onCallButton.trigger(true);
                 };
                 return Overlay;
-            }(n.View);
+            }(n.WebView);
             e.Overlay = Overlay;
             return e;
         }(Ce, i, ye, Ee, u),
@@ -5459,115 +5535,119 @@ document.addEventListener('DOMContentLoaded', function () { /*!
             var AdUnitFactory = function () {
                 function AdUnitFactory() {
                 }
-                AdUnitFactory.createAdUnit = function (e, t, n, r, o) {
-                    return r instanceof i.VastCampaign ? this.createVastAdUnit(e, t, n, r, o) : this.createVideoAdUnit(e, t, n, r, o);
-                };
-                AdUnitFactory.createVideoAdUnit = function (e, n, i, r, o) {
-                    var a = new l.Overlay(i.muteVideo()),
-                        s = new u.EndScreen(r, o.isCoppaCompliant()),
-                        c = new t.VideoAdUnit(e, i, r, a, s);
-
-                    this.prepareOverlay(a, e, n, c, i, r);
-                    this.prepareEndScreen(s, e, n, c);
-                    this.prepareVideoPlayer(e, n, c);
-                    return c;
-                };
-                AdUnitFactory.createVastAdUnit = function (e, t, i, r, o) {
-                    var a = new l.Overlay(i.muteVideo()),
-                        s = new n.VastAdUnit(e, i, r, a);
-
-                    this.prepareOverlay(a, e, t, s, i, r);
-                    this.prepareVideoPlayer(e, t, s);
-                    return s;
-                };
-                AdUnitFactory.prepareOverlay = function (e, t, n, i, r, o) {
-                    e.render();
-                    document.body.appendChild(e.container());
-                    this.prepareOverlayEventHandlers(e, t, n, i);
-                    e.setSpinnerEnabled(!o.isVideoCached());
-                    if( r.allowSkip() ){
-                        e.setSkipEnabled(!0);
-                        e.setSkipDuration(r.allowSkipInSeconds())
+                AdUnitFactory.createAdUnit = function (nativeBridge, sessionManager, placement, campaign, configuration) {
+                    if(campaign instanceof i.VastCampaign){
+                        return this.createVastAdUnit(nativeBridge, sessionManager, placement, campaign, configuration);
                     }else{
-                        e.setSkipEnabled(false);
+                        return this.createVideoAdUnit(nativeBridge, sessionManager, placement, campaign, configuration);
                     }
                 };
-                AdUnitFactory.prepareOverlayEventHandlers = function (e, t, i, a) {
-                    if(a instanceof n.VastAdUnit){
-                        e.onSkip.subscribe(function (e) {
-                            return o.VastOverlayEventHandlers.onSkip(t, i, a);
+                AdUnitFactory.createVideoAdUnit = function (nativeBridge, sessionManager, placement, campaign, configuration) {
+                    var overlay = new l.Overlay(placement.muteVideo()),
+                        endScreen = new u.EndScreen(campaign, configuration.isCoppaCompliant()),
+                        videoAdUnit = new t.VideoAdUnit(nativeBridge, placement, campaign, overlay, endScreen);
+
+                    this.prepareOverlay(overlay, nativeBridge, sessionManager, videoAdUnit, placement, campaign);
+                    this.prepareEndScreen(endScreen, nativeBridge, sessionManager, videoAdUnit);
+                    this.prepareVideoPlayer(nativeBridge, sessionManager, videoAdUnit);
+                    return videoAdUnit;
+                };
+                AdUnitFactory.createVastAdUnit = function (nativeBridge, sessionManager, placement, campaign, configuration) {
+                    var overlay = new l.Overlay(placement.muteVideo()),
+                        vastAdUnit = new n.VastAdUnit(nativeBridge, placement, campaign, overlay);
+
+                    this.prepareOverlay(overlay, nativeBridge, sessionManager, vastAdUnit, placement, campaign);
+                    this.prepareVideoPlayer(nativeBridge, sessionManager, vastAdUnit);
+                    return vastAdUnit;
+                };
+                AdUnitFactory.prepareOverlay = function (overlay, nativeBridge, sessionManager, adUnit, placement, campaign) {
+                    overlay.render();
+                    document.body.appendChild(overlay.container());
+                    this.prepareOverlayEventHandlers(overlay, nativeBridge, sessionManager, adUnit);
+                    overlay.setSpinnerEnabled(!campaign.isVideoCached());
+                    if( placement.allowSkip() ){
+                        overlay.setSkipEnabled(true);
+                        overlay.setSkipDuration(placement.allowSkipInSeconds())
+                    }else{
+                        overlay.setSkipEnabled(false);
+                    }
+                };
+                AdUnitFactory.prepareOverlayEventHandlers = function (overlay, nativeBridge, sessionManager, adUnit) {
+                    if(adUnit instanceof n.VastAdUnit){
+                        overlay.onSkip.subscribe(function (e) {
+                            return o.VastOverlayEventHandlers.onSkip(nativeBridge, sessionManager, adUnit);
                         });
-                        e.onMute.subscribe(function (e) {
-                            return o.VastOverlayEventHandlers.onMute(t, i, a, e);
+                        overlay.onMute.subscribe(function (e) {
+                            return o.VastOverlayEventHandlers.onMute(nativeBridge, sessionManager, adUnit, e);
                         });
-                        e.onCallButton.subscribe(function () {
-                            return o.VastOverlayEventHandlers.onCallButton(t, i, a);
+                        overlay.onCallButton.subscribe(function () {
+                            return o.VastOverlayEventHandlers.onCallButton(nativeBridge, sessionManager, adUnit);
                         })
                     }else{
-                        e.onSkip.subscribe(function (e) {
-                            return r.OverlayEventHandlers.onSkip(t, i, a);
+                        overlay.onSkip.subscribe(function (e) {
+                            return r.OverlayEventHandlers.onSkip(nativeBridge, sessionManager, adUnit);
                         });
-                        e.onMute.subscribe(function (e) {
-                            return r.OverlayEventHandlers.onMute(t, i, a, e);
+                        overlay.onMute.subscribe(function (e) {
+                            return r.OverlayEventHandlers.onMute(nativeBridge, sessionManager, adUnit, e);
                         });
                     }
                 };
-                AdUnitFactory.prepareEndScreen = function (e, t, n, i) {
-                    e.render();
-                    e.hide();
-                    document.body.appendChild(e.container());
-                    e.onDownload.subscribe(function () {
-                        return a.EndScreenEventHandlers.onDownload(t, n, i);
+                AdUnitFactory.prepareEndScreen = function (endScreen, nativeBridge, sessionManager, adUnit) {
+                    endScreen.render();
+                    endScreen.hide();
+                    document.body.appendChild(endScreen.container());
+                    endScreen.onDownload.subscribe(function () {
+                        return a.EndScreenEventHandlers.onDownload(nativeBridge, sessionManager, adUnit);
                     });
-                    e.onPrivacy.subscribe(function (e) {
-                        return a.EndScreenEventHandlers.onPrivacy(t, e);
+                    endScreen.onPrivacy.subscribe(function (e) {
+                        return a.EndScreenEventHandlers.onPrivacy(nativeBridge, e);
                     });
-                    e.onClose.subscribe(function () {
-                        return a.EndScreenEventHandlers.onClose(t, i);
+                    endScreen.onClose.subscribe(function () {
+                        return a.EndScreenEventHandlers.onClose(nativeBridge, adUnit);
                     });
                 };
-                AdUnitFactory.prepareVideoPlayer = function (e, t, i) {
+                AdUnitFactory.prepareVideoPlayer = function (nativeBridge, sessionManager, adUnit) {
                     var r, o;
-                    var a = e.VideoPlayer.onPrepared.subscribe(function (t, n, r) {
-                        return s.VideoEventHandlers.onVideoPrepared(e, i, t);
+                    var a = nativeBridge.VideoPlayer.onPrepared.subscribe(function (t, n, r) {
+                        return s.VideoEventHandlers.onVideoPrepared(nativeBridge, adUnit, t);
                     });
-                    var u = e.VideoPlayer.onProgress.subscribe(function (n) {
-                        return s.VideoEventHandlers.onVideoProgress(e, t, i, n);
+                    var u = nativeBridge.VideoPlayer.onProgress.subscribe(function (n) {
+                        return s.VideoEventHandlers.onVideoProgress(nativeBridge, sessionManager, adUnit, n);
                     });
-                    var l = e.VideoPlayer.onPlay.subscribe(function () {
-                        return s.VideoEventHandlers.onVideoStart(e, t, i);
+                    var l = nativeBridge.VideoPlayer.onPlay.subscribe(function () {
+                        return s.VideoEventHandlers.onVideoStart(nativeBridge, sessionManager, adUnit);
                     });
 
-                    if(i instanceof n.VastAdUnit){
-                        r = e.VideoPlayer.onCompleted.subscribe(function (n) {
-                            return c.VastVideoEventHandlers.onVideoCompleted(e, t, i);
+                    if(adUnit instanceof n.VastAdUnit){
+                        r = nativeBridge.VideoPlayer.onCompleted.subscribe(function (n) {
+                            return c.VastVideoEventHandlers.onVideoCompleted(nativeBridge, sessionManager, adUnit);
                         });
-                        o = e.VideoPlayer.onError.subscribe(function (t, n, r) {
-                            return c.VastVideoEventHandlers.onVideoError(e, i, t, n);
+                        o = nativeBridge.VideoPlayer.onError.subscribe(function (t, n, r) {
+                            return c.VastVideoEventHandlers.onVideoError(nativeBridge, adUnit, t, n);
                         })
                     }else{
-                        r = e.VideoPlayer.onCompleted.subscribe(function (n) {
-                            return s.VideoEventHandlers.onVideoCompleted(e, t, i);
+                        r = nativeBridge.VideoPlayer.onCompleted.subscribe(function (n) {
+                            return s.VideoEventHandlers.onVideoCompleted(nativeBridge, sessionManager, adUnit);
                         });
-                        o = e.VideoPlayer.onError.subscribe(function (t, n, r) {
-                            return s.VideoEventHandlers.onVideoError(e, i, t, n);
+                        o = nativeBridge.VideoPlayer.onError.subscribe(function (t, n, r) {
+                            return s.VideoEventHandlers.onVideoError(nativeBridge, adUnit, t, n);
                         });
                     }
 
-                    i.onClose.subscribe(function () {
-                        e.VideoPlayer.onPrepared.unsubscribe(a);
-                        e.VideoPlayer.onProgress.unsubscribe(u);
-                        e.VideoPlayer.onPlay.unsubscribe(l);
-                        e.VideoPlayer.onCompleted.unsubscribe(r);
-                        e.VideoPlayer.onError.unsubscribe(o);
+                    adUnit.onClose.subscribe(function () {
+                        nativeBridge.VideoPlayer.onPrepared.unsubscribe(a);
+                        nativeBridge.VideoPlayer.onProgress.unsubscribe(u);
+                        nativeBridge.VideoPlayer.onPlay.unsubscribe(l);
+                        nativeBridge.VideoPlayer.onCompleted.unsubscribe(r);
+                        nativeBridge.VideoPlayer.onError.unsubscribe(o);
                     });
 
-                    if ( e.getPlatform() === h.Platform.IOS) {
-                        var p = e.VideoPlayer.Ios.onLikelyToKeepUp.subscribe(function (t, n) {
-                            n === true && e.VideoPlayer.play();
+                    if ( nativeBridge.getPlatform() === h.Platform.IOS) {
+                        var p = nativeBridge.VideoPlayer.Ios.onLikelyToKeepUp.subscribe(function (t, n) {
+                            n === true && nativeBridge.VideoPlayer.play();
                         });
-                        i.onClose.subscribe(function () {
-                            e.VideoPlayer.Ios.onLikelyToKeepUp.unsubscribe(p);
+                        adUnit.onClose.subscribe(function () {
+                            nativeBridge.VideoPlayer.Ios.onLikelyToKeepUp.unsubscribe(p);
                         });
                     }
                 };
@@ -5702,9 +5782,14 @@ document.addEventListener('DOMContentLoaded', function () { /*!
         Te = function (exports, t) {
             var VastCreativeLinear = function (VastCreative) {
                 function VastCreativeLinear(t, n, i, r, o, a, s) {
-                    VastCreative.call(this, "linear"), this._duration = t || 0, this._skipDelay = n || null, this._mediaFiles = i || [],
-                        this._videoClickThroughURLTemplate = r || null, this._videoClickTrackingURLTemplates = o || [],
-                        this._videoCustomClickURLTemplates = a || [], this._adParameters = s || null;
+                    VastCreative.call(this, "linear");
+                    this._duration = t || 0;
+                    this._skipDelay = n || null;
+                    this._mediaFiles = i || [];
+                    this._videoClickThroughURLTemplate = r || null;
+                    this._videoClickTrackingURLTemplates = o || [];
+                    this._videoCustomClickURLTemplates = a || [];
+                    this._adParameters = s || null;
                 }
                 extend(VastCreativeLinear, VastCreative);
 
@@ -7236,7 +7321,7 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                  * @param bridge
                  * @constructor
                  */
-                function View(bridge) {
+                function WebView(bridge) {
                     var me = this;
                     me._showing = false;
                     me._initialized = false;
@@ -7249,7 +7334,7 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                         }, false);
                     }
                 }
-                View.prototype.initialize = function () {
+                WebView.prototype.initialize = function () {
                     var me = this;
                     return this._nativeBridge.Sdk.loadComplete()
                         .then(function (t) {
@@ -7308,17 +7393,17 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                             me._nativeBridge.Placement.setDefaultPlacement(t.getId());
                             me.setPlacementStates(s.PlacementState.NOT_AVAILABLE);
                             me._campaignManager = new o.CampaignManager(me._nativeBridge, me._request, me._clientInfo, me._deviceInfo, new E.VastParser());
-                            me._campaignManager.onCampaign.subscribe(function (t) {
-                                return me.onCampaign(t);
+                            me._campaignManager.onCampaign.subscribe(function (campaign) {
+                                return me.onCampaign(campaign);
                             });
-                            me._campaignManager.onVastCampaign.subscribe(function (t) {
-                                return me.onVastCampaign(t);
+                            me._campaignManager.onVastCampaign.subscribe(function (campaign) {
+                                return me.onVastCampaign(campaign);
                             });
                             me._campaignManager.onNoFill.subscribe(function (t) {
                                 return me.onNoFill(t);
                             });
-                            me._campaignManager.onError.subscribe(function (t) {
-                                return me.onCampaignError(t);
+                            me._campaignManager.onError.subscribe(function (e) {
+                                return me.onCampaignError(e);
                             });
                             me._refillTimestamp = 0;
                             return me._campaignManager.request();
@@ -7351,34 +7436,34 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                         });
                 };
 
-                View.prototype.show = function (e, n, i) {
+                WebView.prototype.show = function (placementId, n, i) {
                     var me = this;
                     i(t.CallbackStatus.OK);
                     if (this._showing) {
-                        this.showError(!1, e, "Can't show a new ad unit when ad unit is already open");
+                        this.showError(false, placementId, "Can't show a new ad unit when ad unit is already open");
                         return
                     }
-                    var a = this._configuration.getPlacement(e);
-                    if(!a){
-                        this.showError(!0, e, "No such placement: " + e);
+                    var placement = this._configuration.getPlacement(placementId);
+                    if(!placement){
+                        this.showError(true, placementId, "No such placement: " + placementId);
                         return;
                     }
                     if(!this._campaign){
-                        this.showError(!0, e, "Campaign not found");
+                        this.showError(true, placementId, "Campaign not found");
                         return;
                     }
 
                     this._nativeBridge.getPlatform() !== v.Platform.IOS || this._campaign.getBypassAppSheet() || this._nativeBridge.AppSheet.prepare({
                             id: parseInt(this._campaign.getAppStoreId(), 10)
                         });
-                    this._showing = !0;
+                    this._showing = true;
                     this.shouldReinitialize().then(function (e) {
                         me._mustReinitialize = e;
                     });
                     this._configuration.getCacheMode() === r.CacheMode.ALLOWED && this._cacheManager.stop();
                     g.MetaDataManager.fetchPlayerMetaData(this._nativeBridge).then(function (e) {
                         e && me._sessionManager.setGamerServerId(e.getServerId());
-                        me._adUnit = y.AdUnitFactory.createAdUnit(me._nativeBridge, me._sessionManager, a, me._campaign, me._configuration);
+                        me._adUnit = y.AdUnitFactory.createAdUnit(me._nativeBridge, me._sessionManager, placement, me._campaign, me._configuration);
                         me._adUnit.setNativeOptions(n);
                         me._adUnit.onNewAdRequestAllowed.subscribe(function () {
                             return me.onNewAdRequestAllowed();
@@ -7396,29 +7481,29 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                     });
                 };
 
-                View.prototype.showError = function (e, t, n) {
+                WebView.prototype.showError = function (e, t, n) {
                     this._nativeBridge.Sdk.logError("Show invocation failed: " + n);
                     this._nativeBridge.Listener.sendErrorEvent(f.UnityAdsError[f.UnityAdsError.SHOW_ERROR], n);
                     if( e ){
                         this._nativeBridge.Listener.sendFinishEvent(t, d.FinishState.ERROR);
                     }
                 };
-                View.prototype.setPlacementStates = function (e) {
+                WebView.prototype.setPlacementStates = function (state) {
                     var placements = this._configuration.getPlacements();
                     for (var key in placements){
                         if (placements.hasOwnProperty(key)) {
-                            var i = placements[key];
-                            this._nativeBridge.Placement.setPlacementState(i.getId(), e);
-                            if(e === s.PlacementState.READY ){
-                                this._nativeBridge.Listener.sendReadyEvent(i.getId());
+                            var placement = placements[key];
+                            this._nativeBridge.Placement.setPlacementState(placement.getId(), state);
+                            if(state === s.PlacementState.READY ){
+                                this._nativeBridge.Listener.sendReadyEvent(placement.getId());
                             }
                         }
                     }
                 };
-                View.prototype.onCampaign = function (e) {
+                WebView.prototype.onCampaign = function (campaign) {
                     var me = this;
-                    this._campaign = e;
-                    var n = this._configuration.getCacheMode();
+                    this._campaign = campaign;
+                    var mode = this._configuration.getCacheMode();
                     var cache = function (e) {
                         return me._cacheManager.cache(e, {
                             retries: 5
@@ -7428,37 +7513,37 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                                 return me._cacheManager.getFileUrl(i);
                             }
                             throw n;
-                        }).catch(function (n) {
-                            if (n !== a.CacheStatus.STOPPED){
-                                me.onError(n);
+                        }).catch(function (e) {
+                            if (e !== a.CacheStatus.STOPPED){
+                                me.onError(e);
                                 return e;
                             }
-                            throw n;
+                            throw e;
                         });
                     };
                     var o = function () {
-                        return cache(e.getVideoUrl())
+                        return cache(campaign.getVideoUrl())
                             .then(function (t) {
-                                e.setVideoUrl(t);
-                                e.setVideoCached(true);
+                                campaign.setVideoUrl(t);
+                                campaign.setVideoCached(true);
                             })
                             .then(function () {
-                                return cache(e.getLandscapeUrl());
+                                return cache(campaign.getLandscapeUrl());
                             })
                             .then(function (t) {
-                                return e.setLandscapeUrl(t);
+                                return campaign.setLandscapeUrl(t);
                             })
                             .then(function () {
-                                return cache(e.getPortraitUrl());
+                                return cache(campaign.getPortraitUrl());
                             })
                             .then(function (t) {
-                                return e.setPortraitUrl(t);
+                                return campaign.setPortraitUrl(t);
                             })
                             .then(function () {
-                                return cache(e.getGameIcon());
+                                return cache(campaign.getGameIcon());
                             })
                             .then(function (t) {
-                                return e.setGameIcon(t);
+                                return campaign.setGameIcon(t);
                             })
                             .catch(function (e) {
                                 if(e === a.CacheStatus.STOPPED){
@@ -7470,7 +7555,7 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                         me.setPlacementStates(s.PlacementState.READY);
                     };
 
-                    if (n === r.CacheMode.FORCED) {
+                    if (mode === r.CacheMode.FORCED) {
                         o().then(function () {
                             if (me._showing){
                                 var e = me._adUnit.onClose.subscribe(function () {
@@ -7481,7 +7566,7 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                                 c();
                             }
                         });
-                    }else if (n === r.CacheMode.ALLOWED) {
+                    }else if (mode === r.CacheMode.ALLOWED) {
                         if (this._showing) {
                             var u = this._adUnit.onClose.subscribe(function () {
                                 me._adUnit.onClose.unsubscribe(u);
@@ -7497,9 +7582,9 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                     }
                 };
 
-                View.prototype.onVastCampaign = function (e) {
+                WebView.prototype.onVastCampaign = function (campaign) {
                     var me = this;
-                    this._campaign = e;
+                    this._campaign = campaign;
                     var n = this._configuration.getCacheMode();
                     var i = function (e) {
                         return me._cacheManager.cache(e, {
@@ -7514,7 +7599,7 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                         });
                     };
                     var o = function () {
-                        var n = e.getVideoUrl();
+                        var n = campaign.getVideoUrl();
                         return me._request.head(n, [], {
                             retries: 5,
                             retryDelay: 1e3,
@@ -7523,7 +7608,7 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                         }).then(function (r) {
                             var o = r.url || n;
                             i(o).then(function (t) {
-                                e.setVideoUrl(t), e.setVideoCached(!0);
+                                campaign.setVideoUrl(t), campaign.setVideoCached(!0);
                             })["catch"](function (e) {
                                 e === a.CacheStatus.STOPPED && me._nativeBridge.Sdk.logInfo("Caching was stopped, using streaming instead");
                             });
@@ -7561,12 +7646,12 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                         c();
                     }
                 };
-                View.prototype.onNoFill = function (e) {
+                WebView.prototype.onNoFill = function (e) {
                     this._refillTimestamp = Date.now() + 1000 * e;
                     this._nativeBridge.Sdk.logInfo("Unity Ads server returned no fill, no ads to show");
                     this.setPlacementStates(s.PlacementState.NO_FILL);
                 };
-                View.prototype.onCampaignError = function (e) {
+                WebView.prototype.onCampaignError = function (e) {
                     e instanceof Error && (e = {
                         message: e.message,
                         name: e.name,
@@ -7584,13 +7669,13 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                     );
                     this.onNoFill(3600);
                 };
-                View.prototype.onNewAdRequestAllowed = function () {
+                WebView.prototype.onNewAdRequestAllowed = function () {
                     if(this._mustRefill){
                         this._mustRefill = false;
                         this._campaignManager.request()
                     }
                 };
-                View.prototype.onClose = function () {
+                WebView.prototype.onClose = function () {
                     this._nativeBridge.Sdk.logInfo("Closing Unity Ads ad unit");
                     this._showing = false;
                     if(this._mustReinitialize){
@@ -7604,10 +7689,10 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                         this._sessionManager.create();
                     }
                 };
-                View.prototype.isShowing = function () {
+                WebView.prototype.isShowing = function () {
                     return this._showing;
                 };
-                View.prototype.onNetworkConnected = function () {
+                WebView.prototype.onNetworkConnected = function () {
                     var me = this;
                     if(!this.isShowing() && this._initialized ){
                         this.shouldReinitialize().then(function (t) {
@@ -7625,19 +7710,19 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                         });
                     }
                 };
-                View.prototype.onScreenOn = function () {
+                WebView.prototype.onScreenOn = function () {
                     this.checkRefill();
                 };
-                View.prototype.onAppForeground = function () {
+                WebView.prototype.onAppForeground = function () {
                     this.checkRefill();
                 };
-                View.prototype.checkRefill = function () {
+                WebView.prototype.checkRefill = function () {
                     if(0 !== this._refillTimestamp && Date.now() > this._refillTimestamp ){
                         this._refillTimestamp = 0;
                         this._campaignManager.request();
                     }
                 };
-                View.prototype.onError = function (e) {
+                WebView.prototype.onError = function (e) {
                     h.Diagnostics.trigger(
                         this._eventManager,
                         {
@@ -7652,13 +7737,13 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                         this._deviceInfo);
                     return true;
                 };
-                View.prototype.reinitialize = function () {
+                WebView.prototype.reinitialize = function () {
                     this._nativeBridge.Sdk.reinitialize();
                 };
-                View.prototype.getConfigJson = function () {
+                WebView.prototype.getConfigJson = function () {
                     return this._request.get(this._clientInfo.getConfigUrl() + "?ts=" + Date.now() + "&sdkVersion=" + this._clientInfo.getSdkVersion());
                 };
-                View.prototype.shouldReinitialize = function () {
+                WebView.prototype.shouldReinitialize = function () {
                     var e = this;
 
                     if(this._clientInfo.getWebviewHash() ){
@@ -7677,7 +7762,7 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                         return Promise.resolve(false);
                     }
                 };
-                View.prototype.setupTestEnvironment = function () {
+                WebView.prototype.setupTestEnvironment = function () {
                     var me = this;
                     this._nativeBridge.Storage.get(S.StorageType.PUBLIC, "test.serverUrl.value").then(function (t) {
                         if(t){
@@ -7715,30 +7800,30 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                         }
                     });
                 };
-                return View;
+                return WebView;
             }();
             e.WebView = WebView;
             return e;
         }(De, L, M, Y, x, J, X, I, $, ee, ne, ie, re, E, te, a, j, oe, ae, Ae, Re, b, G);
 
         IosWebView = function (exports) {
-            var Bridge = function () {
-                function Bridge() {
+            var IosWebViewBridge = function () {
+                function IosWebViewBridge() {
                 }
-                Bridge.prototype.handleInvocation = function (t) {
+                IosWebViewBridge.prototype.handleInvocation = function (t) {
                     var xhr = new XMLHttpRequest();
-                    xhr.open("POST", Bridge._nativeUrl + "/handleInvocation", false);
+                    xhr.open("POST", IosWebViewBridge._nativeUrl + "/handleInvocation", false);
                     xhr.send(t);
                 };
-                Bridge.prototype.handleCallback = function (id, status, parameters) {
+                IosWebViewBridge.prototype.handleCallback = function (id, status, parameters) {
                     var xhr = new XMLHttpRequest();
-                    xhr.open("POST", Bridge._nativeUrl + "/handleCallback", false);
+                    xhr.open("POST", IosWebViewBridge._nativeUrl + "/handleCallback", false);
                     xhr.send('{"id":"' + id + '","status":"' + status + '","parameters":' + parameters + "}");
                 };
-                Bridge._nativeUrl = "https://webviewbridge.unityads.unity3d.com";
-                return  Bridge;
+                IosWebViewBridge._nativeUrl = "https://webviewbridge.unityads.unity3d.com";
+                return  IosWebViewBridge;
             }();
-            exports.IosWebViewBridge = Bridge;
+            exports.IosWebViewBridge = IosWebViewBridge;
             return exports;
         }(ke);
 
