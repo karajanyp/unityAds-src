@@ -7608,7 +7608,8 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                         }).then(function (r) {
                             var o = r.url || n;
                             i(o).then(function (t) {
-                                campaign.setVideoUrl(t), campaign.setVideoCached(!0);
+                                campaign.setVideoUrl(t);
+                                campaign.setVideoCached(!0);
                             })["catch"](function (e) {
                                 e === a.CacheStatus.STOPPED && me._nativeBridge.Sdk.logInfo("Caching was stopped, using streaming instead");
                             });
@@ -7624,7 +7625,8 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                         o().then(function () {
                             if (me._showing){
                                 var e = me._adUnit.onClose.subscribe(function () {
-                                    me._adUnit.onClose.unsubscribe(e), c();
+                                    me._adUnit.onClose.unsubscribe(e);
+                                    c();
                                 });
 
                             }else{
