@@ -5364,10 +5364,10 @@ document.addEventListener('DOMContentLoaded', function () { /*!
         }(Se, n, ye, Ee, u);
 
         Ie = function (exports, t, n, i, r, o) {
-            var EndScreen = function (WebView) {
+            var EndScreen = function (View) {
                 function EndScreen(n, o) {
                     var a = this;
-                    WebView.call(this, "end-screen");
+                    View.call(this, "end-screen");
                     this.onDownload = new r.Observable0();
                     this.onPrivacy = new r.Observable1();
                     this.onClose = new r.Observable0();
@@ -5405,9 +5405,9 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                         selector: ".privacy-button"
                     }];
                 }
-                extend(EndScreen, WebView);
+                extend(EndScreen, View);
                 EndScreen.prototype.show = function () {
-                    WebView.prototype.show.call(this);
+                    View.prototype.show.call(this);
                     var t = this._container.querySelector(".name-container");
                     t.innerHTML = this._gameName + " ";
                 };
@@ -5434,7 +5434,7 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                     });
                 };
                 return EndScreen;
-            }(n.WebView);
+            }(n.View);
             exports.EndScreen = EndScreen;
             return exports;
         }(Ie, t, ye, Ee, u, Se),
@@ -5442,10 +5442,10 @@ document.addEventListener('DOMContentLoaded', function () { /*!
         i = '<div class="skip-button">You can skip this video in <span class="skip-duration">0</span> seconds</div>\n<div class="buffering-spinner">\n    <div class="spinner-animation"></div>\n    <div class="spinner-text">Buffering</div>\n</div>\n<div class="mute-button <%= data.muted ? \'muted\' : \'\' %>">\n    <div class="mute-icon"><span class="icon-volume"></span></div>\n    <div class="unmute-icon"><span class="icon-volume-mute"></span></div>\n</div>\n<div class="video-duration-text">This video ends in <span class="video-duration">0</span> seconds</div>\n<div class="call-button">Learn More</div>\n<div class="debug-message-text"></div>';
 
         Ce = function (e, t, n, i, r) {
-            var Overlay = function (WebView) {
+            var Overlay = function (View) {
                 function Overlay(muted) {
                     var me = this;
-                    WebView.call(this, "overlay");
+                    View.call(this, "overlay");
                     this.onSkip = new r.Observable1();
                     this.onMute = new r.Observable1();
                     this.onCallButton = new r.Observable1();
@@ -5480,9 +5480,9 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                         selector: ".call-button"
                     }];
                 }
-                extend(Overlay, WebView);
+                extend(Overlay, View);
                 Overlay.prototype.render = function () {
-                    WebView.prototype.render.call(this);
+                    View.prototype.render.call(this);
                     this._skipElement = this._container.querySelector(".skip-button");
                     this._spinnerElement = this._container.querySelector(".buffering-spinner");
                     this._skipDurationElement = this._container.querySelector(".skip-duration");
@@ -5585,7 +5585,7 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                     this.onCallButton.trigger(true);
                 };
                 return Overlay;
-            }(n.WebView);
+            }(n.View);
             e.Overlay = Overlay;
             return e;
         }(Ce, i, ye, Ee, u),
@@ -7066,9 +7066,9 @@ document.addEventListener('DOMContentLoaded', function () { /*!
                     for (r.lastIndex = t, r.exec(e); n = r.exec(e);) if (i.push(n), n[1]) return i;
                 }
 
-                var p = /[A-Z_a-z\xC0-\xD6\xD8-\xF6\u00F8-\u02FF\u0370-\u037D\u037F-\u1FFF\u200C-\u200D\u2070-\u218F\u2C00-\u2FEF\u3001-\uD7FF\uF900-\uFDCF\uFDF0-\uFFFD]/,
-                    d = new RegExp("[\\-\\.0-9" + p.source.slice(1, -1) + "¡¤?-?\\u203F-?]"),
-                    f = new RegExp("^" + p.source + d.source + "*(?::" + p.source + d.source + "*)?$"),
+                var p = /[A-Z_a-z\xC0-\xD6\xD8-\xF6\u00F8-\u02FF\u0370-\u037D\u037F-\u1FFF\u200C-\u200D\u2070-\u218F\u2C00-\u2FEF\u3001-\uD7FF\uF900-\uFDCF\uFDF0-\uFFFD]/;
+                var d = new RegExp("[\\-\\.0-9" + p.source.slice(1, -1) + "¡¤?\\-?\\u203F\\-?]");
+                var f = new RegExp("^" + p.source + d.source + "*(?::" + p.source + d.source + "*)?$");
                     v = 0, g = 1, _ = 2, m = 3, y = 4, E = 5, S = 6, I = 7, C = function () {
                 };
                 C.prototype = {
@@ -7886,7 +7886,7 @@ document.addEventListener('DOMContentLoaded', function () { /*!
             }();
             exports.IosWebViewBridge = IosWebViewBridge;
             return exports;
-        }(ke);
+        }(IosWebView);
 
         Array.prototype.forEach || (Array.prototype.forEach = function (e, t) {
             if ("function" != typeof e) throw new TypeError(e + " is not a function!");
