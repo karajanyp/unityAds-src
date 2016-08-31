@@ -12,9 +12,20 @@ var DIR_DIST = "dist";
 //待合并的JS文件
 var comboFileList = [
     DIR_SRC + '/js/wrap-before.js',
-    DIR_SRC + '/js/extend.js',
+    DIR_SRC + '/js/util.js',
+    DIR_SRC + '/js/platform/Platform.js',
+    DIR_SRC + '/js/Url.js',
+    DIR_SRC + '/js/webview/bridge/IosWebViewBridge.js',
+    DIR_SRC + '/js/main.js',
     DIR_SRC + '/js/wrap-after.js'
 ];
+
+//var comboFileList = [
+//    DIR_SRC + '/js/wrap-before.js',
+//    DIR_SRC + '/js/util.js',
+//    DIR_SRC + '/js/core.js',
+//    DIR_SRC + '/js/wrap-after.js'
+//];
 
 gulp.task("default", ["inline-dist"]);
 gulp.task("inline", ["concat"], function () {
@@ -47,6 +58,7 @@ gulp.task("clean", function () {
 });
 
 gulp.task("watch", function(){
+    gulp.run("inline");
     gulp.watch([DIR_SRC + "/*.html", DIR_SRC + "/js/*.js", DIR_SRC + "/css/*.css"], function(file){
         console.log("\n<<- detect file "+file.type+"-------->>");
         console.log("<<- "+file.path+" ->>");
