@@ -35,9 +35,9 @@ CMD.register("api.VideoPlayerApi", function (require) {
         this.onStop = new Observable.Observable1();
 
         if(nativeBridge.getPlatform() === Platform.IOS){
-            this.Ios = new r.IosVideoPlayerApi(nativeBridge);
+            this.Ios = new IosVideoPlayerApi(nativeBridge);
         }else if(nativeBridge.getPlatform() === Platform.ANDROID){
-            this.Android = new o.AndroidVideoPlayerApi(nativeBridge);
+            this.Android = new AndroidVideoPlayerApi(nativeBridge);
         }
     }
     extend(VideoPlayerApi, NativeApi);

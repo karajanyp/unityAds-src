@@ -155,57 +155,9 @@ document.addEventListener('DOMContentLoaded', function () { /*!
 
 
 
-        P = function (exports, t, n) {
-            var Event;
-            !function (Event) {
-                Event[Event.ACTION = 0] = "ACTION";
-            }(Event || (Event = {}));
 
-            var NotificationApi = function (NativeApi) {
-                function NotificationApi(nativeBridge) {
-                    NativeApi.call(this, nativeBridge, "Notification");
-                    this.onNotification = new n.Observable2();
-                }
-                extend(NotificationApi, NativeApi);
-                NotificationApi.prototype.addNotificationObserver = function (e, t) {
-                    return this._nativeBridge.invoke(this._apiClass, "addNotificationObserver", [e, t]);
-                };
-                NotificationApi.prototype.removeNotificationObserver = function (e) {
-                    return this._nativeBridge.invoke(this._apiClass, "removeNotificationObserver", [e]);
-                };
-                NotificationApi.prototype.removeAllNotificationObservers = function () {
-                    return this._nativeBridge.invoke(this._apiClass, "removeAllNotificationObservers");
-                };
-                NotificationApi.prototype.handleEvent = function (t, n) {
-                    switch (t) {
-                        case Event[Event.ACTION]:
-                            this.onNotification.trigger(n[0], n[1]);
-                            break;
 
-                        default:
-                            NativeApi.prototype.handleEvent.call(this, t, n);
-                    }
-                };
-                return NotificationApi;
-            }(t.NativeApi);
-            exports.NotificationApi = NotificationApi;
-            return exports;
-        }(P, c, u);
 
-        B = function (exports, t) {
-            var UrlSchemeApi = function (NativeApi) {
-                function UrlSchemeApi(nativeBridge) {
-                    NativeApi.call(this, nativeBridge, "UrlScheme");
-                }
-                extend(UrlSchemeApi, NativeApi);
-                UrlSchemeApi.prototype.open = function (e) {
-                    return this._nativeBridge.invoke(this._apiClass, "open", [e]);
-                };
-                return UrlSchemeApi;
-            }(t.NativeApi);
-            exports.UrlSchemeApi = UrlSchemeApi;
-            return exports;
-        }(B, c),
 
         L = function (exports, t, n, i, r, o, a, s, c, u, l, h, p, d, f, v, g, _, m, y, E, S) {
             !function (status) {

@@ -3,28 +3,28 @@
  */
 
 CMD.register("webview.bridge.NativeBridge", function(require){
-    var CallbackStatus  = require("webview.bridge.CallbackStatus");
-    var Platform        = require("platform.Platform");
-    var AppSheetApi     = require("");
-    var IosAdUnitApi    = require("");
-    var AndroidAdUnitApi= require("");
-    var BroadcastApi    = require("");
-    var CacheApi        = require("");
-    var ConnectivityApi = require("");
-    var DeviceInfoApi   = require("");
-    var IntentApi       = require("");
-    var ListenerApi     = require("");
-    var NotificationApi = require("");
-    var PlacementApi    = require("");
-    var RequestApi      = require("");
-    var ResolveApi      = require("");
-    var SdkApi          = require("");
-    var StorageApi      = require("");
-    var VideoPlayerApi  = require("");
-    var UrlSchemeApi    = require("");
-    var CallbackContainer = require("");
+    var CallbackStatus    = require("webview.bridge.CallbackStatus");
+    var CallbackContainer = require("webview.bridge.CallbackContainer");
     var BatchInvocation   = require("webview.bridge.BatchInvocation");
-    var EventCategory     = require("");
+    var EventCategory     = require("webview.EventCategory");
+    var Platform        = require("platform.Platform");
+    var AppSheetApi     = require("api.AppSheetApi");
+    var IosAdUnitApi    = require("api.IosAdUnitApi");
+    var AndroidAdUnitApi= require("api.AndroidAdUnitApi");
+    var BroadcastApi    = require("api.BroadcastApi");
+    var CacheApi        = require("api.CacheApi");
+    var ConnectivityApi = require("api.ConnectivityApi");
+    var DeviceInfoApi   = require("api.DeviceInfoApi");
+    var IntentApi       = require("api.IntentApi");
+    var ListenerApi     = require("api.ListenerApi");
+    var NotificationApi = require("api.NotificationApi");
+    var PlacementApi    = require("api.PlacementApi");
+    var RequestApi      = require("api.RequestApi");
+    var ResolveApi      = require("api.ResolveApi");
+    var SdkApi          = require("api.SdkApi");
+    var StorageApi      = require("api.StorageApi");
+    var VideoPlayerApi  = require("api.VideoPlayerApi");
+    var UrlSchemeApi    = require("api.UrlSchemeApi");
 
     function NativeBridge(backend, platform, autoBatchEnabled) {
         void 0 === platform && (platform = Platform.TEST);

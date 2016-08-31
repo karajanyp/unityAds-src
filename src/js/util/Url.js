@@ -2,7 +2,7 @@
  * Created by duo on 2016/8/31.
  */
 
-CMD.register("url.Url", function (){
+CMD.register("util.Url", function (){
     function Url() {}
     Url.addParameters = function (baseUrl, params) {
         var url = baseUrl.toString();

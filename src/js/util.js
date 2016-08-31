@@ -7,6 +7,7 @@
     pending = {};
 
     var require = exports.require = function(id) {
+        console.log(this, id)
         var mod = moduleCache[id];
         if (!mod) {
             throw ('required module not found: ' + id);
@@ -15,7 +16,7 @@
     };
     var register = exports.register = function(id, factory) {
         if (typeof factory !== 'function')
-            throw ('Invalid CommonJS module: ' + factory);
+            throw ('invalid module: ' + factory);
         makeModule(id, factory);
     };
     function exec(module) {
@@ -56,7 +57,7 @@
  * @param Object dest
  * @param Object src
  */
-var __extends = (this && this.__extends) || function (dest, src) {
+var extend = (this && this.extend) || function (dest, src) {
     for (var key in src){
         if (src.hasOwnProperty(key)){
             dest[key] = src[key];

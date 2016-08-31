@@ -3,14 +3,15 @@
  */
 CMD.register("api.BroadcastApi", function(require) {
     var NativeApi = require("api.NativeApi");
-    var Event = {};
+    var Observable = require("util.observable");
 
+    var Event = {};
     Event[Event.ACTION = 0] = "ACTION";
 
 
     function BroadcastApi(nativeBridge) {
         NativeApi.call(this, nativeBridge, "Broadcast");
-        this.onBroadcastAction = new n.Observable4();
+        this.onBroadcastAction = new Observable.Observable4();
     }
     extend(BroadcastApi, NativeApi);
     BroadcastApi.prototype.addBroadcastListener = function (e, t) {

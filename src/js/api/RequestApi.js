@@ -5,11 +5,12 @@ CMD.register("api.RequestApi", function (require) {
     var Platform = require("platform.Platform");
     var NativeApi = require("api.NativeApi");
     var RequestEvent = require("request.RequestEvent");
+    var Observable = require("util.observable");
 
     function RequestApi(nativeBridge) {
         NativeApi.call(this, nativeBridge, "Request");
-        this.onComplete = new t.Observable5();
-        this.onFailed = new t.Observable3();
+        this.onComplete = new Observable.Observable5();
+        this.onFailed = new Observable.Observable3();
     }
     extend(RequestApi, NativeApi);
 
