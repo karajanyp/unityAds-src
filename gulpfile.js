@@ -12,12 +12,33 @@ var DIR_DIST = "dist";
 //待合并的JS文件
 var comboFileList = [
     DIR_SRC + '/js/wrap-before.js',
-    DIR_SRC + '/js/util.js',
+    DIR_SRC + '/js/base.js',
 
     DIR_SRC + '/js/platform/Platform.js',
     DIR_SRC + '/js/webview/bridge/IosWebViewBridge.js',
 
     //ad unit
+    DIR_SRC + '/js/adunit/AbstractAdUnit.js',
+    DIR_SRC + '/js/adunit/AdUnitFactory.js',
+    DIR_SRC + '/js/adunit/VastAdUnit.js',
+    DIR_SRC + '/js/adunit/VideoAdUnit.js',
+    DIR_SRC + '/js/adunit/eventhandlers/EndScreenEventHandlers.js',
+    DIR_SRC + '/js/adunit/eventhandlers/OverlayEventHandlers.js',
+    DIR_SRC + '/js/adunit/eventhandlers/VastOverlayEventHandlers.js',
+    DIR_SRC + '/js/adunit/eventhandlers/VastVideoEventHandlers.js',
+    DIR_SRC + '/js/adunit/eventhandlers/VideoEventHandlers.js',
+    DIR_SRC + '/js/adunit/view/View.js',
+    DIR_SRC + '/js/adunit/view/Privacy.js',
+    DIR_SRC + '/js/adunit/view/Overlay.js',
+    DIR_SRC + '/js/adunit/view/EndScreen.js',
+    DIR_SRC + '/js/adunit/view/util/Tap.js',
+    DIR_SRC + '/js/adunit/view/util/Template.js',
+    DIR_SRC + '/js/adunit/vast/Vast.js',
+    DIR_SRC + '/js/adunit/vast/VastAd.js',
+    DIR_SRC + '/js/adunit/vast/VastCreative.js',
+    DIR_SRC + '/js/adunit/vast/VastCreativeLinear.js',
+    DIR_SRC + '/js/adunit/vast/VastMediaFile.js',
+
     //api
     DIR_SRC + '/js/api/AndroidAdUnitApi.js',
     DIR_SRC + '/js/api/AndroidDeviceInfoApi.js',
@@ -44,36 +65,83 @@ var comboFileList = [
 
     //app sheet
     DIR_SRC + '/js/appsheet/AppSheetEvent.js',
-    //broadcast
+
     //cache
     DIR_SRC + '/js/cache/CacheError.js',
     DIR_SRC + '/js/cache/CacheEvent.js',
+    DIR_SRC + '/js/cache/CacheMode.js',
+    DIR_SRC + '/js/cache/CacheStatus.js',
+    DIR_SRC + '/js/cache/CacheManager.js',
+
+    //campaign
+    DIR_SRC + '/js/campaign/Campaign.js',
+    DIR_SRC + '/js/campaign/CampaignManager.js',
+    DIR_SRC + '/js/campaign/VastCampaign.js',
+
     //configuration
-    //connectivity
+    DIR_SRC + '/js/configuration/Configuration.js',
+    DIR_SRC + '/js/configuration/ConfigManager.js',
+
     //device
     DIR_SRC + '/js/device/AndroidStorageType.js',
-    //log
+    DIR_SRC + '/js/device/ClientInfo.js',
+    DIR_SRC + '/js/device/DeviceInfo.js',
+    DIR_SRC + '/js/device/ScreenOrientation.js',
+    DIR_SRC + '/js/device/StreamType.js',
+    DIR_SRC + '/js/device/UIInterfaceOrientationMask.js',
+
+    //event
+    DIR_SRC + '/js/event/EventManager.js',
+
     //metadata
+    DIR_SRC + '/js/metadata/AdapterMetaData.js',
+    DIR_SRC + '/js/metadata/FrameworkMetaData.js',
+    DIR_SRC + '/js/metadata/MediationMetaData.js',
+    DIR_SRC + '/js/metadata/PlayerMetaData.js',
+    DIR_SRC + '/js/metadata/MetaDataManager.js',
+
+    //model
+    DIR_SRC + '/js/model/Model.js',
+
     //placement
     DIR_SRC + '/js/placement/Placement.js',
     DIR_SRC + '/js/placement/PlacementState.js',
+
     //platform
     DIR_SRC + '/js/platform/Platform.js',
-    //properties
+
     //request
+    DIR_SRC + '/js/request/Request.js',
     DIR_SRC + '/js/request/RequestEvent.js',
+
     //resolve
-    DIR_SRC + '/js/resolve/FinishState.js',
+    DIR_SRC + '/js/resolve/Resolve.js',
     DIR_SRC + '/js/resolve/ResolveEvent.js',
+
+    //session
+    DIR_SRC + '/js/session/Session.js',
+    DIR_SRC + '/js/session/SessionManager.js',
+    DIR_SRC + '/js/session/SessionManagerEventMetadataCreator.js',
+
     //storage
     DIR_SRC + '/js/storage/StorageError.js',
     DIR_SRC + '/js/storage/StorageType.js',
+
     //util
+    DIR_SRC + '/js/util/Diagnostics.js',
+    DIR_SRC + '/js/util/DOMParser.js',
+    DIR_SRC + '/js/util/Double.js',
+    DIR_SRC + '/js/util/JsonParser.js',
     DIR_SRC + '/js/util/Observable.js',
     DIR_SRC + '/js/util/Promise.js',
     DIR_SRC + '/js/util/Url.js',
-    //video
+    DIR_SRC + '/js/util/VastParser.js',
+
+    //wakeup
+    DIR_SRC + '/js/wakeup/WakeUpManager.js',
+
     //webview
+    DIR_SRC + '/js/webview/WebView.js',
     DIR_SRC + '/js/webview/EventCategory.js',
     DIR_SRC + '/js/webview/bridge/BatchInvocation.js',
     DIR_SRC + '/js/webview/bridge/CallbackContainer.js',
@@ -81,6 +149,8 @@ var comboFileList = [
     DIR_SRC + '/js/webview/bridge/IosWebViewBridge.js',
     DIR_SRC + '/js/webview/bridge/NativeBridge.js',
     //main
+    DIR_SRC + '/js/AdsError.js',
+    DIR_SRC + '/js/FinishState.js',
     DIR_SRC + '/js/main.js',
     DIR_SRC + '/js/wrap-after.js'
 ];

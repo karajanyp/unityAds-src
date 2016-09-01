@@ -7,7 +7,7 @@ CMD.register("main", function(require){
     var Platform    = require("platform.Platform");
     var NativeBridge = require("webview.bridge.NativeBridge");
     var IosWebViewBridge = require("webview.bridge.IosWebViewBridge");
-    //var WebView     = require("webview.WebView");
+    var WebView     = require("webview.WebView");
 
     var getOrientation = function (e) {
         var calculatedOrientation = window.innerWidth / window.innerHeight >= 1 ? "landscape" : "portrait",
@@ -47,7 +47,7 @@ CMD.register("main", function(require){
     }
     var win = window;
     win.nativebridge = nativeBridge;
-    //win.webview = new WebView(nativeBridge);
-    //win.webview.initialize();
+    win.webview = new WebView(nativeBridge);
+    win.webview.initialize();
 });
 CMD.require("main");

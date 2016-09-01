@@ -2,7 +2,7 @@
  * Created by duo on 2016/8/31.
  */
 CMD.register("configuration.Configuration", function (require){
-    var CacheMode = require("configuration.CacheMode");
+    var CacheMode = require("cache.CacheMode");
 
     function Configuration(e) {
         var me = this;

@@ -1,7 +1,7 @@
 /**
  * Created by duo on 2016/8/31.
  */
-CMD.register("configuration.CacheMode", function (){
+CMD.register("cache.CacheMode", function (){
     var CacheMode = {};
 
     CacheMode[CacheMode.FORCED = 0] = "FORCED";

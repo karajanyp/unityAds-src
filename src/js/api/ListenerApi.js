@@ -4,7 +4,7 @@
 
 CMD.register("api.ListenerApi", function (require) {
     var NativeApi = require("api.NativeApi");
-    var FinishState = require("resolve.FinishState");
+    var FinishState = require("FinishState");
 
     function ListenerApi(nativeBridge) {
         NativeApi.call(this, nativeBridge, "Listener");
