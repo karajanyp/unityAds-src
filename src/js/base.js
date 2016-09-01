@@ -7,7 +7,6 @@
     pending = {};
 
     var require = exports.require = function(id) {
-        console.log(this, id)
         var mod = moduleCache[id];
         if (!mod) {
             throw ('required module not found: ' + id);

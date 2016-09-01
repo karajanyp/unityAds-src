@@ -13,7 +13,7 @@ var DIR_DIST = "dist";
 var comboFileList = [
     DIR_SRC + '/js/wrap-before.js',
     DIR_SRC + '/js/base.js',
-
+    DIR_SRC + '/js/util/Promise.js',
     DIR_SRC + '/js/platform/Platform.js',
     DIR_SRC + '/js/webview/bridge/IosWebViewBridge.js',
 
@@ -133,7 +133,6 @@ var comboFileList = [
     DIR_SRC + '/js/util/Double.js',
     DIR_SRC + '/js/util/JsonParser.js',
     DIR_SRC + '/js/util/Observable.js',
-    DIR_SRC + '/js/util/Promise.js',
     DIR_SRC + '/js/util/Url.js',
     DIR_SRC + '/js/util/VastParser.js',
 

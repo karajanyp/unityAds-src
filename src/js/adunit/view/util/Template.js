@@ -46,6 +46,5 @@ CMD.register("adunit.view.util.Template", function () {
         return "\\" + Template._escapes[char];
     };
 
-    exports.Template = Template;
-    return exports;
+    return Template;
 });

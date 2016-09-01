@@ -2,8 +2,7 @@
  * Created by duo on 2016/8/31.
  */
 
-var e;
-(function () {
+!(function () {
     "use strict";
 
     /**
@@ -46,7 +45,9 @@ var e;
     }
 
     function s() {
-        var i = 0, t = new MutationObserver(l), n = document.createTextNode("");
+        var i = 0,
+            t = new MutationObserver(l),
+            n = document.createTextNode("");
         t.observe(n, {
             characterData: true
         });
@@ -109,7 +110,7 @@ var e;
         return i;
     }
 
-    function d(e) {
+    function resolve(e) {
         var t = this;
         if (e && "object" == typeof e && e.constructor === t){
             return e
@@ -172,7 +173,7 @@ var e;
     }
 
     function S(e, t, i) {
-        t.constructor === e.constructor && i === ne && constructor.resolve === ie ? E(e, t) : i === ce ? b(e, ce.error) : void 0 === i ? A(e, t) : isFunction(i) ? y(e, t, i) : A(e, t);
+        t.constructor === e.constructor && i === then && constructor.resolve === resolve ? E(e, t) : i === ce ? b(e, ce.error) : void 0 === i ? A(e, t) : isFunction(i) ? y(e, t, i) : A(e, t);
     }
 
     function I(e, n) {
@@ -191,7 +192,7 @@ var e;
     }
 
     function A(promise, result) {
-        if(promise._state === oe ){
+        if(promise._state === undefined ){
             promise._result = result;
             promise._state = STATE_SUCCESS;
             0 !== promise._subscribers.length && Q(notify, promise)
@@ -199,7 +200,7 @@ var e;
     }
 
     function b(promise, err) {
-        if(promise._state === oe ) {
+        if(promise._state === undefined ) {
             promise._state = STATE_FAILURE;
             promise._result = err;
             Q(C, promise)
@@ -207,12 +208,13 @@ var e;
     }
 
     function O(e, t, success, fail) {
-        var r = e._subscribers, o = r.length;
+        var subscribers = e._subscribers,
+            len = subscribers.length;
         e._onerror = null;
-        r[o] = t;
-        r[o + STATE_SUCCESS] = success;
-        r[o + STATE_FAILURE] = fail;
-        if(0 === o && e._state ){
+        subscribers[len] = t;
+        subscribers[len + STATE_SUCCESS] = success;
+        subscribers[len + STATE_FAILURE] = fail;
+        if(0 === len && e._state ){
             Q(notify, e);
         }
     }
@@ -264,7 +266,7 @@ var e;
             callbackResult = result;
             hasSuccess = true;
         }
-        if(t._state === oe ){
+        if(t._state === undefined ){
             if(isFn && hasSuccess){
                 I(t, callbackResult)
             }else if(hasError){
@@ -301,11 +303,11 @@ var e;
         e._subscribers = [];
     }
 
-    function B(e) {
+    function all(e) {
         return new ve(this, e).promise;
     }
 
-    function L(e) {
+    function race(e) {
         var t = this;
         return new t(Y(e) ? function (n, i) {
             for (var r = e.length, o = 0; r > o; o++) t.resolve(e[o]).then(n, i);
@@ -314,8 +316,9 @@ var e;
         });
     }
 
-    function U(e) {
-        var t = this, n = new t(noop);
+    function reject(e) {
+        var t = this,
+            n = new t(noop);
         b(n, e);
         return n;
     }
@@ -345,26 +348,33 @@ var e;
     }
 
     function x(e, t) {
-        this._instanceConstructor = e, this.promise = new e(noop), this.promise[re] || P(this.promise),
-            Y(t) ? (this._input = t, this.length = t.length, this._remaining = t.length, this._result = new Array(this.length),
-                0 === this.length ? A(this.promise, this._result) : (this.length = this.length || 0,
-                    this._enumerate(), 0 === this._remaining && A(this.promise, this._result))) : b(this.promise, W());
+        this._instanceConstructor = e;
+        this.promise = new e(noop);
+        this.promise[re] || P(this.promise);
+        if(Y(t)){
+            this._input = t;
+            this.length = t.length;
+            this._remaining = t.length;
+            this._result = new Array(this.length);
+            if(0 === this.length){
+                A(this.promise, this._result)
+            }else{
+                this.length = this.length || 0;
+                this._enumerate();
+                if(0 === this._remaining){
+                    A(this.promise, this._result)
+                }
+            }
+        }else{
+            b(this.promise, W());
+        }
     }
 
     function W() {
         return new Error("Array Methods must be provided an Array");
     }
 
-    function q() {
-        var e;
-        if ("undefined" != typeof global) e = global; else if ("undefined" != typeof self) e = self; else try {
-            e = Function("return this")();
-        } catch (t) {
-            throw new Error("polyfill failed because global object is unavailable in this environment");
-        }
-        var n = e.Promise;
-        (!n || "[object Promise]" !== Object.prototype.toString.call(n.resolve()) || n.cast) && (e.Promise = fe);
-    }
+
 
     var isArray;
     isArray = Array.isArray ? Array.isArray : function (e) {
@@ -387,31 +397,36 @@ var e;
         ee = "undefined" != typeof Uint8ClampedArray && "undefined" != typeof importScripts && "undefined" != typeof MessageChannel,
         te = new Array(1e3);
 
-    G = Z ? o() : MutationObserver ? s() : ee ? c() : void 0 === Context && "function" == typeof require ? h() : u();
-    var ne = then,
-        ie = d,
-        re = Math.random().toString(36).substring(16),
-        oe = void 0,
+    if(Z){
+        G = o()
+    }else if(MutationObserver){
+        G = s()
+    }else if(ee){
+        G = c()
+    }else if(void 0 === Context && "function" == typeof require){
+        G = h()
+    }else{
+        G = u();
+    }
+
+    var re = Math.random().toString(36).substring(16),
+        undefined = void 0,
         STATE_SUCCESS = 1,
         STATE_FAILURE = 2,
         ce = new w(),
         ue = new w(),
-        le = 0,
-        he = B,
-        pe = L,
-        de = U,
-        fe = Promise;
+        le = 0;
 
-    Promise.all = he;
-    Promise.race = pe;
-    Promise.resolve = ie;
-    Promise.reject = de;
+    Promise.all = all;
+    Promise.race = race;
+    Promise.resolve = resolve;
+    Promise.reject = reject;
     Promise._setScheduler = i;
     Promise._setAsap = r;
     Promise._asap = Q;
     Promise.prototype = {
         constructor: Promise,
-        then: ne,
+        then: then,
         "catch": function (e) {
             return this.then(null, e);
         }
@@ -420,47 +435,71 @@ var e;
     x.prototype._enumerate = function () {
         var len = this.length,
             input = this._input;
-        for (var i = 0; this._state === oe && len > i; i++){
+        for (var i = 0; this._state === undefined && len > i; i++){
             this._eachEntry(input[i], i);
         }
     };
     x.prototype._eachEntry = function (e, t) {
         var n = this._instanceConstructor, i = n.resolve;
-        if (i === ie) {
+        if (i === resolve) {
             var r = _(e);
-            if (r === ne && e._state !== oe) this._settledAt(e._state, t, e._result); else if ("function" != typeof r) this._remaining--,
-                this._result[t] = e; else if (n === fe) {
+            if (r === then && e._state !== undefined) {
+                this._settledAt(e._state, t, e._result);
+            } else if ("function" != typeof r){
+                this._remaining--;
+                this._result[t] = e;
+            }else if (n === Promise) {
                 var o = new n(noop);
                 S(o, e, r), this._willSettleAt(o, t);
-            } else this._willSettleAt(new n(function (t) {
-                t(e);
-            }), t);
-        } else this._willSettleAt(i(e), t);
+            } else {
+                this._willSettleAt(new n(function (t) {t(e);}), t);
+            }
+        } else {
+            this._willSettleAt(i(e), t);
+        }
     };
-    x.prototype._settledAt = function (e, t, n) {
-        var i = this.promise;
-        i._state === oe && (this._remaining--, e === STATE_FAILURE ? b(i, n) : this._result[t] = n),
-        0 === this._remaining && A(i, this._result);
+    x.prototype._settledAt = function (state, t, n) {
+        var promise = this.promise;
+        if(promise._state === undefined){
+            this._remaining--;
+            if(state === STATE_FAILURE){
+                b(promise, n)
+            }else{
+                this._result[t] = n;
+            }
+        }
+        if(0 === this._remaining){
+            A(promise, this._result);
+        }
     };
     x.prototype._willSettleAt = function (e, t) {
-        var n = this;
+        var me = this;
         O(e, void 0, function (e) {
-            n._settledAt(STATE_SUCCESS, t, e);
+            me._settledAt(STATE_SUCCESS, t, e);
         }, function (e) {
-            n._settledAt(STATE_FAILURE, t, e);
+            me._settledAt(STATE_FAILURE, t, e);
         });
     };
 
-    var ge = q,
-        _e = {
-            Promise: fe,
-            polyfill: ge
-        };
+    function polyfill() {
+        var context;
+        if("undefined" != typeof global){
+            context = global;
+        }else if ("undefined" != typeof self){
+            context = self;
+        }else{
+            try {
+                context = Function("return this")();
+            } catch (t) {
+                throw new Error("polyfill failed because global object is unavailable in this environment");
+            }
+        }
+        var p = context.Promise;
+        if(!p || "[object Promise]" !== Object.prototype.toString.call(p.resolve()) || p.cast){
+            context.Promise = Promise;
+        }
+    }
 
-    e = function () {
-        return _e;
-    }();
-
-    ge();
+    polyfill();
 
 }).call(this);
