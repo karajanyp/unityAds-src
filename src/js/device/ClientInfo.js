@@ -6,24 +6,30 @@ CMD.register("device.ClientInfo", function (require, t, n) {
     var AdsError = require("AdsError");
     var Platform = require("platform.Platform");
 
-    function ClientInfo(platform, n) {
+    /**
+     * SDK环境信息
+     * @param platform
+     * @param nativeClientInfo {Array} 由Native提供
+     * @constructor
+     */
+    function ClientInfo(platform, nativeClientInfo) {
         Model.call(this);
         this._platform = platform;
-        var r = n.shift();
+        var r = nativeClientInfo.shift();
         if ("string" != typeof r || !/^\d+$/.test(r)){
             throw new Error(AdsError[AdsError.INVALID_ARGUMENT]);
         }
         this._gameId = r;
-        this._testMode = n.shift();
-        this._applicationName = n.shift();
-        this._applicationVersion = n.shift();
-        this._sdkVersion = n.shift();
-        this._sdkVersionName = n.shift();
-        this._debuggable = n.shift();
-        this._configUrl = n.shift();
-        this._webviewUrl = n.shift();
-        this._webviewHash = n.shift();
-        this._webviewVersion = n.shift();
+        this._testMode = nativeClientInfo.shift();
+        this._applicationName = nativeClientInfo.shift();
+        this._applicationVersion = nativeClientInfo.shift();
+        this._sdkVersion = nativeClientInfo.shift();
+        this._sdkVersionName = nativeClientInfo.shift();
+        this._debuggable = nativeClientInfo.shift();
+        this._configUrl = nativeClientInfo.shift();
+        this._webviewUrl = nativeClientInfo.shift();
+        this._webviewHash = nativeClientInfo.shift();
+        this._webviewVersion = nativeClientInfo.shift();
     }
     extend(ClientInfo, Model);
 

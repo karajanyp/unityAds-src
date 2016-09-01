@@ -25,9 +25,9 @@ CMD.register("webview.bridge.BatchInvocation", function(require){
     BatchInvocation.prototype.rawQueue = function (apiClass, method, args) {
         var me = this;
         void 0 === args && (args = []);
-        return new Promise(function (r, o) {
-            var id = me._nativeBridge.registerCallback(r, o);
-            me._batch.push([apiClass, method, args, id.toString()]);
+        return new Promise(function (resolve, reject) {
+            var jsCallbackId = me._nativeBridge.registerCallback(resolve, reject);
+            me._batch.push([apiClass, method, args, jsCallbackId.toString()]);
         });
     };
     BatchInvocation.prototype.getBatch = function () {

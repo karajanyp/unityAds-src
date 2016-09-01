@@ -45,14 +45,14 @@ CMD.register("webview.WebView", function (require) {
     WebView.prototype.initialize = function () {
         var me = this;
         return this._nativeBridge.Sdk.loadComplete()
-            .then(function (t) {
+            .then(function (nativeClientInfo) {
                 me._deviceInfo = new DeviceInfo(me._nativeBridge);
                 me._wakeUpManager = new WakeUpManager(me._nativeBridge);
                 me._cacheManager = new CacheManager(me._nativeBridge, me._wakeUpManager);
                 me._request = new Request(me._nativeBridge, me._wakeUpManager);
                 me._resolve = new Resolve(me._nativeBridge);
                 me._eventManager = new EventManager(me._nativeBridge, me._request);
-                me._clientInfo = new ClientInfo(me._nativeBridge.getPlatform(), t);
+                me._clientInfo = new ClientInfo(me._nativeBridge.getPlatform(), nativeClientInfo);
                 return me._deviceInfo.fetch();
             })
             .then(function () {

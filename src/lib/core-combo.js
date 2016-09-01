@@ -161,69 +161,68 @@ Array.prototype.forEach || (Array.prototype.forEach = function (fn, context) {
         return "function" == typeof o;
     }
 
-    function i(e) {
-        j = e;
+    function setScheduler(e) {
+        scheduler = e;
     }
 
-    function r(e) {
-        Q = e;
+    function setAsap(e) {
+        asap = e;
     }
 
-    function o() {
+    function buildProcess() {
         return function () {
-            process.nextTick(l);
+            process.nextTick(consume);
         };
     }
 
-    function a() {
-        return function () {
-            H(l);
-        };
-    }
-
-    function s() {
+    function buildMutationObserver() {
         var i = 0,
-            t = new MutationObserver(l),
-            n = document.createTextNode("");
-        t.observe(n, {
+            Observer = new MutationObserver(consume),
+            node = document.createTextNode("");
+
+        Observer.observe(node, {
             characterData: true
         });
-        return  function () {
+        return function () {
             i = ++i % 2;
-            n.data = i;
+            node.data = i;
         };
     }
 
-    function c() {
+    function buildMessageChannel() {
         var e = new MessageChannel();
-        return e.port1.onmessage = l, function () {
+        e.port1.onmessage = consume;
+        return function () {
             e.port2.postMessage(0);
         };
     }
 
-    function u() {
+    function buildTimeout() {
         return function () {
-            setTimeout(l, 1);
+            setTimeout(consume, 1);
         };
     }
 
-    function l() {
+    function consume() {
         for (var i = 0; z > i; i += 2) {
-            var t = te[i], n = te[i + 1];
-            t(n);
-            te[i] = undefined;
-            te[i + 1] = undefined;
+            var fn = callbackPool[i],
+                status = callbackPool[i + 1];
+            fn(status);
+            callbackPool[i] = undefined;
+            callbackPool[i + 1] = undefined;
         }
         z = 0;
     }
 
-    function h() {
+    function buildRunLoop() {
         try {
-            var e = require, t = e("vertx");
-            H = t.runOnLoop || t.runOnContext;
-            return a();
-        } catch (n) {
-            return u();
+            var vertx = require("vertx");
+            var run = vertx.runOnLoop || vertx.runOnContext;
+            return function () {
+                run(consume);
+            };
+        } catch (e) {
+            return buildTimeout();
         }
     }
 
@@ -238,7 +237,7 @@ Array.prototype.forEach || (Array.prototype.forEach = function (fn, context) {
         var state = promise._state;
         if (state) {
             var callback = arguments[state - 1];
-            Q(function () {
+            asap(function () {
                 R(state, i, callback, promise._result);
             });
         } else {
@@ -248,11 +247,11 @@ Array.prototype.forEach || (Array.prototype.forEach = function (fn, context) {
     }
 
     function resolve(e) {
-        var t = this;
-        if (e && "object" == typeof e && e.constructor === t){
+        var ctx = this;
+        if (e && "object" == typeof e && e.constructor === ctx){
             return e
         }
-        var n = new t(noop);
+        var n = new ctx(noop);
         I(n, e);
         return n;
     }
@@ -286,7 +285,7 @@ Array.prototype.forEach || (Array.prototype.forEach = function (fn, context) {
     }
 
     function y(e, t, n) {
-        Q(function (e) {
+        asap(function (e) {
             var i = false,
                 r = m(n, t, function (n) {
                     i || (i = true, t !== n ? I(e, n) : A(e, n));
@@ -302,15 +301,31 @@ Array.prototype.forEach || (Array.prototype.forEach = function (fn, context) {
     }
 
     function E(e, t) {
-        t._state === STATE_SUCCESS ? A(e, t._result) : t._state === STATE_FAILURE ? b(e, t._result) : O(t, void 0, function (t) {
-            I(e, t);
-        }, function (t) {
-            b(e, t);
-        });
+        if(t._state === STATE_SUCCESS){
+            A(e, t._result)
+        }else if(t._state === STATE_FAILURE){
+            b(e, t._result)
+        }else{
+            O(t, void 0, function (t) {
+                I(e, t);
+            }, function (t) {
+                b(e, t);
+            });
+        }
     }
 
     function S(e, t, i) {
-        t.constructor === e.constructor && i === then && constructor.resolve === resolve ? E(e, t) : i === ce ? b(e, ce.error) : void 0 === i ? A(e, t) : isFunction(i) ? y(e, t, i) : A(e, t);
+        if(t.constructor === e.constructor && i === then && constructor.resolve === resolve){
+            E(e, t)
+        }else if(i === ce){
+            b(e, ce.error)
+        }else if(void 0 === i){
+            A(e, t)
+        }else if(isFunction(i)){
+            y(e, t, i)
+        }else{
+            A(e, t);
+        }
     }
 
     function I(e, n) {
@@ -332,7 +347,9 @@ Array.prototype.forEach || (Array.prototype.forEach = function (fn, context) {
         if(promise._state === undefined ){
             promise._result = result;
             promise._state = STATE_SUCCESS;
-            0 !== promise._subscribers.length && Q(notify, promise)
+            if(0 !== promise._subscribers.length){
+                asap(notify, promise)
+            }
         }
     }
 
@@ -340,7 +357,7 @@ Array.prototype.forEach || (Array.prototype.forEach = function (fn, context) {
         if(promise._state === undefined ) {
             promise._state = STATE_FAILURE;
             promise._result = err;
-            Q(C, promise)
+            asap(C, promise)
         }
     }
 
@@ -352,7 +369,7 @@ Array.prototype.forEach || (Array.prototype.forEach = function (fn, context) {
         subscribers[len + STATE_SUCCESS] = success;
         subscribers[len + STATE_FAILURE] = fail;
         if(0 === len && e._state ){
-            Q(notify, e);
+            asap(notify, e);
         }
     }
 
@@ -446,7 +463,7 @@ Array.prototype.forEach || (Array.prototype.forEach = function (fn, context) {
 
     function race(e) {
         var t = this;
-        return new t(Y(e) ? function (n, i) {
+        return new t(isArray(e) ? function (n, i) {
             for (var r = e.length, o = 0; r > o; o++) t.resolve(e[o]).then(n, i);
         } : function (e, t) {
             t(new TypeError("You must pass an array to race."));
@@ -484,14 +501,14 @@ Array.prototype.forEach || (Array.prototype.forEach = function (fn, context) {
         }
     }
 
-    function x(e, t) {
-        this._instanceConstructor = e;
-        this.promise = new e(noop);
+    function x(Constructor, tasks) {
+        this._instanceConstructor = Constructor;
+        this.promise = new Constructor(noop);
         this.promise[re] || P(this.promise);
-        if(Y(t)){
-            this._input = t;
-            this.length = t.length;
-            this._remaining = t.length;
+        if(isArray(tasks)){
+            this._input = tasks;
+            this.length = tasks.length;
+            this._remaining = tasks.length;
             this._result = new Array(this.length);
             if(0 === this.length){
                 A(this.promise, this._result)
@@ -511,39 +528,37 @@ Array.prototype.forEach || (Array.prototype.forEach = function (fn, context) {
         return new Error("Array Methods must be provided an Array");
     }
 
-
-
-    var isArray;
-    isArray = Array.isArray ? Array.isArray : function (e) {
+    var isArray = Array.isArray || function (e) {
         return "[object Array]" === Object.prototype.toString.call(e);
     };
 
-    //Environment
-    var H, j, G, Y = isArray, z = 0,
-        Q = function (callback, promise) {
-            te[z] = callback;
-            te[z + 1] = promise;
-            z += 2;
-            2 === z && (j ? j(l) : G());
-        },
-    //context
-        Context = "undefined" != typeof window ? window : void 0,
+
+    var scheduler, trigger, z = 0;
+    var asap = function (callback, promise) {
+        callbackPool[z] = callback;
+        callbackPool[z + 1] = promise;
+        z += 2;
+        2 === z && (scheduler ? scheduler(consume) : trigger());
+    };
+
+    //Environment Check
+    var Context = "undefined" != typeof window ? window : void 0,
         Global = Context || {},
         MutationObserver = Global.MutationObserver || Global.WebKitMutationObserver,
-        Z = "undefined" == typeof self && "undefined" != typeof process && "[object process]" === {}.toString.call(process),
-        ee = "undefined" != typeof Uint8ClampedArray && "undefined" != typeof importScripts && "undefined" != typeof MessageChannel,
-        te = new Array(1e3);
+        idNode = "undefined" == typeof self && "undefined" != typeof process && "[object process]" === {}.toString.call(process),
+        isWebWorkers = "undefined" != typeof Uint8ClampedArray && "undefined" != typeof importScripts && "undefined" != typeof MessageChannel,
+        callbackPool = new Array(1000);
 
-    if(Z){
-        G = o()
+    if(idNode){
+        trigger = buildProcess()
     }else if(MutationObserver){
-        G = s()
-    }else if(ee){
-        G = c()
-    }else if(void 0 === Context && "function" == typeof require){
-        G = h()
+        trigger = buildMutationObserver()
+    }else if(isWebWorkers){
+        trigger = buildMessageChannel()
+    }else if(void 0 === Context && "function" == typeof require){ //vertx
+        trigger = buildRunLoop()
     }else{
-        G = u();
+        trigger = buildTimeout();
     }
 
     var re = Math.random().toString(36).substring(16),
@@ -558,9 +573,9 @@ Array.prototype.forEach || (Array.prototype.forEach = function (fn, context) {
     Promise.race = race;
     Promise.resolve = resolve;
     Promise.reject = reject;
-    Promise._setScheduler = i;
-    Promise._setAsap = r;
-    Promise._asap = Q;
+    Promise._setScheduler = setScheduler;
+    Promise._setAsap = setAsap;
+    Promise._asap = asap;
     Promise.prototype = {
         constructor: Promise,
         then: then,
@@ -576,33 +591,35 @@ Array.prototype.forEach || (Array.prototype.forEach = function (fn, context) {
             this._eachEntry(input[i], i);
         }
     };
-    x.prototype._eachEntry = function (e, t) {
-        var n = this._instanceConstructor, i = n.resolve;
+    x.prototype._eachEntry = function (task, taskIndex) {
+        var Constructor = this._instanceConstructor,
+            i = Constructor.resolve;
         if (i === resolve) {
-            var r = _(e);
-            if (r === then && e._state !== undefined) {
-                this._settledAt(e._state, t, e._result);
+            var r = _(task);
+            if (r === then && task._state !== undefined) {
+                this._settledAt(task._state, taskIndex, task._result);
             } else if ("function" != typeof r){
                 this._remaining--;
-                this._result[t] = e;
-            }else if (n === Promise) {
-                var o = new n(noop);
-                S(o, e, r), this._willSettleAt(o, t);
+                this._result[taskIndex] = task;
+            }else if (Constructor === Promise) {
+                var o = new Constructor(noop);
+                S(o, task, r);
+                this._willSettleAt(o, taskIndex);
             } else {
-                this._willSettleAt(new n(function (t) {t(e);}), t);
+                this._willSettleAt(new Constructor(function (t) {t(task);}), taskIndex);
             }
         } else {
-            this._willSettleAt(i(e), t);
+            this._willSettleAt(i(task), taskIndex);
         }
     };
-    x.prototype._settledAt = function (state, t, n) {
+    x.prototype._settledAt = function (state, t, result) {
         var promise = this.promise;
         if(promise._state === undefined){
             this._remaining--;
             if(state === STATE_FAILURE){
-                b(promise, n)
+                b(promise, result)
             }else{
-                this._result[t] = n;
+                this._result[t] = result;
             }
         }
         if(0 === this._remaining){
@@ -611,10 +628,10 @@ Array.prototype.forEach || (Array.prototype.forEach = function (fn, context) {
     };
     x.prototype._willSettleAt = function (e, t) {
         var me = this;
-        O(e, void 0, function (e) {
-            me._settledAt(STATE_SUCCESS, t, e);
-        }, function (e) {
-            me._settledAt(STATE_FAILURE, t, e);
+        O(e, void 0, function (result) {
+            me._settledAt(STATE_SUCCESS, t, result);
+        }, function (result) {
+            me._settledAt(STATE_FAILURE, t, result);
         });
     };
 

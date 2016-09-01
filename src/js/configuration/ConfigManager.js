@@ -9,11 +9,11 @@ CMD.register("configuration.ConfigManager", function (require) {
 
     function ConfigManager() {}
 
-    ConfigManager.fetch = function (t, o, a, s) {
-        return MetaDataManager.fetchAdapterMetaData(t).then(function (i) {
-            var c = ConfigManager.createConfigUrl(a, s, i);
-            t.Sdk.logInfo("Requesting configuration from " + c);
-            return o.get(c, [], {
+    ConfigManager.fetch = function (nativeBridge, request, clientInfo, deviceInfo) {
+        return MetaDataManager.fetchAdapterMetaData(nativeBridge).then(function (i) {
+            var configUrl = ConfigManager.createConfigUrl(clientInfo, deviceInfo, i);
+            nativeBridge.Sdk.logInfo("Requesting configuration from " + configUrl);
+            return request.get(configUrl, [], {
                 retries: 5,
                 retryDelay: 5e3,
                 followRedirects: false,
@@ -22,10 +22,10 @@ CMD.register("configuration.ConfigManager", function (require) {
                 try {
                     var i = JsonParser.parse(e.response),
                         o = new Configuration(i);
-                    t.Sdk.logInfo("Received configuration with " + o.getPlacementCount() + " placements");
+                    nativeBridge.Sdk.logInfo("Received configuration with " + o.getPlacementCount() + " placements");
                     return o;
                 } catch (e) {
-                    t.Sdk.logError("Config request failed " + e);
+                    nativeBridge.Sdk.logError("Config request failed " + e);
                     throw new Error(e);
                 }
             });

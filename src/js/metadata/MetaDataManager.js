@@ -64,7 +64,7 @@ CMD.register("metadata.MetaDataManager", function (require) {
         if(r && MetaDataManager.caches[t]){
             return Promise.resolve(MetaDataManager.caches[t]);
         }else{
-            return  MetaDataManager.getValues(t, n, i).then(function (n) {
+            return MetaDataManager.getValues(t, n, i).then(function (n) {
                 return MetaDataManager.createAndCache(t, n, r);
             });
         }
