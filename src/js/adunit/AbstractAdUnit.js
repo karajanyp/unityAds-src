@@ -2,13 +2,13 @@
  * Created by duo on 2016/9/1.
  */
 CMD.register("adunit.AbstractAdUnit", function (require) {
-    var Observable = require("util.observable");
+    var Observable = require("util.Observable");
     var FinishState = require("FinishState");
 
     function AbstractAdUnit(nativeBridge, placement, campaign) {
-        this.onStart = new Observable.Observable0();
-        this.onNewAdRequestAllowed = new Observable.Observable0();
-        this.onClose = new Observable.Observable0();
+        this.onStart = new Observable();
+        this.onNewAdRequestAllowed = new Observable();
+        this.onClose = new Observable();
         this._showing = false;
         this._nativeBridge = nativeBridge;
         this._placement = placement;

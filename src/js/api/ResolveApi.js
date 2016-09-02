@@ -5,12 +5,12 @@
 CMD.register("api.ResolveApi", function (require, t, n) {
     var NativeApi = require("api.NativeApi");
     var ResolveEvent = require("resolve.ResolveEvent");
-    var Observable = require("util.observable");
+    var Observable = require("util.Observable");
 
     function ResolveApi(nativeBridge) {
         NativeApi.call(this, nativeBridge, "Resolve");
-        this.onComplete = new Observable.Observable3();
-        this.onFailed = new Observable.Observable4();
+        this.onComplete = new Observable();
+        this.onFailed = new Observable();
     }
     extend(ResolveApi, NativeApi);
 

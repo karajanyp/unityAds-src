@@ -5,7 +5,7 @@ CMD.register("adunit.view.EndScreen", function (require) {
     var View = require("adunit.view.View");
     var Privacy = require("adunit.view.Privacy");
     var Template = require("adunit.view.util.Template");
-    var Observable = require("util.observable");
+    var Observable = require("util.Observable");
 
     var tpl = '<div class="btn-close-region">' +
         '   <a class="btn-close">' +
@@ -59,9 +59,9 @@ CMD.register("adunit.view.EndScreen", function (require) {
     function EndScreen(n, o) {
         var a = this;
         View.call(this, "end-screen");
-        this.onDownload = new Observable.Observable0();
-        this.onPrivacy = new Observable.Observable1();
-        this.onClose = new Observable.Observable0();
+        this.onDownload = new Observable();
+        this.onPrivacy = new Observable();
+        this.onClose = new Observable();
         this._coppaCompliant = o;
         this._gameName = n.getGameName();
         this._template = new Template(tpl);

@@ -4,7 +4,7 @@
 CMD.register("adunit.view.Overlay", function (require) {
     var View = require("adunit.view.View");
     var Template = require("adunit.view.util.Template");
-    var Observable = require("util.observable");
+    var Observable = require("util.Observable");
 
     var tpl = '<div class="skip-button">You can skip this video in <span class="skip-duration">0</span> seconds</div>\n' +
         '<div class="buffering-spinner">\n' +
@@ -22,9 +22,9 @@ CMD.register("adunit.view.Overlay", function (require) {
     function Overlay(muted) {
         var me = this;
         View.call(this, "overlay");
-        this.onSkip = new Observable.Observable1();
-        this.onMute = new Observable.Observable1();
-        this.onCallButton = new Observable.Observable1();
+        this.onSkip = new Observable();
+        this.onMute = new Observable();
+        this.onCallButton = new Observable();
         this._spinnerEnabled = false;
         this._skipVisible = false;
         this._videoDurationEnabled = false;

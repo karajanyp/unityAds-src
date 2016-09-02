@@ -4,14 +4,14 @@
 
 CMD.register("api.AndroidVideoPlayerApi", function (require) {
     var NativeApi = require("api.NativeApi");
-    var Observable = require("util.observable");
+    var Observable = require("util.Observable");
 
     var Event = {};
     Event[Event.INFO = 0] = "INFO";
 
     function AndroidVideoPlayerApi(nativeBridge) {
         NativeApi.call(this, nativeBridge, "VideoPlayer");
-        this.onInfo = new Observable.Observable3();
+        this.onInfo = new Observable();
     }
     extend(AndroidVideoPlayerApi, NativeApi);
 

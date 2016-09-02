@@ -4,14 +4,14 @@
 
 CMD.register("api.NotificationApi", function (require) {
     var NativeApi = require("api.NativeApi");
-    var Observable = require("util.observable");
+    var Observable = require("util.Observable");
 
     var Event = {};
     Event[Event.ACTION = 0] = "ACTION";
 
     function NotificationApi(nativeBridge) {
         NativeApi.call(this, nativeBridge, "Notification");
-        this.onNotification = new Observable.Observable2();
+        this.onNotification = new Observable();
     }
     extend(NotificationApi, NativeApi);
 

@@ -3,7 +3,7 @@
  */
 CMD.register("adunit.view.Privacy", function (require) {
     var View = require("adunit.view.View");
-    var Observable = require("util.observable");
+    var Observable = require("util.Observable");
     var Template = require("adunit.view.util.Template");
 
     var tpl = '' +
@@ -26,8 +26,8 @@ CMD.register("adunit.view.Privacy", function (require) {
     function Privacy(coppaCompliant) {
         var me = this;
         View.call(this, "privacy");
-        this.onPrivacy = new Observable.Observable1();
-        this.onClose = new Observable.Observable0();
+        this.onPrivacy = new Observable();
+        this.onClose = new Observable();
         this._template = new Template(tpl);
         this._templateData = {
             isCoppaCompliant: coppaCompliant

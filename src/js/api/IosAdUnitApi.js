@@ -4,7 +4,7 @@
 
 CMD.register("api.IosAdUnitApi", function (require) {
     var NativeApi = require("api.NativeApi");
-    var Observable = require("util.observable");
+    var Observable = require("util.Observable");
 
     var Event = {};
     Event[Event.VIEW_CONTROLLER_INIT = 0] = "VIEW_CONTROLLER_INIT";
@@ -17,12 +17,12 @@ CMD.register("api.IosAdUnitApi", function (require) {
     function IosAdUnitApi(nativeBridge) {
         NativeApi.call(this, nativeBridge, "AdUnit");
 
-        this.onViewControllerInit = new Observable.Observable0();
-        this.onViewControllerDidLoad = new Observable.Observable0();
-        this.onViewControllerDidAppear = new Observable.Observable0();
-        this.onViewControllerWillDisappear = new Observable.Observable0();
-        this.onViewControllerDidDisappear = new Observable.Observable0();
-        this.onViewControllerDidReceiveMemoryWarning = new Observable.Observable0();
+        this.onViewControllerInit = new Observable();
+        this.onViewControllerDidLoad = new Observable();
+        this.onViewControllerDidAppear = new Observable();
+        this.onViewControllerWillDisappear = new Observable();
+        this.onViewControllerDidDisappear = new Observable();
+        this.onViewControllerDidReceiveMemoryWarning = new Observable();
     }
     extend(IosAdUnitApi, NativeApi);
 

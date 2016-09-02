@@ -3,7 +3,7 @@
  */
 CMD.register("api.IosVideoPlayerApi", function (require) {
     var NativeApi = require("api.NativeApi");
-    var Observable = require("util.observable");
+    var Observable = require("util.Observable");
 
     var Event = {};
     Event[Event.LIKELY_TO_KEEP_UP = 0] = "LIKELY_TO_KEEP_UP";
@@ -12,9 +12,9 @@ CMD.register("api.IosVideoPlayerApi", function (require) {
 
     function IosVideoPlayerApi(nativeBridge) {
         NativeApi.call(this, nativeBridge, "VideoPlayer");
-        this.onLikelyToKeepUp = new Observable.Observable2();
-        this.onBufferEmpty = new Observable.Observable2();
-        this.onBufferFull = new Observable.Observable2();
+        this.onLikelyToKeepUp = new Observable();
+        this.onBufferEmpty = new Observable();
+        this.onBufferFull = new Observable();
     }
     extend(IosVideoPlayerApi, NativeApi);
 

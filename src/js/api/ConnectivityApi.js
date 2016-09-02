@@ -3,7 +3,7 @@
  */
 CMD.register("api.ConnectivityApi", function(require) {
     var NativeApi = require("api.NativeApi");
-    var Observable = require("util.observable");
+    var Observable = require("util.Observable");
 
     var Event = {};
     Event[Event.CONNECTED = 0] = "CONNECTED";
@@ -12,8 +12,8 @@ CMD.register("api.ConnectivityApi", function(require) {
 
     function ConnectivityApi(nativeBridge) {
         NativeApi.call(this, nativeBridge, "Connectivity");
-        this.onConnected = new Observable.Observable2();
-        this.onDisconnected = new Observable.Observable0();
+        this.onConnected = new Observable();
+        this.onDisconnected = new Observable();
     }
     extend(ConnectivityApi, NativeApi);
 

@@ -4,17 +4,17 @@
 
 CMD.register("api.AppSheetApi", function (require, t, n) {
     var NativeApi = require("api.NativeApi");
-    var Observable = require("util.observable");
+    var Observable = require("util.Observable");
     var AppSheetEvent = require("appsheet.AppSheetEvent");
 
 
     function AppSheetApi(nativeBridge) {
         NativeApi.call(this, nativeBridge, "AppSheet");
 
-        this.onPrepared = new Observable.Observable1();
-        this.onOpen = new Observable.Observable1();
-        this.onClose = new Observable.Observable1();
-        this.onError = new Observable.Observable2();
+        this.onPrepared = new Observable();
+        this.onOpen = new Observable();
+        this.onClose = new Observable();
+        this.onError = new Observable();
     }
     extend(AppSheetApi, NativeApi);
 

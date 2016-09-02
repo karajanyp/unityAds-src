@@ -6,7 +6,7 @@ CMD.register("api.VideoPlayerApi", function (require) {
     var NativeApi =             require("api.NativeApi");
     var IosVideoPlayerApi =     require("api.IosVideoPlayerApi");
     var AndroidVideoPlayerApi = require("api.AndroidVideoPlayerApi");
-    var Observable =            require("util.observable");
+    var Observable =            require("util.Observable");
     var Platform =              require("platform.Platform");
 
     var Event = {};
@@ -25,14 +25,14 @@ CMD.register("api.VideoPlayerApi", function (require) {
 
     function VideoPlayerApi(nativeBridge) {
         NativeApi.call(this, nativeBridge, "VideoPlayer");
-        this.onError = new Observable.Observable3();
-        this.onProgress = new Observable.Observable1();
-        this.onCompleted = new Observable.Observable1();
-        this.onPrepared = new Observable.Observable4();
-        this.onPlay = new Observable.Observable1();
-        this.onPause = new Observable.Observable1();
-        this.onSeek = new Observable.Observable1();
-        this.onStop = new Observable.Observable1();
+        this.onError = new Observable();
+        this.onProgress = new Observable();
+        this.onCompleted = new Observable();
+        this.onPrepared = new Observable();
+        this.onPlay = new Observable();
+        this.onPause = new Observable();
+        this.onSeek = new Observable();
+        this.onStop = new Observable();
 
         if(nativeBridge.getPlatform() === Platform.IOS){
             this.Ios = new IosVideoPlayerApi(nativeBridge);

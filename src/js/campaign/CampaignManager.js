@@ -8,13 +8,13 @@ CMD.register("campaign.CampaignManager", function (require) {
     var MetaDataManager = require("metadata.MetaDataManager");
     var Platform = require("platform.Platform");
     var Url = require("util.Url");
-    var Observable = require("util.observable");
+    var Observable = require("util.Observable");
 
     function CampaignManager(nativeBridge, request, clientInfo, deviceInfo, vastParser) {
-        this.onCampaign = new Observable.Observable1();
-        this.onVastCampaign = new Observable.Observable1();
-        this.onNoFill = new Observable.Observable1();
-        this.onError = new Observable.Observable1();
+        this.onCampaign = new Observable();
+        this.onVastCampaign = new Observable();
+        this.onNoFill = new Observable();
+        this.onError = new Observable();
         this._nativeBridge = nativeBridge;
         this._request = request;
         this._clientInfo = clientInfo;

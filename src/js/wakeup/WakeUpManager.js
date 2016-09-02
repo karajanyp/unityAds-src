@@ -2,14 +2,14 @@
  * Created by duo on 2016/9/1.
  */
 CMD.register("wakeup.WakeUpManager", function (require) {
-    var Observable = require("util.observable");
+    var Observable = require("util.Observable");
 
     function WakeUpManager(nativeBridge) {
         var me = this;
-        this.onNetworkConnected = new Observable.Observable0();
-        this.onScreenOn = new Observable.Observable0();
-        this.onScreenOff = new Observable.Observable0();
-        this.onAppForeground = new Observable.Observable0();
+        this.onNetworkConnected = new Observable();
+        this.onScreenOn = new Observable();
+        this.onScreenOff = new Observable();
+        this.onAppForeground = new Observable();
         this._screenListener = "screenListener";
         this.ACTION_SCREEN_ON = "android.intent.action.SCREEN_ON";
         this.ACTION_SCREEN_OFF = "android.intent.action.SCREEN_OFF";

@@ -4,7 +4,7 @@
 
 CMD.register("api.AndroidAdUnitApi", function (require) {
     var NativeApi = require("api.NativeApi");
-    var Observable = require("util.observable");
+    var Observable = require("util.Observable");
 
     var Event = {};
     Event[Event.ON_START = 0] = "ON_START";
@@ -19,14 +19,14 @@ CMD.register("api.AndroidAdUnitApi", function (require) {
     function AndroidAdUnitApi(nativeBridge) {
         NativeApi.call(this, nativeBridge, "AdUnit");
 
-        this.onStart = new Observable.Observable1();
-        this.onCreate = new Observable.Observable1();
-        this.onResume = new Observable.Observable1();
-        this.onDestroy = new Observable.Observable2();
-        this.onPause = new Observable.Observable2();
-        this.onKeyDown = new Observable.Observable5();
-        this.onRestore = new Observable.Observable1();
-        this.onStop = new Observable.Observable1();
+        this.onStart = new Observable();
+        this.onCreate = new Observable();
+        this.onResume = new Observable();
+        this.onDestroy = new Observable();
+        this.onPause = new Observable();
+        this.onKeyDown = new Observable();
+        this.onRestore = new Observable();
+        this.onStop = new Observable();
     }
     extend(AndroidAdUnitApi, NativeApi);
 

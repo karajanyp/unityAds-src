@@ -4,15 +4,15 @@
 CMD.register("api.CacheApi", function (require) {
     var NativeApi = require("api.NativeApi");
     var CacheEvent = require("cache.CacheEvent");
-    var Observable = require("util.observable");
+    var Observable = require("util.Observable");
 
     function CacheApi(nativeBridge) {
         NativeApi.call(this, nativeBridge, "Cache");
-        this.onDownloadStarted = new Observable.Observable5();
-        this.onDownloadProgress = new Observable.Observable3();
-        this.onDownloadEnd = new Observable.Observable6();
-        this.onDownloadStopped = new Observable.Observable6();
-        this.onDownloadError = new Observable.Observable3();
+        this.onDownloadStarted = new Observable();
+        this.onDownloadProgress = new Observable();
+        this.onDownloadEnd = new Observable();
+        this.onDownloadStopped = new Observable();
+        this.onDownloadError = new Observable();
     }
     extend(CacheApi, NativeApi);
 
