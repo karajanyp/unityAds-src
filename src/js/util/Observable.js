@@ -36,8 +36,9 @@ CMD.register("util.Observable", function(){
      * ·¢²¼
      */
     Observable.prototype.trigger = function () {
+        var args = arguments;
         this._observers.forEach(function (fn) {
-            return fn.apply(undefined, arguments);
+            return fn.apply(undefined, args);
         });
     };
 
