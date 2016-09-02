@@ -2,9 +2,12 @@
  * Created by duo on 2016/8/31.
  */
 
-CMD.register("device.DeviceInfo", function (require, t, n, i, r) {
+CMD.register("device.DeviceInfo", function (require) {
     var Model = require("model.Model");
     var Platform = require("platform.Platform");
+    var AndroidStorageType = require("device.AndroidStorageType");
+    var StreamType = require("device.StreamType");
+
 
     function DeviceInfo(nativeBridge) {
         Model.call(this);
@@ -110,13 +113,13 @@ CMD.register("device.DeviceInfo", function (require, t, n, i, r) {
                 return e.handleDeviceInfoError(t);
             }));
 
-            t.push(this._nativeBridge.DeviceInfo.Android.getTotalSpace(r.StorageType.INTERNAL).then(function (t) {
+            t.push(this._nativeBridge.DeviceInfo.Android.getTotalSpace(AndroidStorageType.INTERNAL).then(function (t) {
                 return e._totalInternalSpace = t;
             })["catch"](function (t) {
                 return e.handleDeviceInfoError(t);
             }));
 
-            t.push(this._nativeBridge.DeviceInfo.Android.getTotalSpace(r.StorageType.EXTERNAL).then(function (t) {
+            t.push(this._nativeBridge.DeviceInfo.Android.getTotalSpace(AndroidStorageType.EXTERNAL).then(function (t) {
                 return e._totalExternalSpace = t;
             })["catch"](function (t) {
                 return e.handleDeviceInfoError(t);
@@ -232,7 +235,7 @@ CMD.register("device.DeviceInfo", function (require, t, n, i, r) {
                 return me._freeInternalSpace;
             });
         }else if(this._nativeBridge.getPlatform() === Platform.ANDROID){
-            return this._nativeBridge.DeviceInfo.Android.getFreeSpace(r.StorageType.INTERNAL).then(function (t) {
+            return this._nativeBridge.DeviceInfo.Android.getFreeSpace(AndroidStorageType.INTERNAL).then(function (t) {
                 me._freeInternalSpace = t;
                 return me._freeInternalSpace;
             });
@@ -243,7 +246,7 @@ CMD.register("device.DeviceInfo", function (require, t, n, i, r) {
     DeviceInfo.prototype.getFreeSpaceExternal = function () {
         var me = this;
         if(this._nativeBridge.getPlatform() === Platform.ANDROID){
-            return this._nativeBridge.DeviceInfo.Android.getFreeSpace(r.StorageType.EXTERNAL).then(function (t) {
+            return this._nativeBridge.DeviceInfo.Android.getFreeSpace(AndroidStorageType.EXTERNAL).then(function (t) {
                 me._freeExternalSpace = t;
                 return me._freeExternalSpace;
             })
@@ -300,7 +303,7 @@ CMD.register("device.DeviceInfo", function (require, t, n, i, r) {
                 return me._volume;
             });
         }else if(this._nativeBridge.getPlatform() === Platform.ANDROID){
-            return this._nativeBridge.DeviceInfo.Android.getDeviceVolume(t.StreamType.STREAM_SYSTEM).then(function (t) {
+            return this._nativeBridge.DeviceInfo.Android.getDeviceVolume(StreamType.STREAM_SYSTEM).then(function (t) {
                 me._volume = t;
                 return me._volume;
             });

@@ -6,7 +6,6 @@ CMD.register("util.Observable", function(){
     function Observable() {
         this._observers = [];
     }
-
     /**
      * Ìí¼Ó¶©ÔÄÕß
      * @param fn

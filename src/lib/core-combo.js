@@ -661,13 +661,13 @@ Array.prototype.forEach || (Array.prototype.forEach = function (fn, context) {
  * Created by duo on 2016/9/1.
  */
 CMD.register("adunit.AbstractAdUnit", function (require) {
-    var Observable = require("util.observable");
+    var Observable = require("util.Observable");
     var FinishState = require("FinishState");
 
     function AbstractAdUnit(nativeBridge, placement, campaign) {
-        this.onStart = new Observable.Observable0();
-        this.onNewAdRequestAllowed = new Observable.Observable0();
-        this.onClose = new Observable.Observable0();
+        this.onStart = new Observable();
+        this.onNewAdRequestAllowed = new Observable();
+        this.onClose = new Observable();
         this._showing = false;
         this._nativeBridge = nativeBridge;
         this._placement = placement;
@@ -1472,7 +1472,7 @@ CMD.register("adunit.view.View", function (require) {
  */
 CMD.register("adunit.view.Privacy", function (require) {
     var View = require("adunit.view.View");
-    var Observable = require("util.observable");
+    var Observable = require("util.Observable");
     var Template = require("adunit.view.util.Template");
 
     var tpl = '' +
@@ -1495,8 +1495,8 @@ CMD.register("adunit.view.Privacy", function (require) {
     function Privacy(coppaCompliant) {
         var me = this;
         View.call(this, "privacy");
-        this.onPrivacy = new Observable.Observable1();
-        this.onClose = new Observable.Observable0();
+        this.onPrivacy = new Observable();
+        this.onClose = new Observable();
         this._template = new Template(tpl);
         this._templateData = {
             isCoppaCompliant: coppaCompliant
@@ -1532,7 +1532,7 @@ CMD.register("adunit.view.Privacy", function (require) {
 CMD.register("adunit.view.Overlay", function (require) {
     var View = require("adunit.view.View");
     var Template = require("adunit.view.util.Template");
-    var Observable = require("util.observable");
+    var Observable = require("util.Observable");
 
     var tpl = '<div class="skip-button">You can skip this video in <span class="skip-duration">0</span> seconds</div>\n' +
         '<div class="buffering-spinner">\n' +
@@ -1550,9 +1550,9 @@ CMD.register("adunit.view.Overlay", function (require) {
     function Overlay(muted) {
         var me = this;
         View.call(this, "overlay");
-        this.onSkip = new Observable.Observable1();
-        this.onMute = new Observable.Observable1();
-        this.onCallButton = new Observable.Observable1();
+        this.onSkip = new Observable();
+        this.onMute = new Observable();
+        this.onCallButton = new Observable();
         this._spinnerEnabled = false;
         this._skipVisible = false;
         this._videoDurationEnabled = false;
@@ -1698,7 +1698,7 @@ CMD.register("adunit.view.EndScreen", function (require) {
     var View = require("adunit.view.View");
     var Privacy = require("adunit.view.Privacy");
     var Template = require("adunit.view.util.Template");
-    var Observable = require("util.observable");
+    var Observable = require("util.Observable");
 
     var tpl = '<div class="btn-close-region">' +
         '   <a class="btn-close">' +
@@ -1713,7 +1713,8 @@ CMD.register("adunit.view.EndScreen", function (require) {
         '       <div class="end-screen-info">\n' +
         '           <div class="game-info">\n' +
         '               <div class="game-icon" style="background-image: url(<%= data.gameIcon %>)"></div>\n' +
-        '               <div class="name-container"><%= data.gameName %></div>\n' +
+        '               <div class="name-container">Test<%= data.gameName %></div>\n' +
+        '               <div class="name-container">OneWay</div>\n' +
         '           </div>\n' +
         '       <div class="store-container">\n' +
         '           <a class="store-button"></a>\n' +
@@ -1735,7 +1736,7 @@ CMD.register("adunit.view.EndScreen", function (require) {
         '       </div>\n' +
         '       <div class="download-container">\n' +
         '           <a class="btn-download">\n' +
-        '               <span class="download-text">Download For Free</span>\n' +
+        '               <span class="download-text">Download It!</span>\n' +
         '           </a>\n' +
         '       </div>\n' +
         '       <div class="store-badge-container">\n' +
@@ -1752,9 +1753,9 @@ CMD.register("adunit.view.EndScreen", function (require) {
     function EndScreen(n, o) {
         var a = this;
         View.call(this, "end-screen");
-        this.onDownload = new Observable.Observable0();
-        this.onPrivacy = new Observable.Observable1();
-        this.onClose = new Observable.Observable0();
+        this.onDownload = new Observable();
+        this.onPrivacy = new Observable();
+        this.onClose = new Observable();
         this._coppaCompliant = o;
         this._gameName = n.getGameName();
         this._template = new Template(tpl);
@@ -2242,7 +2243,7 @@ CMD.register("adunit.vast.VastMediaFile", function () {
 
 CMD.register("api.AndroidAdUnitApi", function (require) {
     var NativeApi = require("api.NativeApi");
-    var Observable = require("util.observable");
+    var Observable = require("util.Observable");
 
     var Event = {};
     Event[Event.ON_START = 0] = "ON_START";
@@ -2257,14 +2258,14 @@ CMD.register("api.AndroidAdUnitApi", function (require) {
     function AndroidAdUnitApi(nativeBridge) {
         NativeApi.call(this, nativeBridge, "AdUnit");
 
-        this.onStart = new Observable.Observable1();
-        this.onCreate = new Observable.Observable1();
-        this.onResume = new Observable.Observable1();
-        this.onDestroy = new Observable.Observable2();
-        this.onPause = new Observable.Observable2();
-        this.onKeyDown = new Observable.Observable5();
-        this.onRestore = new Observable.Observable1();
-        this.onStop = new Observable.Observable1();
+        this.onStart = new Observable();
+        this.onCreate = new Observable();
+        this.onResume = new Observable();
+        this.onDestroy = new Observable();
+        this.onPause = new Observable();
+        this.onKeyDown = new Observable();
+        this.onRestore = new Observable();
+        this.onStop = new Observable();
     }
     extend(AndroidAdUnitApi, NativeApi);
 
@@ -2400,14 +2401,14 @@ CMD.register("api.AndroidDeviceInfoApi", function (require) {
 
 CMD.register("api.AndroidVideoPlayerApi", function (require) {
     var NativeApi = require("api.NativeApi");
-    var Observable = require("util.observable");
+    var Observable = require("util.Observable");
 
     var Event = {};
     Event[Event.INFO = 0] = "INFO";
 
     function AndroidVideoPlayerApi(nativeBridge) {
         NativeApi.call(this, nativeBridge, "VideoPlayer");
-        this.onInfo = new Observable.Observable3();
+        this.onInfo = new Observable();
     }
     extend(AndroidVideoPlayerApi, NativeApi);
 
@@ -2434,17 +2435,17 @@ CMD.register("api.AndroidVideoPlayerApi", function (require) {
 
 CMD.register("api.AppSheetApi", function (require, t, n) {
     var NativeApi = require("api.NativeApi");
-    var Observable = require("util.observable");
+    var Observable = require("util.Observable");
     var AppSheetEvent = require("appsheet.AppSheetEvent");
 
 
     function AppSheetApi(nativeBridge) {
         NativeApi.call(this, nativeBridge, "AppSheet");
 
-        this.onPrepared = new Observable.Observable1();
-        this.onOpen = new Observable.Observable1();
-        this.onClose = new Observable.Observable1();
-        this.onError = new Observable.Observable2();
+        this.onPrepared = new Observable();
+        this.onOpen = new Observable();
+        this.onClose = new Observable();
+        this.onError = new Observable();
     }
     extend(AppSheetApi, NativeApi);
 
@@ -2503,7 +2504,7 @@ CMD.register("api.AppSheetApi", function (require, t, n) {
  */
 CMD.register("api.BroadcastApi", function(require) {
     var NativeApi = require("api.NativeApi");
-    var Observable = require("util.observable");
+    var Observable = require("util.Observable");
 
     var Event = {};
     Event[Event.ACTION = 0] = "ACTION";
@@ -2511,7 +2512,7 @@ CMD.register("api.BroadcastApi", function(require) {
 
     function BroadcastApi(nativeBridge) {
         NativeApi.call(this, nativeBridge, "Broadcast");
-        this.onBroadcastAction = new Observable.Observable4();
+        this.onBroadcastAction = new Observable();
     }
     extend(BroadcastApi, NativeApi);
     BroadcastApi.prototype.addBroadcastListener = function (e, t) {
@@ -2544,20 +2545,20 @@ CMD.register("api.BroadcastApi", function(require) {
 CMD.register("api.CacheApi", function (require) {
     var NativeApi = require("api.NativeApi");
     var CacheEvent = require("cache.CacheEvent");
-    var Observable = require("util.observable");
+    var Observable = require("util.Observable");
 
     function CacheApi(nativeBridge) {
         NativeApi.call(this, nativeBridge, "Cache");
-        this.onDownloadStarted = new Observable.Observable5();
-        this.onDownloadProgress = new Observable.Observable3();
-        this.onDownloadEnd = new Observable.Observable6();
-        this.onDownloadStopped = new Observable.Observable6();
-        this.onDownloadError = new Observable.Observable3();
+        this.onDownloadStarted = new Observable();
+        this.onDownloadProgress = new Observable();
+        this.onDownloadEnd = new Observable();
+        this.onDownloadStopped = new Observable();
+        this.onDownloadError = new Observable();
     }
     extend(CacheApi, NativeApi);
 
-    CacheApi.prototype.download = function (e, t) {
-        return this._nativeBridge.invoke(this._apiClass, "download", [e, t]);
+    CacheApi.prototype.download = function (fileUrl, fileId) {
+        return this._nativeBridge.invoke(this._apiClass, "download", [fileUrl, fileId]);
     };
     CacheApi.prototype.stop = function () {
         return this._nativeBridge.invoke(this._apiClass, "stop");
@@ -2577,8 +2578,8 @@ CMD.register("api.CacheApi", function (require) {
     CacheApi.prototype.getHash = function (e) {
         return this._nativeBridge.invoke(this._apiClass, "getHash", [e]);
     };
-    CacheApi.prototype.deleteFile = function (e) {
-        return this._nativeBridge.invoke(this._apiClass, "deleteFile", [e]);
+    CacheApi.prototype.deleteFile = function (file) {
+        return this._nativeBridge.invoke(this._apiClass, "deleteFile", [file]);
     };
     CacheApi.prototype.setProgressInterval = function (e) {
         return this._nativeBridge.invoke(this._apiClass, "setProgressInterval", [e]);
@@ -2632,7 +2633,7 @@ CMD.register("api.CacheApi", function (require) {
  */
 CMD.register("api.ConnectivityApi", function(require) {
     var NativeApi = require("api.NativeApi");
-    var Observable = require("util.observable");
+    var Observable = require("util.Observable");
 
     var Event = {};
     Event[Event.CONNECTED = 0] = "CONNECTED";
@@ -2641,8 +2642,8 @@ CMD.register("api.ConnectivityApi", function(require) {
 
     function ConnectivityApi(nativeBridge) {
         NativeApi.call(this, nativeBridge, "Connectivity");
-        this.onConnected = new Observable.Observable2();
-        this.onDisconnected = new Observable.Observable0();
+        this.onConnected = new Observable();
+        this.onDisconnected = new Observable();
     }
     extend(ConnectivityApi, NativeApi);
 
@@ -2776,7 +2777,7 @@ CMD.register("api.IntentApi", function (require) {
 
 CMD.register("api.IosAdUnitApi", function (require) {
     var NativeApi = require("api.NativeApi");
-    var Observable = require("util.observable");
+    var Observable = require("util.Observable");
 
     var Event = {};
     Event[Event.VIEW_CONTROLLER_INIT = 0] = "VIEW_CONTROLLER_INIT";
@@ -2789,12 +2790,12 @@ CMD.register("api.IosAdUnitApi", function (require) {
     function IosAdUnitApi(nativeBridge) {
         NativeApi.call(this, nativeBridge, "AdUnit");
 
-        this.onViewControllerInit = new Observable.Observable0();
-        this.onViewControllerDidLoad = new Observable.Observable0();
-        this.onViewControllerDidAppear = new Observable.Observable0();
-        this.onViewControllerWillDisappear = new Observable.Observable0();
-        this.onViewControllerDidDisappear = new Observable.Observable0();
-        this.onViewControllerDidReceiveMemoryWarning = new Observable.Observable0();
+        this.onViewControllerInit = new Observable();
+        this.onViewControllerDidLoad = new Observable();
+        this.onViewControllerDidAppear = new Observable();
+        this.onViewControllerWillDisappear = new Observable();
+        this.onViewControllerDidDisappear = new Observable();
+        this.onViewControllerDidReceiveMemoryWarning = new Observable();
     }
     extend(IosAdUnitApi, NativeApi);
 
@@ -2904,7 +2905,7 @@ CMD.register("api.IosDeviceInfoApi", function (require) {
  */
 CMD.register("api.IosVideoPlayerApi", function (require) {
     var NativeApi = require("api.NativeApi");
-    var Observable = require("util.observable");
+    var Observable = require("util.Observable");
 
     var Event = {};
     Event[Event.LIKELY_TO_KEEP_UP = 0] = "LIKELY_TO_KEEP_UP";
@@ -2913,9 +2914,9 @@ CMD.register("api.IosVideoPlayerApi", function (require) {
 
     function IosVideoPlayerApi(nativeBridge) {
         NativeApi.call(this, nativeBridge, "VideoPlayer");
-        this.onLikelyToKeepUp = new Observable.Observable2();
-        this.onBufferEmpty = new Observable.Observable2();
-        this.onBufferFull = new Observable.Observable2();
+        this.onLikelyToKeepUp = new Observable();
+        this.onBufferEmpty = new Observable();
+        this.onBufferFull = new Observable();
     }
     extend(IosVideoPlayerApi, NativeApi);
 
@@ -2989,14 +2990,14 @@ CMD.register("api.NativeApi", function() {
 
 CMD.register("api.NotificationApi", function (require) {
     var NativeApi = require("api.NativeApi");
-    var Observable = require("util.observable");
+    var Observable = require("util.Observable");
 
     var Event = {};
     Event[Event.ACTION = 0] = "ACTION";
 
     function NotificationApi(nativeBridge) {
         NativeApi.call(this, nativeBridge, "Notification");
-        this.onNotification = new Observable.Observable2();
+        this.onNotification = new Observable();
     }
     extend(NotificationApi, NativeApi);
 
@@ -3056,12 +3057,12 @@ CMD.register("api.RequestApi", function (require) {
     var Platform = require("platform.Platform");
     var NativeApi = require("api.NativeApi");
     var RequestEvent = require("request.RequestEvent");
-    var Observable = require("util.observable");
+    var Observable = require("util.Observable");
 
     function RequestApi(nativeBridge) {
         NativeApi.call(this, nativeBridge, "Request");
-        this.onComplete = new Observable.Observable5();
-        this.onFailed = new Observable.Observable3();
+        this.onComplete = new Observable();
+        this.onFailed = new Observable();
     }
     extend(RequestApi, NativeApi);
 
@@ -3115,12 +3116,12 @@ CMD.register("api.RequestApi", function (require) {
 CMD.register("api.ResolveApi", function (require, t, n) {
     var NativeApi = require("api.NativeApi");
     var ResolveEvent = require("resolve.ResolveEvent");
-    var Observable = require("util.observable");
+    var Observable = require("util.Observable");
 
     function ResolveApi(nativeBridge) {
         NativeApi.call(this, nativeBridge, "Resolve");
-        this.onComplete = new Observable.Observable3();
-        this.onFailed = new Observable.Observable4();
+        this.onComplete = new Observable();
+        this.onFailed = new Observable();
     }
     extend(ResolveApi, NativeApi);
 
@@ -3219,8 +3220,16 @@ CMD.register("api.StorageApi", function (require) {
     StorageApi.prototype.clear = function (e) {
         return this._nativeBridge.invoke(this._apiClass, "clear", [StorageType[e]]);
     };
-    StorageApi.prototype.getKeys = function (e, t, i) {
-        return this._nativeBridge.invoke(this._apiClass, "getKeys", [StorageType[e], t, i]);
+
+    /**
+     *
+     * @param storageType
+     * @param category
+     * @param recursive
+     * @return keys {Array}
+     */
+    StorageApi.prototype.getKeys = function (storageType, category, recursive) {
+        return this._nativeBridge.invoke(this._apiClass, "getKeys", [StorageType[storageType], category, recursive]);
     };
     StorageApi.prototype.handleEvent = function (e, t) {
         switch (e) {
@@ -3255,7 +3264,7 @@ CMD.register("api.VideoPlayerApi", function (require) {
     var NativeApi =             require("api.NativeApi");
     var IosVideoPlayerApi =     require("api.IosVideoPlayerApi");
     var AndroidVideoPlayerApi = require("api.AndroidVideoPlayerApi");
-    var Observable =            require("util.observable");
+    var Observable =            require("util.Observable");
     var Platform =              require("platform.Platform");
 
     var Event = {};
@@ -3274,14 +3283,14 @@ CMD.register("api.VideoPlayerApi", function (require) {
 
     function VideoPlayerApi(nativeBridge) {
         NativeApi.call(this, nativeBridge, "VideoPlayer");
-        this.onError = new Observable.Observable3();
-        this.onProgress = new Observable.Observable1();
-        this.onCompleted = new Observable.Observable1();
-        this.onPrepared = new Observable.Observable4();
-        this.onPlay = new Observable.Observable1();
-        this.onPause = new Observable.Observable1();
-        this.onSeek = new Observable.Observable1();
-        this.onStop = new Observable.Observable1();
+        this.onError = new Observable();
+        this.onProgress = new Observable();
+        this.onCompleted = new Observable();
+        this.onPrepared = new Observable();
+        this.onPlay = new Observable();
+        this.onPause = new Observable();
+        this.onSeek = new Observable();
+        this.onStop = new Observable();
 
         if(nativeBridge.getPlatform() === Platform.IOS){
             this.Ios = new IosVideoPlayerApi(nativeBridge);
@@ -3450,20 +3459,20 @@ CMD.register("cache.CacheManager", function (require) {
             return me.onNetworkConnected();
         });
         this._nativeBridge.Cache.setProgressInterval(500);
-        this._nativeBridge.Cache.onDownloadStarted.subscribe(function (e, t, i, r, o) {
-            return me.onDownloadStarted(e, t, i, r, o);
+        this._nativeBridge.Cache.onDownloadStarted.subscribe(function (fileUrl, fileSize, totalSize, responseCode, headers) {
+            return me.onDownloadStarted(fileUrl, fileSize, totalSize, responseCode, headers);
         });
-        this._nativeBridge.Cache.onDownloadProgress.subscribe(function (e, t, i) {
-            return me.onDownloadProgress(e, t, i);
+        this._nativeBridge.Cache.onDownloadProgress.subscribe(function (fileUrl, fileSize, totalSize) {
+            return me.onDownloadProgress(fileUrl, fileSize, totalSize);
         });
-        this._nativeBridge.Cache.onDownloadEnd.subscribe(function (e, t, i, r, o, a) {
-            return me.onDownloadEnd(e, t, i, r, o, a);
+        this._nativeBridge.Cache.onDownloadEnd.subscribe(function (fileUrl, fileSize, totalSize, duration, responseCode, headers) {
+            return me.onDownloadEnd(fileUrl, fileSize, totalSize, duration, responseCode, headers);
         });
-        this._nativeBridge.Cache.onDownloadStopped.subscribe(function (e, t, i, r, o, a) {
-            return me.onDownloadStopped(e, t, i, r, o, a);
+        this._nativeBridge.Cache.onDownloadStopped.subscribe(function (fileUrl, fileSize, totalSize, duration, responseCode, headers) {
+            return me.onDownloadStopped(fileUrl, fileSize, totalSize, duration, responseCode, headers);
         });
-        this._nativeBridge.Cache.onDownloadError.subscribe(function (e, t, i) {
-            return me.onDownloadError(e, t, i);
+        this._nativeBridge.Cache.onDownloadError.subscribe(function (cacheError, fileUrl, i) {
+            return me.onDownloadError(cacheError, fileUrl, i);
         });
     }
     CacheManager.getDefaultCacheOptions = function () {
@@ -3471,178 +3480,244 @@ CMD.register("cache.CacheManager", function (require) {
             retries: 0
         };
     };
-    CacheManager.prototype.cache = function (n, i) {
+    CacheManager.prototype.cache = function (fileUrl, options) {
         var me = this;
-        "undefined" == typeof i && (i = CacheManager.getDefaultCacheOptions());
-        return this._nativeBridge.Cache.isCaching().then(function (e) {
-            return e ? Promise.reject(CacheError.FILE_ALREADY_CACHING) : Promise.all([me.shouldCache(n), me.getFileId(n)]).then(function (e) {
-                var t = e[0], a = e[1];
-                if (!t) return Promise.resolve([CacheStatus.OK, a]);
-                var s = me.registerCallback(n, a, i);
-                me.downloadFile(n, a);
-                return s;
-            });
+        if("undefined" == typeof options){
+            options = CacheManager.getDefaultCacheOptions();
+        }
+        return this._nativeBridge.Cache.isCaching().then(function (isCaching) {
+            if(isCaching){
+                return Promise.reject(CacheError.FILE_ALREADY_CACHING);
+            }else{
+                return Promise.all([me.shouldCache(fileUrl), me.getFileId(fileUrl)]).then(function (result) {
+                    var shouldCache = result[0],
+                        fileId = result[1];
+
+                    if (!shouldCache){
+                        return Promise.resolve([CacheStatus.OK, fileId]);
+                    }
+                    var promise = me.registerCallback(fileUrl, fileId, options);
+                    me.downloadFile(fileUrl, fileId);
+                    return promise;
+                });
+            }
         });
     };
     CacheManager.prototype.stop = function () {
-        var e, t = false;
-        for (e in this._callbacks) if (this._callbacks.hasOwnProperty(e)) {
-            var n = this._callbacks[e];
-            n.networkRetry ? (n.reject([CacheStatus.STOPPED, n.fileId]), delete this._callbacks[e]) : t = !0;
+        var fileUrl, canStop = false;
+        for (fileUrl in this._callbacks){
+            if (this._callbacks.hasOwnProperty(fileUrl)) {
+                var callbackConfig = this._callbacks[fileUrl];
+                if(callbackConfig.networkRetry){
+                    callbackConfig.reject([CacheStatus.STOPPED, callbackConfig.fileId]);
+                    delete this._callbacks[fileUrl];
+                }else{
+                    canStop = true;
+                }
+            }
         }
-        t && this._nativeBridge.Cache.stop();
+        canStop && this._nativeBridge.Cache.stop();
     };
+
+    /**
+     * 删除过期(21天前)的缓存，并保证缓存大小不超过512Kb
+     * @returns {Promise}
+     */
     CacheManager.prototype.cleanCache = function () {
-        var e = this;
-        return this._nativeBridge.Cache.getFiles().then(function (t) {
-            if (!t || !t.length) return Promise.resolve();
-            var i = new Date().getTime() - 18144e5, r = 52428800, o = [], a = 0;
-            t.sort(function (e, t) {
-                return t.mtime - e.mtime;
-            });
-            for (var s = 0; s < t.length; s++) {
-                var c = t[s];
-                a += c.size;
-                (c.mtime < i || a > r) && o.push(c.id);
+        var me = this;
+        return this._nativeBridge.Cache.getFiles().then(function (files) {
+            // files: [{id: "fileId", found: boolean, mtime: Number, size: Number}]
+            if (!files || !files.length){
+                return Promise.resolve();
             }
-            if (0 === o.length) return Promise.resolve();
-            e._nativeBridge.Sdk.logInfo("Unity Ads cache: Deleting " + o.length + " old files");
-            var u = [];
-            o.map(function (t) {
-                u.push(e._nativeBridge.Storage["delete"](StorageType.PRIVATE, "cache." + t)),
-                    u.push(e._nativeBridge.Cache.deleteFile(t));
+            var fromTime = new Date().getTime() - 18144e5,
+                maxSize = 52428800,
+                oldFiles = [],
+                totalSize = 0;
+
+            files.sort(function (file1, file2) {
+                return file2.mtime - file1.mtime;
             });
-            u.push(e._nativeBridge.Storage.write(StorageType.PRIVATE))
-            return Promise.all(u);
+            for (var i = 0; i < files.length; i++) {
+                var file = files[i];
+                totalSize += file.size;
+                if(file.mtime < fromTime || totalSize > maxSize){
+                    oldFiles.push(file.id);
+                }
+            }
+            if (0 === oldFiles.length){
+                return Promise.resolve();
+            }
+            me._nativeBridge.Sdk.logInfo("Unity Ads cache: Deleting " + oldFiles.length + " old files");
+            var tasks = [];
+            oldFiles.map(function (file) {
+                tasks.push(me._nativeBridge.Storage["delete"](StorageType.PRIVATE, "cache." + file));
+                tasks.push(me._nativeBridge.Cache.deleteFile(file));
+            });
+            tasks.push(me._nativeBridge.Storage.write(StorageType.PRIVATE));
+            return Promise.all(tasks);
         });
     };
-    CacheManager.prototype.getFileId = function (e) {
-        var t = this;
-        if (e in this._fileIds) return Promise.resolve(this._fileIds[e]);
-        var n, i = e, r = e.split("/");
-        r.length > 1 && (i = r[r.length - 1]);
-        var o = i.split(".");
-        o.length > 1 && (n = o[o.length - 1]);
-        return this._nativeBridge.Cache.getHash(e).then(function (i) {
+    /**
+     * 根据文件路径获取文件id, 如果文件id不存在，则生成文件id并缓存。
+     * 文件id结构：文件路径的哈希码[.文件后缀名]
+     *
+     * @param fileUrl {String} 文件路径
+     * @returns {Promise}
+     */
+    CacheManager.prototype.getFileId = function (fileUrl) {
+        var me = this;
+        if (fileUrl in this._fileIds){
+            return Promise.resolve(this._fileIds[fileUrl]);
+        }
+        var ext, fileName = fileUrl, path = fileUrl.split("/");
+
+        if(path.length > 1){
+            fileName = path[path.length - 1];
+        }
+
+        var o = fileName.split(".");
+        if(o.length > 1){
+            ext = o[o.length - 1];
+        }
+        return this._nativeBridge.Cache.getHash(fileUrl).then(function (hash) {
             var r;
-            return r = n ? t._fileIds[e] = i + "." + n : t._fileIds[e] = i;
+            return r = ext ? me._fileIds[fileUrl] = hash + "." + ext : me._fileIds[fileUrl] = hash;
         });
     };
-    CacheManager.prototype.getFileUrl = function (e) {
-        return this._nativeBridge.Cache.getFilePath(e).then(function (e) {
-            return "file://" + e;
+    //{cacheDirectory}/{cacheFilePrefix} + {fileId};
+    CacheManager.prototype.getFileUrl = function (fileId) {
+        return this._nativeBridge.Cache.getFilePath(fileId).then(function (fileUrl) {
+            return "file://" + fileUrl;
         });
     };
-    CacheManager.prototype.shouldCache = function (e) {
-        var t = this;
-        return this.getFileId(e).then(function (e) {
-            return t._nativeBridge.Cache.getFileInfo(e).then(function (r) {
-                return r.found && r.size > 0 ? t._nativeBridge.Storage.get(StorageType.PRIVATE, "cache." + e).then(function (e) {
-                    var t = JsonParser.parse(e);
-                    return !t.fullyDownloaded;
-                }) : !0;
+    CacheManager.prototype.shouldCache = function (fileUrl) {
+        var me = this;
+        return this.getFileId(fileUrl).then(function (fileId) {
+            return me._nativeBridge.Cache.getFileInfo(fileId).then(function (fileInfo) {
+                if(fileInfo.found && fileInfo.size > 0){
+                    return me._nativeBridge.Storage.get(StorageType.PRIVATE, "cache." + fileId).then(function (cacheResponseJsonText) {
+                        var cacheResponse = JsonParser.parse(cacheResponseJsonText);
+                        return !cacheResponse.fullyDownloaded;
+                    })
+                }else{
+                    return true;
+                }
             });
         });
     };
-    CacheManager.prototype.downloadFile = function (e, n) {
-        var i = this;
-        this._nativeBridge.Cache.download(e, n)["catch"](function (r) {
-            var o = i._callbacks[e];
-            if (o) switch (r) {
-                case CacheError[CacheError.FILE_ALREADY_CACHING]:
-                    return i._nativeBridge.Sdk.logError("Unity Ads cache error: attempted to add second download from " + e + " to " + n),
-                        void o.reject(r);
+    CacheManager.prototype.downloadFile = function (fileUrl, fileId) {
+        var me = this;
+        this._nativeBridge.Cache.download(fileUrl, fileId)["catch"](function (errorState) {
+            var callbackConfig = me._callbacks[fileUrl];
+            if (callbackConfig) {
+                switch (errorState) {
+                    case CacheError[CacheError.FILE_ALREADY_CACHING]:
+                        me._nativeBridge.Sdk.logError("Unity Ads cache error: attempted to add second download from " + fileUrl + " to " + fileId);
+                        callbackConfig.reject(errorState);
+                        return;
 
-                case CacheError[CacheError.NO_INTERNET]:
-                    return void i.handleRetry(o, e, CacheError[CacheError.NO_INTERNET]);
+                    case CacheError[CacheError.NO_INTERNET]:
+                        me.handleRetry(callbackConfig, fileUrl, CacheError[CacheError.NO_INTERNET]);
+                        return;
 
-                default:
-                    return void o.reject(r);
+                    default:
+                        callbackConfig.reject(errorState);
+                        return;
+                }
             }
         });
     };
-    CacheManager.prototype.registerCallback = function (e, t, n) {
-        var i = this;
-        return new Promise(function (r, o) {
-            var a = {
-                fileId: t,
-                networkRetry: !1,
+    CacheManager.prototype.registerCallback = function (fileUrl, fileId, options) {
+        var me = this;
+        return new Promise(function (resolve, reject) {
+            var callbackConfig = {
+                fileId: fileId,
+                networkRetry: false,
                 retryCount: 0,
-                resolve: r,
-                reject: o,
-                options: n
+                resolve: resolve,
+                reject: reject,
+                options: options
             };
-            i._callbacks[e] = a;
+            me._callbacks[fileUrl] = callbackConfig;
         });
     };
-    CacheManager.prototype.createCacheResponse = function (e, t, n, i, r, o, a) {
+    CacheManager.prototype.createCacheResponse = function (fullyDownloaded, url, size, totalSize, duration, responseCode, headers) {
         return {
-            fullyDownloaded: e,
-            url: t,
-            size: n,
-            totalSize: i,
-            duration: r,
-            responseCode: o,
-            headers: a
+            fullyDownloaded: fullyDownloaded,
+            url: url,
+            size: size,
+            totalSize: totalSize,
+            duration: duration,
+            responseCode: responseCode,
+            headers: headers
         };
     };
-    CacheManager.prototype.writeCacheResponse = function (e, t) {
-        this._nativeBridge.Storage.set(StorageType.PRIVATE, "cache." + this._fileIds[e], JSON.stringify(t));
+    /**
+     * 将文件缓存信息写入本地存储中
+     * @param fileUrl       {String} 文件路径
+     * @param cacheResponse {Object} 文件缓存信息
+     */
+    CacheManager.prototype.writeCacheResponse = function (fileUrl, cacheResponse) {
+        this._nativeBridge.Storage.set(StorageType.PRIVATE, "cache." + this._fileIds[fileUrl], JSON.stringify(cacheResponse));
         this._nativeBridge.Storage.write(StorageType.PRIVATE);
     };
-    CacheManager.prototype.onDownloadStarted = function (e, t, n, i, r) {
-        if(0 === t) {
-            this.writeCacheResponse(e, this.createCacheResponse(false, e, t, n, 0, i, r));
+    CacheManager.prototype.onDownloadStarted = function (fileUrl, fileSize, totalSize, responseCode, headers) {
+        if(0 === fileSize) {
+            this.writeCacheResponse(fileUrl, this.createCacheResponse(false, fileUrl, fileSize, totalSize, 0, responseCode, headers));
         }
     };
-    CacheManager.prototype.onDownloadProgress = function (e, t, n) {
-        this._nativeBridge.Sdk.logDebug('Cache progress for "' + e + '": ' + Math.round(t / n * 100) + "%");
+    CacheManager.prototype.onDownloadProgress = function (fileUrl, fileSize, totalSize) {
+        this._nativeBridge.Sdk.logDebug('Cache progress for "' + fileUrl + '": ' + Math.round(fileSize / totalSize * 100) + "%");
     };
-    CacheManager.prototype.onDownloadEnd = function (e, t, n, i, o, a) {
-        var s = this._callbacks[e];
-        if(s){
-            this.writeCacheResponse(e, this.createCacheResponse(!0, e, t, n, i, o, a));
-            s.resolve([CacheStatus.OK, s.fileId]), delete this._callbacks[e];
+    CacheManager.prototype.onDownloadEnd = function (fileUrl, fileSize, totalSize, duration, responseCode, headers) {
+        var callbackConfig = this._callbacks[fileUrl];
+        if(callbackConfig){
+            this.writeCacheResponse(fileUrl, this.createCacheResponse(true, fileUrl, fileSize, totalSize, duration, responseCode, headers));
+            callbackConfig.resolve([CacheStatus.OK, callbackConfig.fileId]);
+            delete this._callbacks[fileUrl];
         }
     };
-    CacheManager.prototype.onDownloadStopped = function (e, t, n, i, o, a) {
-        var s = this._callbacks[e];
-        if(s){
-            this.writeCacheResponse(e, this.createCacheResponse(!1, e, t, n, i, o, a));
-            s.resolve([CacheStatus.STOPPED, s.fileId]);
-            delete this._callbacks[e];
+    CacheManager.prototype.onDownloadStopped = function (fileUrl, fileSize, totalSize, duration, responseCode, headers) {
+        var callbackConfig = this._callbacks[fileUrl];
+        if(callbackConfig){
+            this.writeCacheResponse(fileUrl, this.createCacheResponse(false, fileUrl, fileSize, totalSize, duration, responseCode, headers));
+            callbackConfig.resolve([CacheStatus.STOPPED, callbackConfig.fileId]);
+            delete this._callbacks[fileUrl];
         }
     };
-    CacheManager.prototype.onDownloadError = function (e, n, i) {
-        var r = this._callbacks[n];
-        if (r) switch (e) {
-            case CacheError[CacheError.FILE_IO_ERROR]:
-                this.handleRetry(r, n, e);
-                return;
+    CacheManager.prototype.onDownloadError = function (cacheError, fileUrl, i) {
+        var callbackConfig = this._callbacks[fileUrl];
+        if (callbackConfig) {
+            switch (cacheError) {
+                case CacheError[CacheError.FILE_IO_ERROR]:
+                    this.handleRetry(callbackConfig, fileUrl, cacheError);
+                    return;
 
-            default:
-                r.reject(e);
-                delete this._callbacks[n];
-                return
+                default:
+                    callbackConfig.reject(cacheError);
+                    delete this._callbacks[fileUrl];
+                    return
+            }
         }
     };
-    CacheManager.prototype.handleRetry = function (e, t, n) {
-        if(e.retryCount < e.options.retries){
-            e.retryCount++;
-            e.networkRetry = true;
+    CacheManager.prototype.handleRetry = function (callbackConfig, fileUrl, errorState) {
+        if(callbackConfig.retryCount < callbackConfig.options.retries){
+            callbackConfig.retryCount++;
+            callbackConfig.networkRetry = true;
         }else{
-            e.reject(n);
-            delete this._callbacks[t];
+            callbackConfig.reject(errorState);
+            delete this._callbacks[fileUrl];
         }
     };
     CacheManager.prototype.onNetworkConnected = function () {
-        var e;
-        for (e in this._callbacks){
-            if (this._callbacks.hasOwnProperty(e)) {
-                var t = this._callbacks[e];
-                if(t.networkRetry){
-                    t.networkRetry = false;
-                    this.downloadFile(e, t.fileId);
+        var fileUrl;
+        for (fileUrl in this._callbacks){
+            if (this._callbacks.hasOwnProperty(fileUrl)) {
+                var callbackConfig = this._callbacks[fileUrl];
+                if(callbackConfig.networkRetry){
+                    callbackConfig.networkRetry = false;
+                    this.downloadFile(fileUrl, callbackConfig.fileId);
                 }
             }
         }
@@ -3754,13 +3829,13 @@ CMD.register("campaign.CampaignManager", function (require) {
     var MetaDataManager = require("metadata.MetaDataManager");
     var Platform = require("platform.Platform");
     var Url = require("util.Url");
-    var Observable = require("util.observable");
+    var Observable = require("util.Observable");
 
     function CampaignManager(nativeBridge, request, clientInfo, deviceInfo, vastParser) {
-        this.onCampaign = new Observable.Observable1();
-        this.onVastCampaign = new Observable.Observable1();
-        this.onNoFill = new Observable.Observable1();
-        this.onError = new Observable.Observable1();
+        this.onCampaign = new Observable();
+        this.onVastCampaign = new Observable();
+        this.onNoFill = new Observable();
+        this.onError = new Observable();
         this._nativeBridge = nativeBridge;
         this._request = request;
         this._clientInfo = clientInfo;
@@ -4170,9 +4245,12 @@ CMD.register("device.ClientInfo", function (require, t, n) {
  * Created by duo on 2016/8/31.
  */
 
-CMD.register("device.DeviceInfo", function (require, t, n, i, r) {
+CMD.register("device.DeviceInfo", function (require) {
     var Model = require("model.Model");
     var Platform = require("platform.Platform");
+    var AndroidStorageType = require("device.AndroidStorageType");
+    var StreamType = require("device.StreamType");
+
 
     function DeviceInfo(nativeBridge) {
         Model.call(this);
@@ -4278,13 +4356,13 @@ CMD.register("device.DeviceInfo", function (require, t, n, i, r) {
                 return e.handleDeviceInfoError(t);
             }));
 
-            t.push(this._nativeBridge.DeviceInfo.Android.getTotalSpace(r.StorageType.INTERNAL).then(function (t) {
+            t.push(this._nativeBridge.DeviceInfo.Android.getTotalSpace(AndroidStorageType.INTERNAL).then(function (t) {
                 return e._totalInternalSpace = t;
             })["catch"](function (t) {
                 return e.handleDeviceInfoError(t);
             }));
 
-            t.push(this._nativeBridge.DeviceInfo.Android.getTotalSpace(r.StorageType.EXTERNAL).then(function (t) {
+            t.push(this._nativeBridge.DeviceInfo.Android.getTotalSpace(AndroidStorageType.EXTERNAL).then(function (t) {
                 return e._totalExternalSpace = t;
             })["catch"](function (t) {
                 return e.handleDeviceInfoError(t);
@@ -4400,7 +4478,7 @@ CMD.register("device.DeviceInfo", function (require, t, n, i, r) {
                 return me._freeInternalSpace;
             });
         }else if(this._nativeBridge.getPlatform() === Platform.ANDROID){
-            return this._nativeBridge.DeviceInfo.Android.getFreeSpace(r.StorageType.INTERNAL).then(function (t) {
+            return this._nativeBridge.DeviceInfo.Android.getFreeSpace(AndroidStorageType.INTERNAL).then(function (t) {
                 me._freeInternalSpace = t;
                 return me._freeInternalSpace;
             });
@@ -4411,7 +4489,7 @@ CMD.register("device.DeviceInfo", function (require, t, n, i, r) {
     DeviceInfo.prototype.getFreeSpaceExternal = function () {
         var me = this;
         if(this._nativeBridge.getPlatform() === Platform.ANDROID){
-            return this._nativeBridge.DeviceInfo.Android.getFreeSpace(r.StorageType.EXTERNAL).then(function (t) {
+            return this._nativeBridge.DeviceInfo.Android.getFreeSpace(AndroidStorageType.EXTERNAL).then(function (t) {
                 me._freeExternalSpace = t;
                 return me._freeExternalSpace;
             })
@@ -4468,7 +4546,7 @@ CMD.register("device.DeviceInfo", function (require, t, n, i, r) {
                 return me._volume;
             });
         }else if(this._nativeBridge.getPlatform() === Platform.ANDROID){
-            return this._nativeBridge.DeviceInfo.Android.getDeviceVolume(t.StreamType.STREAM_SYSTEM).then(function (t) {
+            return this._nativeBridge.DeviceInfo.Android.getDeviceVolume(StreamType.STREAM_SYSTEM).then(function (t) {
                 me._volume = t;
                 return me._volume;
             });
@@ -4775,10 +4853,11 @@ CMD.register("event.EventManager", function (require) {
  */
 CMD.register("metadata.AdapterMetaData", function (require) {
     var Model = require("model.Model");
-    function AdapterMetaData(t) {
+
+    function AdapterMetaData(metaData) {
         Model.call(this);
-        this._name = t[0];
-        this._version = t[1];
+        this._name = metaData[0];
+        this._version = metaData[1];
     }
     extend(AdapterMetaData, Model);
 
@@ -4808,10 +4887,11 @@ CMD.register("metadata.AdapterMetaData", function (require) {
  */
 CMD.register("metadata.FrameworkMetaData", function (require) {
     var Model = require("model.Model");
-    function FrameworkMetaData(t) {
+
+    function FrameworkMetaData(metaData) {
         Model.call(this);
-        this._name = t[0];
-        this._version = t[1];
+        this._name = metaData[0];
+        this._version = metaData[1];
     }
     extend(FrameworkMetaData, Model);
 
@@ -4821,6 +4901,7 @@ CMD.register("metadata.FrameworkMetaData", function (require) {
     FrameworkMetaData.getKeys = function () {
         return ["name.value", "version.value"];
     };
+
     FrameworkMetaData.prototype.getName = function () {
         return this._name;
     };
@@ -4841,11 +4922,11 @@ CMD.register("metadata.FrameworkMetaData", function (require) {
 CMD.register("metadata.MediationMetaData", function (require) {
     var Model = require("model.Model");
 
-    function MediationMetaData(t) {
+    function MediationMetaData(metaData) {
         Model.call(this);
-        this._name = t[0];
-        this._version = t[1];
-        this._ordinal = parseInt(t[2], 10);
+        this._name = metaData[0];
+        this._version = metaData[1];
+        this._ordinal = parseInt(metaData[2], 10);
     }
     extend(MediationMetaData, Model);
 
@@ -4855,6 +4936,7 @@ CMD.register("metadata.MediationMetaData", function (require) {
     MediationMetaData.getKeys = function () {
         return ["name.value", "version.value", "ordinal.value"];
     };
+
     MediationMetaData.prototype.getName = function () {
         return this._name;
     };
@@ -4880,9 +4962,9 @@ CMD.register("metadata.MediationMetaData", function (require) {
 CMD.register("metadata.PlayerMetaData", function (require) {
     var Model = require("model.Model");
 
-    function PlayerMetaData(t) {
+    function PlayerMetaData(metaData) {
         Model.call(this);
-        this._serverId = t[0];
+        this._serverId = metaData[0];
     }
     extend(PlayerMetaData, Model);
 
@@ -4892,6 +4974,7 @@ CMD.register("metadata.PlayerMetaData", function (require) {
     PlayerMetaData.getKeys = function () {
         return ["server_id.value"];
     };
+
     PlayerMetaData.prototype.getServerId = function () {
         return this._serverId;
     };
@@ -4915,91 +4998,107 @@ CMD.register("metadata.MetaDataManager", function (require) {
 
     function MetaDataManager() {
     }
-    MetaDataManager.getValues = function (n, i, r) {
-        return MetaDataManager.categoryExists(n, r).then(function (e) {
-            if(e){
-                return Promise.all(i.map(function (e) {
-                    return r.Storage.get(StorageType.PUBLIC, n + "." + e)["catch"](function () {});
+
+    /**
+     * 从本地存储里获取指定类型的多个元数据值。
+     * @param category      {String}        元数据类型
+     * @param keys          {Array}         元数据键值名列表
+     * @param nativeBridge  {NativeBridge}  Native Api
+     * @returns Promise A+  {Promise}       {Array:values | undefined}
+     */
+    MetaDataManager.getValues = function (category, keys, nativeBridge) {
+        return MetaDataManager.categoryExists(category, nativeBridge).then(function (exists) {
+            if(exists){
+                return Promise.all(keys.map(function (key) {
+                    return nativeBridge.Storage.get(StorageType.PUBLIC, category + "." + key)["catch"](function () {});
                 }));
             }else{
                 return Promise.resolve(void 0);
             }
         });
     };
-    MetaDataManager.fetchFrameworkMetaData = function (t, i) {
-        if(void 0 === i){
-            i = true;
+    MetaDataManager.fetchFrameworkMetaData = function (nativeBridge, useCache) {
+        if(void 0 === useCache){
+            useCache = true;
         }
-        return MetaDataManager.fetch(FrameworkMetaData.getCategory(), FrameworkMetaData.getKeys(), t, i).then(function (e) {
-            return Promise.resolve(e);
+        return MetaDataManager.fetch(FrameworkMetaData.getCategory(), FrameworkMetaData.getKeys(), nativeBridge, useCache).then(function (metaData) {
+            return Promise.resolve(metaData);
         });
     };
-    MetaDataManager.fetchAdapterMetaData = function (t, n) {
-        if(void 0 === n){
-            n = true;
+    MetaDataManager.fetchAdapterMetaData = function (nativeBridge, useCache) {
+        if(void 0 === useCache){
+            useCache = true;
         }
-        return MetaDataManager.fetch(AdapterMetaData.getCategory(), AdapterMetaData.getKeys(), t, n).then(function (e) {
-            return Promise.resolve(e);
+        return MetaDataManager.fetch(AdapterMetaData.getCategory(), AdapterMetaData.getKeys(), nativeBridge, useCache).then(function (metaData) {
+            return Promise.resolve(metaData);
         });
     };
-    MetaDataManager.fetchMediationMetaData = function (t, n) {
-        if(void 0 === n){
-            n = true;
+    MetaDataManager.fetchMediationMetaData = function (nativeBridge, useCache) {
+        if(void 0 === useCache){
+            useCache = true;
         }
-        return MetaDataManager.fetch(MediationMetaData.getCategory(), MediationMetaData.getKeys(), t, n).then(function (e) {
-            return Promise.resolve(e);
+        return MetaDataManager.fetch(MediationMetaData.getCategory(), MediationMetaData.getKeys(), nativeBridge, useCache).then(function (metaData) {
+            return Promise.resolve(metaData);
         });
     };
-    MetaDataManager.fetchPlayerMetaData = function (n) {
-        return MetaDataManager.fetch(PlayerMetaData.getCategory(), PlayerMetaData.getKeys(), n, false).then(function (i) {
-            if(null != i){
+    MetaDataManager.fetchPlayerMetaData = function (nativeBridge) {
+        return MetaDataManager.fetch(PlayerMetaData.getCategory(), PlayerMetaData.getKeys(), nativeBridge, false).then(function (metaData) {
+            if(null != metaData){
                 MetaDataManager.caches.player = void 0;
-                return n.Storage["delete"](StorageType.PUBLIC, PlayerMetaData.getCategory()).then(function () {
-                    return i;
+                return nativeBridge.Storage["delete"](StorageType.PUBLIC, PlayerMetaData.getCategory()).then(function () {
+                    return metaData;
                 });
             }else{
-                return Promise.resolve(i);
+                return Promise.resolve(metaData);
             }
         });
     };
-    MetaDataManager.fetch = function (t, n, i, r) {
-        if(void 0 === r ){
-            r = true;
+    /**
+     * 通用接口：获取元数据
+     * @param category      {String}        元数据类型
+     * @param keys          {Array}         元数据键值名列表
+     * @param nativeBridge  {NativeBridge}  Native Api
+     * @param useCache      {Boolean}       是否使用缓存，如果为true, 优先使用缓存数据，并在第一次获取元数据的同时缓存起来。
+     * @returns Promise A+  {Promise}       {MetaData | undefined}
+     */
+    MetaDataManager.fetch = function (category, keys, nativeBridge, useCache) {
+        if(void 0 === useCache ){
+            useCache = true;
         }
-        if(r && MetaDataManager.caches[t]){
-            return Promise.resolve(MetaDataManager.caches[t]);
+        if(useCache && MetaDataManager.caches[category]){
+            return Promise.resolve(MetaDataManager.caches[category]);
         }else{
-            return MetaDataManager.getValues(t, n, i).then(function (n) {
-                return MetaDataManager.createAndCache(t, n, r);
+            return MetaDataManager.getValues(category, keys, nativeBridge).then(function (values) {
+                return MetaDataManager.createAndCache(category, values, useCache);
             });
         }
     };
-    MetaDataManager.createAndCache = function (t, n, i) {
-        if(void 0 === i){
-            i = true
+    MetaDataManager.createAndCache = function (category, values, useCache) {
+        if(void 0 === useCache){
+            useCache = true
         }
-        if(void 0 !== n){
-            if(i && !MetaDataManager.caches[t] ){
-                MetaDataManager.caches[t] = MetaDataManager.createByCategory(t, n);
+        if(void 0 !== values){
+            if(useCache && !MetaDataManager.caches[category] ){
+                MetaDataManager.caches[category] = MetaDataManager.createByCategory(category, values);
             }
-            return i ? MetaDataManager.caches[t] : MetaDataManager.createByCategory(t, n)
+            return useCache ? MetaDataManager.caches[category] : MetaDataManager.createByCategory(category, values)
         }else{
             return void 0
         }
     };
-    MetaDataManager.createByCategory = function (e, t) {
-        switch (e) {
+    MetaDataManager.createByCategory = function (category, values) {
+        switch (category) {
             case "framework":
-                return new FrameworkMetaData(t);
+                return new FrameworkMetaData(values);
 
             case "adapter":
-                return new AdapterMetaData(t);
+                return new AdapterMetaData(values);
 
             case "mediation":
-                return new MediationMetaData(t);
+                return new MediationMetaData(values);
 
             case "player":
-                return new PlayerMetaData(t);
+                return new PlayerMetaData(values);
 
             default:
                 return null;
@@ -5013,9 +5112,9 @@ CMD.register("metadata.MetaDataManager", function (require) {
             player: void 0
         };
     };
-    MetaDataManager.categoryExists = function (e, n) {
-        return n.Storage.getKeys(StorageType.PUBLIC, e, false).then(function (e) {
-            return e.length > 0;
+    MetaDataManager.categoryExists = function (category, nativeBridge) {
+        return nativeBridge.Storage.getKeys(StorageType.PUBLIC, category, false).then(function (keys) {
+            return keys.length > 0;
         });
     };
     MetaDataManager.caches = {
@@ -5681,35 +5780,40 @@ CMD.register("storage.StorageType", function () {
 CMD.register("util.Diagnostics", function () {
     function Diagnostics() {
     }
-    Diagnostics.trigger = function (t, n, i, r) {
-        var o = [];
-        o.push({
+    Diagnostics.trigger = function (eventManager, error, clientInfo, deviceInfo) {
+        var infoList = [];
+        infoList.push({
             type: "ads.sdk2.diagnostics",
-            msg: n
+            msg: error
         });
-        return Diagnostics.createCommonObject(i, r).then(function (n) {
-            o.unshift(n);
-            var i = o.map(function (e) {
-                return JSON.stringify(e);
+        return Diagnostics.createCommonObject(clientInfo, deviceInfo).then(function (o) {
+            infoList.unshift(o);
+            var arr = infoList.map(function (info) {
+                return JSON.stringify(info);
             }).join("\n");
-            return t.diagnosticEvent(Diagnostics.DiagnosticsBaseUrl, i);
+            return eventManager.diagnosticEvent(Diagnostics.DiagnosticsBaseUrl, arr);
         });
     };
-    Diagnostics.setTestBaseUrl = function (t) {
-        Diagnostics.DiagnosticsBaseUrl = t + "/v1/events";
-    };
-    Diagnostics.createCommonObject = function (e, t) {
-        var n = {
+    Diagnostics.createCommonObject = function (clientInfo, deviceInfo) {
+        var o = {
             common: {
-                client: e ? e.getDTO() : null,
+                client: clientInfo ? clientInfo.getDTO() : null,
                 device: null
             }
         };
-        return t ? t.getDTO().then(function (e) {
-            return n.device = e, n;
-        })["catch"](function (e) {
-            return n;
-        }) : Promise.resolve(n);
+        if(deviceInfo){
+            return deviceInfo.getDTO().then(function (deviceDto) {
+                o.device = deviceDto;
+                return o;
+            })["catch"](function (e) {
+                return o;
+            });
+        }else{
+            return Promise.resolve(o);
+        }
+    };
+    Diagnostics.setTestBaseUrl = function (baseUrl) {
+        Diagnostics.DiagnosticsBaseUrl = baseUrl + "/v1/events";
     };
     Diagnostics.DiagnosticsBaseUrl = "https://httpkafka.unityads.unity3d.com/v1/events";
     return Diagnostics;
@@ -6963,104 +7067,47 @@ CMD.register("util.JsonParser", function () {
 /**
  * Created by duo on 2016/8/31.
  */
-CMD.register("util.observable", function(require, exports){
+CMD.register("util.Observable", function(){
+
     function Observable() {
         this._observers = [];
     }
-    Observable.prototype.subscribe = function (e) {
-        this._observers.push(e);
-        return e;
+    /**
+     * 添加订阅者
+     * @param fn
+     * @returns {*}
+     */
+    Observable.prototype.subscribe = function (fn) {
+        this._observers.push(fn);
+        return fn;
     };
-    Observable.prototype.unsubscribe = function (e) {
+    /**
+     * 取消指定订阅者，如果不传入参数，则清空所有订阅者
+     * @param fn
+     */
+    Observable.prototype.unsubscribe = function (fn) {
         if(!this._observers.length){
             return;
         }
-        if("undefined" != typeof e ){
-            this._observers = this._observers.filter(function (t) {
-                return t !== e;
+        if("undefined" != typeof fn ){
+            this._observers = this._observers.filter(function (o) {
+                return o !== fn;
             })
         }else{
             this._observers = [];
         }
     };
-
-    function Observable0() {
-        Observable.apply(this, arguments);
-    }
-    extend(Observable0, Observable);
-    Observable0.prototype.trigger = function () {
-        this._observers.forEach(function (e) {
-            return e();
+    /**
+     * 发布
+     */
+    Observable.prototype.trigger = function () {
+        var args = arguments;
+        this._observers.forEach(function (fn) {
+            return fn.apply(undefined, args);
         });
     };
 
-    exports.Observable0 = Observable0;
-
-    function Observable1() {
-        Observable.apply(this, arguments);
-    }
-    extend(Observable1, Observable);
-    Observable1.prototype.trigger = function (e) {
-        this._observers.forEach(function (t) {
-            return t(e);
-        });
-    };
-    exports.Observable1 = Observable1;
-
-    function Observable2() {
-        Observable.apply(this, arguments);
-    }
-    extend(Observable2, Observable);
-    Observable2.prototype.trigger = function (e, t) {
-        this._observers.forEach(function (n) {
-            return n(e, t);
-        });
-    };
-    exports.Observable2 = Observable2;
-
-    function Observable3() {
-        Observable.apply(this, arguments);
-    }
-    extend(Observable3, Observable);
-    Observable3.prototype.trigger = function (e, t, n) {
-        this._observers.forEach(function (i) {
-            return i(e, t, n);
-        });
-    };
-    exports.Observable3 = Observable3;
-
-    function Observable4() {
-        Observable.apply(this, arguments);
-    }
-    extend(Observable4, Observable);
-    Observable4.prototype.trigger = function (e, t, n, i) {
-        this._observers.forEach(function (r) {
-            return r(e, t, n, i);
-        });
-    };
-    exports.Observable4 = Observable4;
-
-    function Observable5() {
-        Observable.apply(this, arguments);
-    }
-    extend(Observable5, Observable);
-    Observable5.prototype.trigger = function (e, t, n, i, r) {
-        this._observers.forEach(function (o) {
-            return o(e, t, n, i, r);
-        });
-    };
-    exports.Observable5 = Observable5;
-
-    function Observable6() {
-        Observable.apply(this, arguments);
-    }
-    extend(Observable6, Observable);
-    Observable6.prototype.trigger = function (e, t, n, i, r, o) {
-        this._observers.forEach(function (a) {
-            return a(e, t, n, i, r, o);
-        });
-    };
-    exports.Observable6 = Observable6;
+    return Observable;
 });
 /**
  * Created by duo on 2016/8/31.
@@ -7345,14 +7392,14 @@ CMD.register("util.VastParser", function (require) {
  * Created by duo on 2016/9/1.
  */
 CMD.register("wakeup.WakeUpManager", function (require) {
-    var Observable = require("util.observable");
+    var Observable = require("util.Observable");
 
     function WakeUpManager(nativeBridge) {
         var me = this;
-        this.onNetworkConnected = new Observable.Observable0();
-        this.onScreenOn = new Observable.Observable0();
-        this.onScreenOff = new Observable.Observable0();
-        this.onAppForeground = new Observable.Observable0();
+        this.onNetworkConnected = new Observable();
+        this.onScreenOn = new Observable();
+        this.onScreenOff = new Observable();
+        this.onAppForeground = new Observable();
         this._screenListener = "screenListener";
         this.ACTION_SCREEN_ON = "android.intent.action.SCREEN_ON";
         this.ACTION_SCREEN_OFF = "android.intent.action.SCREEN_OFF";
@@ -7506,13 +7553,13 @@ CMD.register("webview.WebView", function (require) {
             .then(function () {
                 return ConfigManager.fetch(me._nativeBridge, me._request, me._clientInfo, me._deviceInfo);
             })
-            .then(function (t) {
-                me._configuration = t;
+            .then(function (configuration) {
+                me._configuration = configuration;
                 return me._sessionManager.create();
             })
             .then(function () {
-                var t = me._configuration.getDefaultPlacement();
-                me._nativeBridge.Placement.setDefaultPlacement(t.getId());
+                var placement = me._configuration.getDefaultPlacement();
+                me._nativeBridge.Placement.setDefaultPlacement(placement.getId());
                 me.setPlacementStates(PlacementState.NOT_AVAILABLE);
                 me._campaignManager = new CampaignManager(me._nativeBridge, me._request, me._clientInfo, me._deviceInfo, new VastParser());
                 me._campaignManager.onCampaign.subscribe(function (campaign) {
@@ -7534,31 +7581,32 @@ CMD.register("webview.WebView", function (require) {
                 me._initialized = true;
                 return me._eventManager.sendUnsentSessions();
             })
-            .catch(function (t) {
-                if(t instanceof Error ){
-                    t = {
-                        message: t.message,
-                        name: t.name,
-                        stack: t.stack
+            .catch(function (e) {
+                if(e instanceof Error ){
+                    e = {
+                        message: e.message,
+                        name: e.name,
+                        stack: e.stack
                     };
-                    if( t.message === AdsError[AdsError.INVALID_ARGUMENT] ){
+                    if( e.message === AdsError[AdsError.INVALID_ARGUMENT] ){
                         me._nativeBridge.Listener.sendErrorEvent(AdsError[AdsError.INVALID_ARGUMENT], "Game ID is not valid")
                     }
                 }
 
-                me._nativeBridge.Sdk.logError(JSON.stringify(t));
+                me._nativeBridge.Sdk.logError(JSON.stringify(e));
                 Diagnostics.trigger(
                     me._eventManager,
                     {
                         type: "initialization_error",
-                        error: t
+                        error: e
                     },
-                    me._clientInfo, me._deviceInfo
+                    me._clientInfo,
+                    me._deviceInfo
                 );
             });
     };
 
-    WebView.prototype.show = function (placementId, n, i) {
+    WebView.prototype.show = function (placementId, nativeOptions, i) {
         var me = this;
         i(CallbackStatus.OK);
         if (this._showing) {
@@ -7570,6 +7618,7 @@ CMD.register("webview.WebView", function (require) {
             this.showError(true, placementId, "No such placement: " + placementId);
             return;
         }
+
         if(!this._campaign){
             this.showError(true, placementId, "Campaign not found");
             return;
@@ -7579,14 +7628,21 @@ CMD.register("webview.WebView", function (require) {
             id: parseInt(this._campaign.getAppStoreId(), 10)
         });
         this._showing = true;
-        this.shouldReinitialize().then(function (e) {
-            me._mustReinitialize = e;
+
+        this.shouldReinitialize().then(function (mustReinit) {
+            me._mustReinitialize = mustReinit;
         });
-        this._configuration.getCacheMode() === CacheMode.ALLOWED && this._cacheManager.stop();
-        MetaDataManager.fetchPlayerMetaData(this._nativeBridge).then(function (e) {
-            e && me._sessionManager.setGamerServerId(e.getServerId());
+
+        if(this._configuration.getCacheMode() === CacheMode.ALLOWED){
+            this._cacheManager.stop();
+        }
+
+        MetaDataManager.fetchPlayerMetaData(this._nativeBridge).then(function (playerMetaData) {
+            if(playerMetaData){
+                me._sessionManager.setGamerServerId(playerMetaData.getServerId());
+            }
             me._adUnit = AdUnitFactory.createAdUnit(me._nativeBridge, me._sessionManager, placement, me._campaign, me._configuration);
-            me._adUnit.setNativeOptions(n);
+            me._adUnit.setNativeOptions(nativeOptions);
             me._adUnit.onNewAdRequestAllowed.subscribe(function () {
                 return me.onNewAdRequestAllowed();
             });
@@ -7626,8 +7682,8 @@ CMD.register("webview.WebView", function (require) {
         var me = this;
         this._campaign = campaign;
         var mode = this._configuration.getCacheMode();
-        var cache = function (e) {
-            return me._cacheManager.cache(e, {
+        var cache = function (fileUrl) {
+            return me._cacheManager.cache(fileUrl, {
                 retries: 5
             }).then(function (e) {
                 var n = e[0], i = e[1];
@@ -7868,16 +7924,16 @@ CMD.register("webview.WebView", function (require) {
         return this._request.get(this._clientInfo.getConfigUrl() + "?ts=" + Date.now() + "&sdkVersion=" + this._clientInfo.getSdkVersion());
     };
     WebView.prototype.shouldReinitialize = function () {
-        var e = this;
+        var me = this;
 
-        if(this._clientInfo.getWebviewHash() ){
+        if(this._clientInfo.getWebviewHash()){
             if(Date.now() - this._configJsonCheckedAt <= 9e5 ){
                 return Promise.resolve(false)
             }else{
-                return this.getConfigJson().then(function (t) {
-                    e._configJsonCheckedAt = Date.now();
-                    var n = JsonParser.parse(t.response);
-                    return n.hash !== e._clientInfo.getWebviewHash();
+                return this.getConfigJson().then(function (configJson) {
+                    me._configJsonCheckedAt = Date.now();
+                    var response = JsonParser.parse(configJson.response);
+                    return response.hash !== me._clientInfo.getWebviewHash();
                 })["catch"](function (e) {
                     return false;
                 })

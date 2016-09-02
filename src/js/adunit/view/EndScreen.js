@@ -20,7 +20,8 @@ CMD.register("adunit.view.EndScreen", function (require) {
         '       <div class="end-screen-info">\n' +
         '           <div class="game-info">\n' +
         '               <div class="game-icon" style="background-image: url(<%= data.gameIcon %>)"></div>\n' +
-        '               <div class="name-container"><%= data.gameName %></div>\n' +
+        '               <div class="name-container">Test<%= data.gameName %></div>\n' +
+        '               <div class="name-container">OneWay</div>\n' +
         '           </div>\n' +
         '       <div class="store-container">\n' +
         '           <a class="store-button"></a>\n' +
@@ -42,7 +43,7 @@ CMD.register("adunit.view.EndScreen", function (require) {
         '       </div>\n' +
         '       <div class="download-container">\n' +
         '           <a class="btn-download">\n' +
-        '               <span class="download-text">Download For Free</span>\n' +
+        '               <span class="download-text">Download It!</span>\n' +
         '           </a>\n' +
         '       </div>\n' +
         '       <div class="store-badge-container">\n' +

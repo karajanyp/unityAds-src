@@ -221,8 +221,8 @@ CMD.register("webview.WebView", function (require) {
         var me = this;
         this._campaign = campaign;
         var mode = this._configuration.getCacheMode();
-        var cache = function (e) {
-            return me._cacheManager.cache(e, {
+        var cache = function (fileUrl) {
+            return me._cacheManager.cache(fileUrl, {
                 retries: 5
             }).then(function (e) {
                 var n = e[0], i = e[1];

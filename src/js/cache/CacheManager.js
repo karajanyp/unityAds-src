@@ -54,9 +54,9 @@ CMD.register("cache.CacheManager", function (require) {
                     if (!shouldCache){
                         return Promise.resolve([CacheStatus.OK, fileId]);
                     }
-                    var callbackId = me.registerCallback(fileUrl, fileId, options);
+                    var promise = me.registerCallback(fileUrl, fileId, options);
                     me.downloadFile(fileUrl, fileId);
-                    return callbackId;
+                    return promise;
                 });
             }
         });
