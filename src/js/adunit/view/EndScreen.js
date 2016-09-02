@@ -57,42 +57,42 @@ CMD.register("adunit.view.EndScreen", function (require) {
         '</div>\n' +
         '</div>\n';
 
-    function EndScreen(n, o) {
-        var a = this;
+    function EndScreen(campaign, coppaCompliant) {
+        var me = this;
         View.call(this, "end-screen");
         this.onDownload = new Observable();
         this.onPrivacy = new Observable();
         this.onClose = new Observable();
-        this._coppaCompliant = o;
-        this._gameName = n.getGameName();
+        this._coppaCompliant = coppaCompliant;
+        this._gameName = campaign.getGameName();
         this._template = new Template(tpl);
-        if (n) {
-            var s = 20 * n.getRating();
+        if (campaign) {
+            var s = 20 * campaign.getRating();
             this._templateData = {
-                gameName: n.getGameName(),
-                gameIcon: n.getGameIcon(),
-                endScreenLandscape: n.getLandscapeUrl(),
-                endScreenPortrait: n.getPortraitUrl(),
+                gameName: campaign.getGameName(),
+                gameIcon: campaign.getGameIcon(),
+                endScreenLandscape: campaign.getLandscapeUrl(),
+                endScreenPortrait: campaign.getPortraitUrl(),
                 rating: s.toString(),
-                ratingCount: n.getRatingCount().toString()
+                ratingCount: campaign.getRatingCount().toString()
             };
         }
         this._bindings = [{
             event: "click",
             listener: function (e) {
-                return a.onDownloadEvent(e);
+                return me.onDownloadEvent(e);
             },
             selector: ".game-background, .btn-download, .store-button, .game-icon, .store-badge-container"
         }, {
             event: "click",
             listener: function (e) {
-                return a.onCloseEvent(e);
+                return me.onCloseEvent(e);
             },
             selector: ".btn-close-region"
         }, {
             event: "click",
             listener: function (e) {
-                return a.onPrivacyEvent(e);
+                return me.onPrivacyEvent(e);
             },
             selector: ".privacy-button"
         }];
@@ -101,8 +101,8 @@ CMD.register("adunit.view.EndScreen", function (require) {
 
     EndScreen.prototype.show = function () {
         View.prototype.show.call(this);
-        var t = this._container.querySelector(".name-container");
-        t.innerHTML = this._gameName + " ";
+        var el = this._container.querySelector(".name-container");
+        el.innerHTML = this._gameName + " ";
     };
     EndScreen.prototype.onDownloadEvent = function (e) {
         e.preventDefault();

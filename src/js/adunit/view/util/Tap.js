@@ -30,9 +30,9 @@ CMD.register("adunit.view.util.Tap", function () {
         this._startX = e.touches[0].clientX;
         this._startY = e.touches[0].clientY;
     };
-    Tap.prototype.onTouchMove = function (t) {
-        var x = t.touches[0].clientX,
-            y = t.touches[0].clientY;
+    Tap.prototype.onTouchMove = function (e) {
+        var x = e.touches[0].clientX,
+            y = e.touches[0].clientY;
         if(Math.abs(x - this._startX) > Tap._moveTolerance || Math.abs(y - this._startY) > Tap._moveTolerance){
             this._moved = true;
         }

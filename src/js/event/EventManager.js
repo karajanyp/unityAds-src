@@ -23,19 +23,22 @@ CMD.register("event.EventManager", function (require) {
     EventManager.getDataKey = function (t, n) {
         return EventManager.getEventKey(t, n) + ".data";
     };
-    EventManager.prototype.operativeEvent = function (n, i, r, o, a) {
+    EventManager.prototype.operativeEvent = function (eventName, eventId, sessionId, eventUrl, metaDataStr) {
         var me = this;
-        this._nativeBridge.Sdk.logInfo("Unity Ads event: sending " + n + " event to " + o);
-        this._nativeBridge.Storage.set(StorageType.PRIVATE, EventManager.getUrlKey(r, i), o);
-        this._nativeBridge.Storage.set(StorageType.PRIVATE, EventManager.getDataKey(r, i), a);
+        this._nativeBridge.Sdk.logInfo("Unity Ads event: sending " + eventName + " event to " + eventUrl);
+        this._nativeBridge.Storage.set(StorageType.PRIVATE, EventManager.getUrlKey(sessionId, eventId), eventUrl);
+        this._nativeBridge.Storage.set(StorageType.PRIVATE, EventManager.getDataKey(sessionId, eventId), metaDataStr);
         this._nativeBridge.Storage.write(StorageType.PRIVATE);
-        return this._request.post(o, a, [], {
+        return this._request.post(eventUrl, metaDataStr, [], {
             retries: 5,
             retryDelay: 5e3,
-            followRedirects: !1,
-            retryWithConnectionEvents: !1
+            followRedirects: false,
+            retryWithConnectionEvents: false
         }).then(function () {
-            return Promise.all([me._nativeBridge.Storage["delete"](StorageType.PRIVATE, EventManager.getEventKey(r, i)), me._nativeBridge.Storage.write(StorageType.PRIVATE)]);
+            return Promise.all([
+                me._nativeBridge.Storage["delete"](StorageType.PRIVATE, EventManager.getEventKey(sessionId, eventId)),
+                me._nativeBridge.Storage.write(StorageType.PRIVATE)
+            ]);
         });
     };
     EventManager.prototype.clickAttributionEvent = function (e, t, n) {

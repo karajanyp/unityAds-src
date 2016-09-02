@@ -11,15 +11,15 @@ CMD.register("session.SessionManagerEventMetadataCreator", function (require) {
     }
     SessionManagerEventMetadataCreator.prototype.createUniqueEventMetadata = function (adUnit, session, gamerServerId) {
         var me = this;
-        return this._eventManager.getUniqueEventId().then(function (e) {
-            return me.getInfoJson(adUnit, e, session, gamerServerId);
+        return this._eventManager.getUniqueEventId().then(function (eventId) {
+            return me.getInfoJson(adUnit, eventId, session, gamerServerId);
         });
     };
-    SessionManagerEventMetadataCreator.prototype.getInfoJson = function (adUnit, eventId, n, sid) {
+    SessionManagerEventMetadataCreator.prototype.getInfoJson = function (adUnit, eventId, session, sid) {
         var me = this;
-        var a = {
+        var metaData = {
             eventId: eventId,
-            sessionId: n.getId(),
+            sessionId: session.getId(),
             gamerId: adUnit.getCampaign().getGamerId(),
             campaignId: adUnit.getCampaign().getId(),
             placementId: adUnit.getPlacement().getId(),
@@ -32,20 +32,20 @@ CMD.register("session.SessionManagerEventMetadataCreator", function (require) {
             deviceMake: this._deviceInfo.getManufacturer(),
             deviceModel: this._deviceInfo.getModel()
         };
-        var s = [];
-        s.push(this._deviceInfo.getNetworkType());
-        s.push(this._deviceInfo.getConnectionType());
+        var tasks = [];
+        tasks.push(this._deviceInfo.getNetworkType());
+        tasks.push(this._deviceInfo.getConnectionType());
 
-        return Promise.all(s).then(function (e) {
-            a.networkType = e[0];
-            a.connectionType = e[1];
-            return MetaDataManager.fetchMediationMetaData(me._nativeBridge).then(function (e) {
-                if(e){
-                    a.mediationName = e.getName();
-                    a.mediationVersion = e.getVersion();
-                    a.mediationOrdinal = e.getOrdinal();
+        return Promise.all(tasks).then(function (res) {
+            metaData.networkType = res[0];
+            metaData.connectionType = res[1];
+            return MetaDataManager.fetchMediationMetaData(me._nativeBridge).then(function (mediation) {
+                if(mediation){
+                    metaData.mediationName = mediation.getName();
+                    metaData.mediationVersion = mediation.getVersion();
+                    metaData.mediationOrdinal = mediation.getOrdinal();
                 }
-                return [eventId, a];
+                return [eventId, metaData];
             });
         });
     };

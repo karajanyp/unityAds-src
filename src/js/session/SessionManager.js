@@ -145,21 +145,21 @@ CMD.register("session.SessionManager", function (require) {
         return this._eventMetadataCreator.createUniqueEventMetadata(e, this._currentSession, this._gamerServerId).then(n);
     };
     SessionManager.prototype.sendClick = function (adUnit) {
-        var t = this,
-            n = adUnit.getCampaign(),
-            i = function (n) {
-                var i = n[0], r = n[1];
-                t._eventManager.operativeEvent("click", i, t._currentSession.getId(), t.createClickEventUrl(adUnit), JSON.stringify(r));
+        var me = this,
+            campaign = adUnit.getCampaign(),
+            i = function (res) {
+                var eventId = res[0], metaData = res[1];
+                me._eventManager.operativeEvent("click", eventId, me._currentSession.getId(), me.createClickEventUrl(adUnit), JSON.stringify(metaData));
             };
         this._eventMetadataCreator.createUniqueEventMetadata(adUnit, this._currentSession, this._gamerServerId).then(i);
-        if(n.getClickAttributionUrl()){
-            return this._eventManager.clickAttributionEvent(this._currentSession.getId(), n.getClickAttributionUrl(), n.getClickAttributionUrlFollowsRedirects())
+        if(campaign.getClickAttributionUrl()){
+            return this._eventManager.clickAttributionEvent(this._currentSession.getId(), campaign.getClickAttributionUrl(), campaign.getClickAttributionUrlFollowsRedirects())
         }else{
             return Promise.reject("Missing click attribution url");
         }
     };
-    SessionManager.prototype.sendMute = function (adUnit, session, n) {
-        if(n){
+    SessionManager.prototype.sendMute = function (adUnit, session, isMute) {
+        if(isMute){
             adUnit.sendTrackingEvent(this._eventManager, "mute", session.getId())
         }else{
             adUnit.sendTrackingEvent(this._eventManager, "unmute", session.getId());
@@ -184,7 +184,7 @@ CMD.register("session.SessionManager", function (require) {
             r = [SessionManager.ClickEventBaseUrl, campaign.getId(), "click", campaign.getGamerId()].join("/");
         return Url.addParameters(r, {
             gameId: this._clientInfo.getGameId(),
-            redirect: !1
+            redirect: false
         });
     };
     SessionManager.VideoEventBaseUrl = "https://adserver.unityads.unity3d.com/mobile/gamers";
