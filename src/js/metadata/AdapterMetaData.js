@@ -3,10 +3,11 @@
  */
 CMD.register("metadata.AdapterMetaData", function (require) {
     var Model = require("model.Model");
-    function AdapterMetaData(t) {
+
+    function AdapterMetaData(metaData) {
         Model.call(this);
-        this._name = t[0];
-        this._version = t[1];
+        this._name = metaData[0];
+        this._version = metaData[1];
     }
     extend(AdapterMetaData, Model);
 

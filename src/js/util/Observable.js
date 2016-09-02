@@ -2,20 +2,31 @@
  * Created by duo on 2016/8/31.
  */
 CMD.register("util.observable", function(require, exports){
+
     function Observable() {
         this._observers = [];
     }
-    Observable.prototype.subscribe = function (e) {
-        this._observers.push(e);
-        return e;
+
+    /**
+     * 添加订阅者
+     * @param fn
+     * @returns {*}
+     */
+    Observable.prototype.subscribe = function (fn) {
+        this._observers.push(fn);
+        return fn;
     };
-    Observable.prototype.unsubscribe = function (e) {
+    /**
+     * 取消指定订阅者，如果不传入参数，则清空所有订阅者
+     * @param fn
+     */
+    Observable.prototype.unsubscribe = function (fn) {
         if(!this._observers.length){
             return;
         }
-        if("undefined" != typeof e ){
-            this._observers = this._observers.filter(function (t) {
-                return t !== e;
+        if("undefined" != typeof fn ){
+            this._observers = this._observers.filter(function (o) {
+                return o !== fn;
             })
         }else{
             this._observers = [];
@@ -27,8 +38,8 @@ CMD.register("util.observable", function(require, exports){
     }
     extend(Observable0, Observable);
     Observable0.prototype.trigger = function () {
-        this._observers.forEach(function (e) {
-            return e();
+        this._observers.forEach(function (fn) {
+            return fn();
         });
     };
 
@@ -38,9 +49,9 @@ CMD.register("util.observable", function(require, exports){
         Observable.apply(this, arguments);
     }
     extend(Observable1, Observable);
-    Observable1.prototype.trigger = function (e) {
-        this._observers.forEach(function (t) {
-            return t(e);
+    Observable1.prototype.trigger = function (arg) {
+        this._observers.forEach(function (fn) {
+            return fn(arg);
         });
     };
     exports.Observable1 = Observable1;
@@ -49,9 +60,9 @@ CMD.register("util.observable", function(require, exports){
         Observable.apply(this, arguments);
     }
     extend(Observable2, Observable);
-    Observable2.prototype.trigger = function (e, t) {
-        this._observers.forEach(function (n) {
-            return n(e, t);
+    Observable2.prototype.trigger = function (arg1, arg2) {
+        this._observers.forEach(function (fn) {
+            return fn(arg1, arg2);
         });
     };
     exports.Observable2 = Observable2;
@@ -60,9 +71,9 @@ CMD.register("util.observable", function(require, exports){
         Observable.apply(this, arguments);
     }
     extend(Observable3, Observable);
-    Observable3.prototype.trigger = function (e, t, n) {
-        this._observers.forEach(function (i) {
-            return i(e, t, n);
+    Observable3.prototype.trigger = function (arg1, arg2, arg3) {
+        this._observers.forEach(function (fn) {
+            return fn(arg1, arg2, arg3);
         });
     };
     exports.Observable3 = Observable3;
@@ -71,9 +82,9 @@ CMD.register("util.observable", function(require, exports){
         Observable.apply(this, arguments);
     }
     extend(Observable4, Observable);
-    Observable4.prototype.trigger = function (e, t, n, i) {
-        this._observers.forEach(function (r) {
-            return r(e, t, n, i);
+    Observable4.prototype.trigger = function (arg1, arg2, arg3, arg4) {
+        this._observers.forEach(function (fn) {
+            return fn(arg1, arg2, arg3, arg4);
         });
     };
     exports.Observable4 = Observable4;
@@ -82,9 +93,9 @@ CMD.register("util.observable", function(require, exports){
         Observable.apply(this, arguments);
     }
     extend(Observable5, Observable);
-    Observable5.prototype.trigger = function (e, t, n, i, r) {
-        this._observers.forEach(function (o) {
-            return o(e, t, n, i, r);
+    Observable5.prototype.trigger = function (arg1, arg2, arg3, arg4, arg5) {
+        this._observers.forEach(function (fn) {
+            return fn(arg1, arg2, arg3, arg4, arg5);
         });
     };
     exports.Observable5 = Observable5;
@@ -93,9 +104,9 @@ CMD.register("util.observable", function(require, exports){
         Observable.apply(this, arguments);
     }
     extend(Observable6, Observable);
-    Observable6.prototype.trigger = function (e, t, n, i, r, o) {
-        this._observers.forEach(function (a) {
-            return a(e, t, n, i, r, o);
+    Observable6.prototype.trigger = function (arg1, arg2, arg3, arg4, arg5, arg6) {
+        this._observers.forEach(function (fn) {
+            return fn(arg1, arg2, arg3, arg4, arg5, arg6);
         });
     };
     exports.Observable6 = Observable6;

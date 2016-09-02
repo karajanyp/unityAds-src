@@ -4,11 +4,11 @@
 CMD.register("metadata.MediationMetaData", function (require) {
     var Model = require("model.Model");
 
-    function MediationMetaData(t) {
+    function MediationMetaData(metaData) {
         Model.call(this);
-        this._name = t[0];
-        this._version = t[1];
-        this._ordinal = parseInt(t[2], 10);
+        this._name = metaData[0];
+        this._version = metaData[1];
+        this._ordinal = parseInt(metaData[2], 10);
     }
     extend(MediationMetaData, Model);
 
@@ -18,6 +18,7 @@ CMD.register("metadata.MediationMetaData", function (require) {
     MediationMetaData.getKeys = function () {
         return ["name.value", "version.value", "ordinal.value"];
     };
+
     MediationMetaData.prototype.getName = function () {
         return this._name;
     };

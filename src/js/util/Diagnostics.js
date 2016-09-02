@@ -4,35 +4,40 @@
 CMD.register("util.Diagnostics", function () {
     function Diagnostics() {
     }
-    Diagnostics.trigger = function (t, n, i, r) {
-        var o = [];
-        o.push({
+    Diagnostics.trigger = function (eventManager, error, clientInfo, deviceInfo) {
+        var infoList = [];
+        infoList.push({
             type: "ads.sdk2.diagnostics",
-            msg: n
+            msg: error
         });
-        return Diagnostics.createCommonObject(i, r).then(function (n) {
-            o.unshift(n);
-            var i = o.map(function (e) {
-                return JSON.stringify(e);
+        return Diagnostics.createCommonObject(clientInfo, deviceInfo).then(function (o) {
+            infoList.unshift(o);
+            var arr = infoList.map(function (info) {
+                return JSON.stringify(info);
             }).join("\n");
-            return t.diagnosticEvent(Diagnostics.DiagnosticsBaseUrl, i);
+            return eventManager.diagnosticEvent(Diagnostics.DiagnosticsBaseUrl, arr);
         });
     };
-    Diagnostics.setTestBaseUrl = function (t) {
-        Diagnostics.DiagnosticsBaseUrl = t + "/v1/events";
-    };
-    Diagnostics.createCommonObject = function (e, t) {
-        var n = {
+    Diagnostics.createCommonObject = function (clientInfo, deviceInfo) {
+        var o = {
             common: {
-                client: e ? e.getDTO() : null,
+                client: clientInfo ? clientInfo.getDTO() : null,
                 device: null
             }
         };
-        return t ? t.getDTO().then(function (e) {
-            return n.device = e, n;
-        })["catch"](function (e) {
-            return n;
-        }) : Promise.resolve(n);
+        if(deviceInfo){
+            return deviceInfo.getDTO().then(function (deviceDto) {
+                o.device = deviceDto;
+                return o;
+            })["catch"](function (e) {
+                return o;
+            });
+        }else{
+            return Promise.resolve(o);
+        }
+    };
+    Diagnostics.setTestBaseUrl = function (baseUrl) {
+        Diagnostics.DiagnosticsBaseUrl = baseUrl + "/v1/events";
     };
     Diagnostics.DiagnosticsBaseUrl = "https://httpkafka.unityads.unity3d.com/v1/events";
     return Diagnostics;

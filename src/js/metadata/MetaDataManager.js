@@ -10,91 +10,107 @@ CMD.register("metadata.MetaDataManager", function (require) {
 
     function MetaDataManager() {
     }
-    MetaDataManager.getValues = function (n, i, r) {
-        return MetaDataManager.categoryExists(n, r).then(function (e) {
-            if(e){
-                return Promise.all(i.map(function (e) {
-                    return r.Storage.get(StorageType.PUBLIC, n + "." + e)["catch"](function () {});
+
+    /**
+     * 从本地存储里获取指定类型的多个元数据值。
+     * @param category      {String}        元数据类型
+     * @param keys          {Array}         元数据键值名列表
+     * @param nativeBridge  {NativeBridge}  Native Api
+     * @returns Promise A+  {Promise}       {Array:values | undefined}
+     */
+    MetaDataManager.getValues = function (category, keys, nativeBridge) {
+        return MetaDataManager.categoryExists(category, nativeBridge).then(function (exists) {
+            if(exists){
+                return Promise.all(keys.map(function (key) {
+                    return nativeBridge.Storage.get(StorageType.PUBLIC, category + "." + key)["catch"](function () {});
                 }));
             }else{
                 return Promise.resolve(void 0);
             }
         });
     };
-    MetaDataManager.fetchFrameworkMetaData = function (t, i) {
-        if(void 0 === i){
-            i = true;
+    MetaDataManager.fetchFrameworkMetaData = function (nativeBridge, useCache) {
+        if(void 0 === useCache){
+            useCache = true;
         }
-        return MetaDataManager.fetch(FrameworkMetaData.getCategory(), FrameworkMetaData.getKeys(), t, i).then(function (e) {
-            return Promise.resolve(e);
+        return MetaDataManager.fetch(FrameworkMetaData.getCategory(), FrameworkMetaData.getKeys(), nativeBridge, useCache).then(function (metaData) {
+            return Promise.resolve(metaData);
         });
     };
-    MetaDataManager.fetchAdapterMetaData = function (t, n) {
-        if(void 0 === n){
-            n = true;
+    MetaDataManager.fetchAdapterMetaData = function (nativeBridge, useCache) {
+        if(void 0 === useCache){
+            useCache = true;
         }
-        return MetaDataManager.fetch(AdapterMetaData.getCategory(), AdapterMetaData.getKeys(), t, n).then(function (e) {
-            return Promise.resolve(e);
+        return MetaDataManager.fetch(AdapterMetaData.getCategory(), AdapterMetaData.getKeys(), nativeBridge, useCache).then(function (metaData) {
+            return Promise.resolve(metaData);
         });
     };
-    MetaDataManager.fetchMediationMetaData = function (t, n) {
-        if(void 0 === n){
-            n = true;
+    MetaDataManager.fetchMediationMetaData = function (nativeBridge, useCache) {
+        if(void 0 === useCache){
+            useCache = true;
         }
-        return MetaDataManager.fetch(MediationMetaData.getCategory(), MediationMetaData.getKeys(), t, n).then(function (e) {
-            return Promise.resolve(e);
+        return MetaDataManager.fetch(MediationMetaData.getCategory(), MediationMetaData.getKeys(), nativeBridge, useCache).then(function (metaData) {
+            return Promise.resolve(metaData);
         });
     };
-    MetaDataManager.fetchPlayerMetaData = function (n) {
-        return MetaDataManager.fetch(PlayerMetaData.getCategory(), PlayerMetaData.getKeys(), n, false).then(function (i) {
-            if(null != i){
+    MetaDataManager.fetchPlayerMetaData = function (nativeBridge) {
+        return MetaDataManager.fetch(PlayerMetaData.getCategory(), PlayerMetaData.getKeys(), nativeBridge, false).then(function (metaData) {
+            if(null != metaData){
                 MetaDataManager.caches.player = void 0;
-                return n.Storage["delete"](StorageType.PUBLIC, PlayerMetaData.getCategory()).then(function () {
-                    return i;
+                return nativeBridge.Storage["delete"](StorageType.PUBLIC, PlayerMetaData.getCategory()).then(function () {
+                    return metaData;
                 });
             }else{
-                return Promise.resolve(i);
+                return Promise.resolve(metaData);
             }
         });
     };
-    MetaDataManager.fetch = function (t, n, i, r) {
-        if(void 0 === r ){
-            r = true;
+    /**
+     * 通用接口：获取元数据
+     * @param category      {String}        元数据类型
+     * @param keys          {Array}         元数据键值名列表
+     * @param nativeBridge  {NativeBridge}  Native Api
+     * @param useCache      {Boolean}       是否使用缓存，如果为true, 优先使用缓存数据，并在第一次获取元数据的同时缓存起来。
+     * @returns Promise A+  {Promise}       {MetaData | undefined}
+     */
+    MetaDataManager.fetch = function (category, keys, nativeBridge, useCache) {
+        if(void 0 === useCache ){
+            useCache = true;
         }
-        if(r && MetaDataManager.caches[t]){
-            return Promise.resolve(MetaDataManager.caches[t]);
+        if(useCache && MetaDataManager.caches[category]){
+            return Promise.resolve(MetaDataManager.caches[category]);
         }else{
-            return MetaDataManager.getValues(t, n, i).then(function (n) {
-                return MetaDataManager.createAndCache(t, n, r);
+            return MetaDataManager.getValues(category, keys, nativeBridge).then(function (values) {
+                return MetaDataManager.createAndCache(category, values, useCache);
             });
         }
     };
-    MetaDataManager.createAndCache = function (t, n, i) {
-        if(void 0 === i){
-            i = true
+    MetaDataManager.createAndCache = function (category, values, useCache) {
+        if(void 0 === useCache){
+            useCache = true
         }
-        if(void 0 !== n){
-            if(i && !MetaDataManager.caches[t] ){
-                MetaDataManager.caches[t] = MetaDataManager.createByCategory(t, n);
+        if(void 0 !== values){
+            if(useCache && !MetaDataManager.caches[category] ){
+                MetaDataManager.caches[category] = MetaDataManager.createByCategory(category, values);
             }
-            return i ? MetaDataManager.caches[t] : MetaDataManager.createByCategory(t, n)
+            return useCache ? MetaDataManager.caches[category] : MetaDataManager.createByCategory(category, values)
         }else{
             return void 0
         }
     };
-    MetaDataManager.createByCategory = function (e, t) {
-        switch (e) {
+    MetaDataManager.createByCategory = function (category, values) {
+        switch (category) {
             case "framework":
-                return new FrameworkMetaData(t);
+                return new FrameworkMetaData(values);
 
             case "adapter":
-                return new AdapterMetaData(t);
+                return new AdapterMetaData(values);
 
             case "mediation":
-                return new MediationMetaData(t);
+                return new MediationMetaData(values);
 
             case "player":
-                return new PlayerMetaData(t);
+                return new PlayerMetaData(values);
 
             default:
                 return null;
@@ -108,9 +124,9 @@ CMD.register("metadata.MetaDataManager", function (require) {
             player: void 0
         };
     };
-    MetaDataManager.categoryExists = function (e, n) {
-        return n.Storage.getKeys(StorageType.PUBLIC, e, false).then(function (e) {
-            return e.length > 0;
+    MetaDataManager.categoryExists = function (category, nativeBridge) {
+        return nativeBridge.Storage.getKeys(StorageType.PUBLIC, category, false).then(function (keys) {
+            return keys.length > 0;
         });
     };
     MetaDataManager.caches = {

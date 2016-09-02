@@ -29,8 +29,16 @@ CMD.register("api.StorageApi", function (require) {
     StorageApi.prototype.clear = function (e) {
         return this._nativeBridge.invoke(this._apiClass, "clear", [StorageType[e]]);
     };
-    StorageApi.prototype.getKeys = function (e, t, i) {
-        return this._nativeBridge.invoke(this._apiClass, "getKeys", [StorageType[e], t, i]);
+
+    /**
+     *
+     * @param storageType
+     * @param category
+     * @param recursive
+     * @return keys {Array}
+     */
+    StorageApi.prototype.getKeys = function (storageType, category, recursive) {
+        return this._nativeBridge.invoke(this._apiClass, "getKeys", [StorageType[storageType], category, recursive]);
     };
     StorageApi.prototype.handleEvent = function (e, t) {
         switch (e) {

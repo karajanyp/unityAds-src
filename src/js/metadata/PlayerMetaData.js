@@ -4,9 +4,9 @@
 CMD.register("metadata.PlayerMetaData", function (require) {
     var Model = require("model.Model");
 
-    function PlayerMetaData(t) {
+    function PlayerMetaData(metaData) {
         Model.call(this);
-        this._serverId = t[0];
+        this._serverId = metaData[0];
     }
     extend(PlayerMetaData, Model);
 
@@ -16,6 +16,7 @@ CMD.register("metadata.PlayerMetaData", function (require) {
     PlayerMetaData.getKeys = function () {
         return ["server_id.value"];
     };
+
     PlayerMetaData.prototype.getServerId = function () {
         return this._serverId;
     };

@@ -92,13 +92,13 @@ CMD.register("webview.WebView", function (require) {
             .then(function () {
                 return ConfigManager.fetch(me._nativeBridge, me._request, me._clientInfo, me._deviceInfo);
             })
-            .then(function (t) {
-                me._configuration = t;
+            .then(function (configuration) {
+                me._configuration = configuration;
                 return me._sessionManager.create();
             })
             .then(function () {
-                var t = me._configuration.getDefaultPlacement();
-                me._nativeBridge.Placement.setDefaultPlacement(t.getId());
+                var placement = me._configuration.getDefaultPlacement();
+                me._nativeBridge.Placement.setDefaultPlacement(placement.getId());
                 me.setPlacementStates(PlacementState.NOT_AVAILABLE);
                 me._campaignManager = new CampaignManager(me._nativeBridge, me._request, me._clientInfo, me._deviceInfo, new VastParser());
                 me._campaignManager.onCampaign.subscribe(function (campaign) {
@@ -120,31 +120,32 @@ CMD.register("webview.WebView", function (require) {
                 me._initialized = true;
                 return me._eventManager.sendUnsentSessions();
             })
-            .catch(function (t) {
-                if(t instanceof Error ){
-                    t = {
-                        message: t.message,
-                        name: t.name,
-                        stack: t.stack
+            .catch(function (e) {
+                if(e instanceof Error ){
+                    e = {
+                        message: e.message,
+                        name: e.name,
+                        stack: e.stack
                     };
-                    if( t.message === AdsError[AdsError.INVALID_ARGUMENT] ){
+                    if( e.message === AdsError[AdsError.INVALID_ARGUMENT] ){
                         me._nativeBridge.Listener.sendErrorEvent(AdsError[AdsError.INVALID_ARGUMENT], "Game ID is not valid")
                     }
                 }
 
-                me._nativeBridge.Sdk.logError(JSON.stringify(t));
+                me._nativeBridge.Sdk.logError(JSON.stringify(e));
                 Diagnostics.trigger(
                     me._eventManager,
                     {
                         type: "initialization_error",
-                        error: t
+                        error: e
                     },
-                    me._clientInfo, me._deviceInfo
+                    me._clientInfo,
+                    me._deviceInfo
                 );
             });
     };
 
-    WebView.prototype.show = function (placementId, n, i) {
+    WebView.prototype.show = function (placementId, nativeOptions, i) {
         var me = this;
         i(CallbackStatus.OK);
         if (this._showing) {
@@ -156,6 +157,7 @@ CMD.register("webview.WebView", function (require) {
             this.showError(true, placementId, "No such placement: " + placementId);
             return;
         }
+
         if(!this._campaign){
             this.showError(true, placementId, "Campaign not found");
             return;
@@ -165,14 +167,21 @@ CMD.register("webview.WebView", function (require) {
             id: parseInt(this._campaign.getAppStoreId(), 10)
         });
         this._showing = true;
-        this.shouldReinitialize().then(function (e) {
-            me._mustReinitialize = e;
+
+        this.shouldReinitialize().then(function (mustReinit) {
+            me._mustReinitialize = mustReinit;
         });
-        this._configuration.getCacheMode() === CacheMode.ALLOWED && this._cacheManager.stop();
-        MetaDataManager.fetchPlayerMetaData(this._nativeBridge).then(function (e) {
-            e && me._sessionManager.setGamerServerId(e.getServerId());
+
+        if(this._configuration.getCacheMode() === CacheMode.ALLOWED){
+            this._cacheManager.stop();
+        }
+
+        MetaDataManager.fetchPlayerMetaData(this._nativeBridge).then(function (playerMetaData) {
+            if(playerMetaData){
+                me._sessionManager.setGamerServerId(playerMetaData.getServerId());
+            }
             me._adUnit = AdUnitFactory.createAdUnit(me._nativeBridge, me._sessionManager, placement, me._campaign, me._configuration);
-            me._adUnit.setNativeOptions(n);
+            me._adUnit.setNativeOptions(nativeOptions);
             me._adUnit.onNewAdRequestAllowed.subscribe(function () {
                 return me.onNewAdRequestAllowed();
             });
@@ -454,16 +463,16 @@ CMD.register("webview.WebView", function (require) {
         return this._request.get(this._clientInfo.getConfigUrl() + "?ts=" + Date.now() + "&sdkVersion=" + this._clientInfo.getSdkVersion());
     };
     WebView.prototype.shouldReinitialize = function () {
-        var e = this;
+        var me = this;
 
-        if(this._clientInfo.getWebviewHash() ){
+        if(this._clientInfo.getWebviewHash()){
             if(Date.now() - this._configJsonCheckedAt <= 9e5 ){
                 return Promise.resolve(false)
             }else{
-                return this.getConfigJson().then(function (t) {
-                    e._configJsonCheckedAt = Date.now();
-                    var n = JsonParser.parse(t.response);
-                    return n.hash !== e._clientInfo.getWebviewHash();
+                return this.getConfigJson().then(function (configJson) {
+                    me._configJsonCheckedAt = Date.now();
+                    var response = JsonParser.parse(configJson.response);
+                    return response.hash !== me._clientInfo.getWebviewHash();
                 })["catch"](function (e) {
                     return false;
                 })

@@ -3,10 +3,11 @@
  */
 CMD.register("metadata.FrameworkMetaData", function (require) {
     var Model = require("model.Model");
-    function FrameworkMetaData(t) {
+
+    function FrameworkMetaData(metaData) {
         Model.call(this);
-        this._name = t[0];
-        this._version = t[1];
+        this._name = metaData[0];
+        this._version = metaData[1];
     }
     extend(FrameworkMetaData, Model);
 
@@ -16,6 +17,7 @@ CMD.register("metadata.FrameworkMetaData", function (require) {
     FrameworkMetaData.getKeys = function () {
         return ["name.value", "version.value"];
     };
+
     FrameworkMetaData.prototype.getName = function () {
         return this._name;
     };

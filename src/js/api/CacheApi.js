@@ -16,8 +16,8 @@ CMD.register("api.CacheApi", function (require) {
     }
     extend(CacheApi, NativeApi);
 
-    CacheApi.prototype.download = function (e, t) {
-        return this._nativeBridge.invoke(this._apiClass, "download", [e, t]);
+    CacheApi.prototype.download = function (fileUrl, fileId) {
+        return this._nativeBridge.invoke(this._apiClass, "download", [fileUrl, fileId]);
     };
     CacheApi.prototype.stop = function () {
         return this._nativeBridge.invoke(this._apiClass, "stop");
@@ -37,8 +37,8 @@ CMD.register("api.CacheApi", function (require) {
     CacheApi.prototype.getHash = function (e) {
         return this._nativeBridge.invoke(this._apiClass, "getHash", [e]);
     };
-    CacheApi.prototype.deleteFile = function (e) {
-        return this._nativeBridge.invoke(this._apiClass, "deleteFile", [e]);
+    CacheApi.prototype.deleteFile = function (file) {
+        return this._nativeBridge.invoke(this._apiClass, "deleteFile", [file]);
     };
     CacheApi.prototype.setProgressInterval = function (e) {
         return this._nativeBridge.invoke(this._apiClass, "setProgressInterval", [e]);
