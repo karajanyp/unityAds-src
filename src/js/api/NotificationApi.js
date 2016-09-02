@@ -15,23 +15,23 @@ CMD.register("api.NotificationApi", function (require) {
     }
     extend(NotificationApi, NativeApi);
 
-    NotificationApi.prototype.addNotificationObserver = function (e, t) {
-        return this._nativeBridge.invoke(this._apiClass, "addNotificationObserver", [e, t]);
+    NotificationApi.prototype.addNotificationObserver = function (name, userInfoKeys) {
+        return this._nativeBridge.invoke(this._apiClass, "addNotificationObserver", [name, userInfoKeys]);
     };
-    NotificationApi.prototype.removeNotificationObserver = function (e) {
-        return this._nativeBridge.invoke(this._apiClass, "removeNotificationObserver", [e]);
+    NotificationApi.prototype.removeNotificationObserver = function (name) {
+        return this._nativeBridge.invoke(this._apiClass, "removeNotificationObserver", [name]);
     };
     NotificationApi.prototype.removeAllNotificationObservers = function () {
         return this._nativeBridge.invoke(this._apiClass, "removeAllNotificationObservers");
     };
-    NotificationApi.prototype.handleEvent = function (t, n) {
-        switch (t) {
+    NotificationApi.prototype.handleEvent = function (e, args) {
+        switch (e) {
             case Event[Event.ACTION]:
-                this.onNotification.trigger(n[0], n[1]);
+                this.onNotification.trigger(args[0], args[1]);
                 break;
 
             default:
-                NativeApi.prototype.handleEvent.call(this, t, n);
+                NativeApi.prototype.handleEvent.call(this, e, args);
         }
     };
     return NotificationApi;

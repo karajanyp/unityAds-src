@@ -25,42 +25,74 @@ CMD.register("api.IosAdUnitApi", function (require) {
         this.onViewControllerDidReceiveMemoryWarning = new Observable();
     }
     extend(IosAdUnitApi, NativeApi);
-
-    IosAdUnitApi.prototype.open = function (e, t, n, i) {
-        return this._nativeBridge.invoke(this._apiClass, "open", [e, t, n, i]);
+    /**
+     *
+     * @param views                 {Array}
+     * @param supportedOrientations {Number}
+     * @param statusBarHidden       {Number}
+     * @param shouldAutorotate      {Number}
+     * @returns {Promise}
+     */
+    IosAdUnitApi.prototype.open = function (views, supportedOrientations, statusBarHidden, shouldAutorotate) {
+        return this._nativeBridge.invoke(this._apiClass, "open", [views, supportedOrientations, statusBarHidden, shouldAutorotate]);
     };
     IosAdUnitApi.prototype.close = function () {
         return this._nativeBridge.invoke(this._apiClass, "close");
     };
-    IosAdUnitApi.prototype.setViews = function (e) {
-        return this._nativeBridge.invoke(this._apiClass, "setViews", [e]);
+    /**
+     *
+     * @param views {Array}
+     * @returns {Promise}
+     */
+    IosAdUnitApi.prototype.setViews = function (views) {
+        return this._nativeBridge.invoke(this._apiClass, "setViews", [views]);
     };
     IosAdUnitApi.prototype.getViews = function () {
         return this._nativeBridge.invoke(this._apiClass, "getViews");
     };
-    IosAdUnitApi.prototype.setSupportedOrientations = function (e) {
-        return this._nativeBridge.invoke(this._apiClass, "setSupportedOrientations", [e]);
+    /**
+     *
+     * @param orientations {Number}
+     * @returns {Promise}
+     */
+    IosAdUnitApi.prototype.setSupportedOrientations = function (orientations) {
+        return this._nativeBridge.invoke(this._apiClass, "setSupportedOrientations", [orientations]);
     };
     IosAdUnitApi.prototype.getSupportedOrientations = function () {
         return this._nativeBridge.invoke(this._apiClass, "getSupportedOrientations");
     };
-    IosAdUnitApi.prototype.setKeepScreenOn = function (e) {
-        return this._nativeBridge.invoke(this._apiClass, "setKeepScreenOn", [e]);
+    /**
+     *
+     * @param screenOn {Number}
+     * @returns {Promise}
+     */
+    IosAdUnitApi.prototype.setKeepScreenOn = function (screenOn) {
+        return this._nativeBridge.invoke(this._apiClass, "setKeepScreenOn", [screenOn]);
     };
-    IosAdUnitApi.prototype.setStatusBarHidden = function (e) {
-        return this._nativeBridge.invoke(this._apiClass, "setStatusBarHidden", [e]);
+    /**
+     *
+     * @param hidden {Number}
+     * @returns {Promise}
+     */
+    IosAdUnitApi.prototype.setStatusBarHidden = function (hidden) {
+        return this._nativeBridge.invoke(this._apiClass, "setStatusBarHidden", [hidden]);
     };
     IosAdUnitApi.prototype.getStatusBarHidden = function () {
         return this._nativeBridge.invoke(this._apiClass, "getStatusBarHidden");
     };
-    IosAdUnitApi.prototype.setShouldAutorotate = function (e) {
-        return this._nativeBridge.invoke(this._apiClass, "setShouldAutorotate", [e]);
+    /**
+     *
+     * @param autorotate {Number}
+     * @returns {Promise}
+     */
+    IosAdUnitApi.prototype.setShouldAutorotate = function (autorotate) {
+        return this._nativeBridge.invoke(this._apiClass, "setShouldAutorotate", [autorotate]);
     };
     IosAdUnitApi.prototype.getShouldAutorotate = function () {
         return this._nativeBridge.invoke(this._apiClass, "getShouldAutorotate");
     };
-    IosAdUnitApi.prototype.handleEvent = function (t, n) {
-        switch (t) {
+    IosAdUnitApi.prototype.handleEvent = function (e, args) {
+        switch (e) {
             case Event[Event.VIEW_CONTROLLER_INIT]:
                 this.onViewControllerInit.trigger();
                 break;
@@ -86,7 +118,7 @@ CMD.register("api.IosAdUnitApi", function (require) {
                 break;
 
             default:
-                NativeApi.prototype.handleEvent.call(this, t, n);
+                NativeApi.prototype.handleEvent.call(this, e, args);
         }
     };
     return IosAdUnitApi;

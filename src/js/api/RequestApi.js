@@ -14,45 +14,83 @@ CMD.register("api.RequestApi", function (require) {
     }
     extend(RequestApi, NativeApi);
 
-    RequestApi.prototype.get = function (e, t, n, r, o) {
+    /**
+     *
+     * @param id                {String}
+     * @param url               {String}
+     * @param headers           {Array}   JSONArray
+     * @param connectTimeout    {Number}
+     * @param readTimeout       {Number}
+     * @returns {Promise}
+     */
+    RequestApi.prototype.get = function (id, url, headers, connectTimeout, readTimeout) {
         return this._nativeBridge.getPlatform() === Platform.IOS ?
-            this._nativeBridge.invoke(this._apiClass, "get", [e, t, n, r]) :
-            this._nativeBridge.invoke(this._apiClass, "get", [e, t, n, r, o]);
+            this._nativeBridge.invoke(this._apiClass, "get", [id, url, headers, connectTimeout]) :
+            this._nativeBridge.invoke(this._apiClass, "get", [id, url, headers, connectTimeout, readTimeout]);
     };
-    RequestApi.prototype.post = function (e, t, n, r, o, a) {
+    /**
+     *
+     * @param id                {String}
+     * @param url               {String}
+     * @param requestBody       {String}
+     * @param headers           {Array}   JSONArray
+     * @param connectTimeout    {Number}
+     * @param readTimeout       {Number}
+     * @returns {Promise}
+     */
+    RequestApi.prototype.post = function (id, url, requestBody, headers, connectTimeout, readTimeout) {
         return this._nativeBridge.getPlatform() === Platform.IOS ?
-            this._nativeBridge.invoke(this._apiClass, "post", [e, t, n, r, o]) :
-            this._nativeBridge.invoke(this._apiClass, "post", [e, t, n, r, o, a]);
+            this._nativeBridge.invoke(this._apiClass, "post", [id, url, requestBody, headers, connectTimeout]) :
+            this._nativeBridge.invoke(this._apiClass, "post", [id, url, requestBody, headers, connectTimeout, readTimeout]);
     };
-    RequestApi.prototype.head = function (e, t, n, r, o) {
+    /**
+     *
+     * @param id                {String}
+     * @param url               {String}
+     * @param headers           {Array}   JSONArray
+     * @param connectTimeout    {Number}
+     * @param readTimeout       {Number}
+     * @returns {Promise}
+     */
+    RequestApi.prototype.head = function (id, url, headers, connectTimeout, readTimeout) {
         return this._nativeBridge.getPlatform() === Platform.IOS ?
-            this._nativeBridge.invoke(this._apiClass, "head", [e, t, n, r]) :
-            this._nativeBridge.invoke(this._apiClass, "head", [e, t, n, r, o]);
+            this._nativeBridge.invoke(this._apiClass, "head", [id, url, headers, connectTimeout]) :
+            this._nativeBridge.invoke(this._apiClass, "head", [id, url, headers, connectTimeout, readTimeout]);
     };
-    RequestApi.prototype.setConnectTimeout = function (e) {
-        return this._nativeBridge.invoke(this._apiClass, "setConnectTimeout", [e]);
+    /**
+     *
+     * @param timeout {Number}
+     * @returns {Promise}
+     */
+    RequestApi.prototype.setConnectTimeout = function (timeout) {
+        return this._nativeBridge.invoke(this._apiClass, "setConnectTimeout", [timeout]);
     };
     RequestApi.prototype.getConnectTimeout = function () {
         return this._nativeBridge.invoke(this._apiClass, "getConnectTimeout");
     };
-    RequestApi.prototype.setReadTimeout = function (e) {
-        return this._nativeBridge.invoke(this._apiClass, "setReadTimeout", [e]);
+    /**
+     *
+     * @param timeout {Number}
+     * @returns {Promise}
+     */
+    RequestApi.prototype.setReadTimeout = function (timeout) {
+        return this._nativeBridge.invoke(this._apiClass, "setReadTimeout", [timeout]);
     };
     RequestApi.prototype.getReadTimeout = function () {
         return this._nativeBridge.invoke(this._apiClass, "getReadTimeout");
     };
-    RequestApi.prototype.handleEvent = function (e, d) {
+    RequestApi.prototype.handleEvent = function (e, arg) {
         switch (e) {
             case RequestEvent[RequestEvent.COMPLETE]:
-                this.onComplete.trigger(d[0], d[1], d[2], d[3], d[4]);
+                this.onComplete.trigger(arg[0], arg[1], arg[2], arg[3], arg[4]);
                 break;
 
             case RequestEvent[RequestEvent.FAILED]:
-                this.onFailed.trigger(d[0], d[1], d[2]);
+                this.onFailed.trigger(arg[0], arg[1], arg[2]);
                 break;
 
             default:
-                NativeApi.prototype.handleEvent.call(this, e, d);
+                NativeApi.prototype.handleEvent.call(this, e, arg);
         }
     };
     return RequestApi;

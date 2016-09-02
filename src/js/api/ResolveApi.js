@@ -2,7 +2,7 @@
  * Created by duo on 2016/8/31.
  */
 
-CMD.register("api.ResolveApi", function (require, t, n) {
+CMD.register("api.ResolveApi", function (require) {
     var NativeApi = require("api.NativeApi");
     var ResolveEvent = require("resolve.ResolveEvent");
     var Observable = require("util.Observable");
@@ -14,21 +14,27 @@ CMD.register("api.ResolveApi", function (require, t, n) {
     }
     extend(ResolveApi, NativeApi);
 
-    ResolveApi.prototype.resolve = function (e, t) {
-        return this._nativeBridge.invoke(this._apiClass, "resolve", [e, t]);
+    /**
+     *
+     * @param id    {String}
+     * @param host  {String}
+     * @returns {Promise}
+     */
+    ResolveApi.prototype.resolve = function (id, host) {
+        return this._nativeBridge.invoke(this._apiClass, "resolve", [id, host]);
     };
-    ResolveApi.prototype.handleEvent = function (t, n) {
-        switch (t) {
+    ResolveApi.prototype.handleEvent = function (e, arg) {
+        switch (e) {
             case ResolveEvent[ResolveEvent.COMPLETE]:
-                this.onComplete.trigger(n[0], n[1], n[2]);
+                this.onComplete.trigger(arg[0], arg[1], arg[2]);
                 break;
 
             case ResolveEvent[ResolveEvent.FAILED]:
-                this.onFailed.trigger(n[0], n[1], n[2], n[3]);
+                this.onFailed.trigger(arg[0], arg[1], arg[2], arg[3]);
                 break;
 
             default:
-                NativeApi.prototype.handleEvent.call(this, t, n);
+                NativeApi.prototype.handleEvent.call(this, e, arg);
         }
     };
     return ResolveApi;

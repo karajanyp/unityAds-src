@@ -15,13 +15,13 @@ CMD.register("api.AndroidVideoPlayerApi", function (require) {
     }
     extend(AndroidVideoPlayerApi, NativeApi);
 
-    AndroidVideoPlayerApi.prototype.setInfoListenerEnabled = function (e) {
-        return this._nativeBridge.invoke(this._apiClass, "setInfoListenerEnabled", [e]);
+    AndroidVideoPlayerApi.prototype.setInfoListenerEnabled = function (enabled) {
+        return this._nativeBridge.invoke(this._apiClass, "setInfoListenerEnabled", [enabled]);
     };
-    AndroidVideoPlayerApi.prototype.handleEvent = function (e, d) {
+    AndroidVideoPlayerApi.prototype.handleEvent = function (e, args) {
         switch (e) {
             case Event[Event.INFO]:
-                this.onInfo.trigger(d[0], d[1], d[2]);
+                this.onInfo.trigger(args[0], args[1], args[2]);
                 break;
 
             default:

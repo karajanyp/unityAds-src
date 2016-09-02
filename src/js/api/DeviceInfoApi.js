@@ -36,8 +36,8 @@ CMD.register("api.DeviceInfoApi", function (require) {
     DeviceInfoApi.prototype.getScreenHeight = function () {
         return this._nativeBridge.invoke(this._apiClass, "getScreenHeight");
     };
-    DeviceInfoApi.prototype.getTimeZone = function (e) {
-        return this._nativeBridge.invoke(this._apiClass, "getTimeZone", [e]);
+    DeviceInfoApi.prototype.getTimeZone = function (dayLight) {
+        return this._nativeBridge.invoke(this._apiClass, "getTimeZone", [dayLight]);
     };
     DeviceInfoApi.prototype.getConnectionType = function () {
         return this._nativeBridge.invoke(this._apiClass, "getConnectionType");

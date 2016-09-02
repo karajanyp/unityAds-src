@@ -17,13 +17,18 @@ CMD.register("api.ConnectivityApi", function(require) {
     }
     extend(ConnectivityApi, NativeApi);
 
-    ConnectivityApi.prototype.setListeningStatus = function (e) {
-        return this._nativeBridge.invoke(this._apiClass, "setConnectionMonitoring", [e]);
+    /**
+     *
+     * @param monitoring {Boolean}
+     * @returns {Promise}
+     */
+    ConnectivityApi.prototype.setListeningStatus = function (monitoring) {
+        return this._nativeBridge.invoke(this._apiClass, "setConnectionMonitoring", [monitoring]);
     };
-    ConnectivityApi.prototype.handleEvent = function (e, d) {
+    ConnectivityApi.prototype.handleEvent = function (e, args) {
         switch (e) {
             case Event[Event.CONNECTED]:
-                this.onConnected.trigger(d[0], d[1]);
+                this.onConnected.trigger(args[0], args[1]);
                 break;
 
             case Event[Event.DISCONNECTED]:
@@ -34,7 +39,7 @@ CMD.register("api.ConnectivityApi", function(require) {
                 break;
 
             default:
-                NativeApi.prototype.handleEvent.call(this, e, d);
+                NativeApi.prototype.handleEvent.call(this, e, args);
         }
     };
     return ConnectivityApi;

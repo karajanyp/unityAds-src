@@ -10,18 +10,39 @@ CMD.register("api.ListenerApi", function (require) {
         NativeApi.call(this, nativeBridge, "Listener");
     }
     extend(ListenerApi, NativeApi);
-
-    ListenerApi.prototype.sendReadyEvent = function (e) {
-        return this._nativeBridge.invoke(this._apiClass, "sendReadyEvent", [e]);
+    /**
+     *
+     * @param placementId {String}
+     * @returns {Promise}
+     */
+    ListenerApi.prototype.sendReadyEvent = function (placementId) {
+        return this._nativeBridge.invoke(this._apiClass, "sendReadyEvent", [placementId]);
     };
-    ListenerApi.prototype.sendStartEvent = function (e) {
-        return this._nativeBridge.invoke(this._apiClass, "sendStartEvent", [e]);
+    /**
+     *
+     * @param placementId {String}
+     * @returns {Promise}
+     */
+    ListenerApi.prototype.sendStartEvent = function (placementId) {
+        return this._nativeBridge.invoke(this._apiClass, "sendStartEvent", [placementId]);
     };
-    ListenerApi.prototype.sendFinishEvent = function (e, n) {
-        return this._nativeBridge.invoke(this._apiClass, "sendFinishEvent", [e, FinishState[n]]);
+    /**
+     * 
+     * @param placementId {String}
+     * @param resultState {String}
+     * @returns {Promise}
+     */
+    ListenerApi.prototype.sendFinishEvent = function (placementId, resultState) {
+        return this._nativeBridge.invoke(this._apiClass, "sendFinishEvent", [placementId, FinishState[resultState]]);
     };
-    ListenerApi.prototype.sendErrorEvent = function (e, t) {
-        return this._nativeBridge.invoke(this._apiClass, "sendErrorEvent", [e, t]);
+    /**
+     *
+     * @param error {String} AdsErrorCode
+     * @param message {String}
+     * @returns {Promise}
+     */
+    ListenerApi.prototype.sendErrorEvent = function (error, message) {
+        return this._nativeBridge.invoke(this._apiClass, "sendErrorEvent", [error, message]);
     };
 
     return ListenerApi;

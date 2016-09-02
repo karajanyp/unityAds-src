@@ -14,23 +14,23 @@ CMD.register("api.BroadcastApi", function(require) {
         this.onBroadcastAction = new Observable();
     }
     extend(BroadcastApi, NativeApi);
-    BroadcastApi.prototype.addBroadcastListener = function (e, t) {
-        return this._nativeBridge.invoke(this._apiClass, "addBroadcastListener", [e, t]);
+    BroadcastApi.prototype.addBroadcastListener = function (name, actions) {
+        return this._nativeBridge.invoke(this._apiClass, "addBroadcastListener", [name, actions]);
     };
-    BroadcastApi.prototype.addDataSchemeBroadcastListener = function (e, t, n) {
-        return this._nativeBridge.invoke(this._apiClass, "addBroadcastListener", [e, t, n]);
+    BroadcastApi.prototype.addDataSchemeBroadcastListener = function (name, scheme, actions) {
+        return this._nativeBridge.invoke(this._apiClass, "addBroadcastListener", [name, scheme, actions]);
     };
-    BroadcastApi.prototype.removeBroadcastListener = function (e) {
-        return this._nativeBridge.invoke(this._apiClass, "removeBroadcastListener", [e]);
+    BroadcastApi.prototype.removeBroadcastListener = function (name) {
+        return this._nativeBridge.invoke(this._apiClass, "removeBroadcastListener", [name]);
     };
     BroadcastApi.prototype.removeAllBroadcastListeners = function () {
         return this._nativeBridge.invoke(this._apiClass, "removeAllBroadcastListeners", []);
     };
-    BroadcastApi.prototype.handleEvent = function (e, data) {
+    BroadcastApi.prototype.handleEvent = function (e, args) {
         if(e === Event[Event.ACTION]){
-            this.onBroadcastAction.trigger(data[0], data[1], data[2], data[3])
+            this.onBroadcastAction.trigger(args[0], args[1], args[2], args[3])
         }else{
-            NativeApi.prototype.handleEvent.call(this, e, data);
+            NativeApi.prototype.handleEvent.call(this, e, args);
         }
 
 

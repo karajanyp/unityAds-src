@@ -10,8 +10,8 @@ CMD.register("api.UrlSchemeApi", function (require) {
     }
     extend(UrlSchemeApi, NativeApi);
 
-    UrlSchemeApi.prototype.open = function (e) {
-        return this._nativeBridge.invoke(this._apiClass, "open", [e]);
+    UrlSchemeApi.prototype.open = function (url) {
+        return this._nativeBridge.invoke(this._apiClass, "open", [url]);
     };
     return UrlSchemeApi;
 });

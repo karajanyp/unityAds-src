@@ -2,7 +2,7 @@
  * Created by duo on 2016/8/31.
  */
 
-CMD.register("api.AppSheetApi", function (require, t, n) {
+CMD.register("api.AppSheetApi", function (require) {
     var NativeApi = require("api.NativeApi");
     var Observable = require("util.Observable");
     var AppSheetEvent = require("appsheet.AppSheetEvent");
@@ -21,47 +21,69 @@ CMD.register("api.AppSheetApi", function (require, t, n) {
     AppSheetApi.prototype.canOpen = function () {
         return this._nativeBridge.invoke(this._apiClass, "canOpen");
     };
-    AppSheetApi.prototype.prepare = function (e, t) {
-        void 0 === t && (t = 3e4);
-        return this._nativeBridge.invoke(this._apiClass, "prepare", [e, t]);
+    /**
+     *
+     * @param parameters {Object}
+     * @param timeout    {Number}
+     * @returns {Promise}
+     */
+    AppSheetApi.prototype.prepare = function (parameters, timeout) {
+        void 0 === timeout && (timeout = 3e4);
+        return this._nativeBridge.invoke(this._apiClass, "prepare", [parameters, timeout]);
     };
-    AppSheetApi.prototype.present = function (e, t) {
-        void 0 === t && (t = true);
-        return this._nativeBridge.invoke(this._apiClass, "present", [e, t]);
+    /**
+     *
+     * @param parameters {Object}
+     * @param animated   {Number}
+     * @returns {Promise}
+     */
+    AppSheetApi.prototype.present = function (parameters, animated) {
+        void 0 === animated && (animated = true);
+        return this._nativeBridge.invoke(this._apiClass, "present", [parameters, animated]);
     };
-    AppSheetApi.prototype.destroy = function (e) {
-        if("undefined" == typeof e){
+    /**
+     *
+     * @param parameters {Object}
+     * @returns {Promise}
+     */
+    AppSheetApi.prototype.destroy = function (parameters) {
+        if("undefined" == typeof parameters){
             return this._nativeBridge.invoke(this._apiClass, "destroy");
         }else{
-            return this._nativeBridge.invoke(this._apiClass, "destroy", [e]);
+            return this._nativeBridge.invoke(this._apiClass, "destroy", [parameters]);
         }
     };
-    AppSheetApi.prototype.setPrepareTimeout = function (e) {
-        return this._nativeBridge.invoke(this._apiClass, "setPrepareTimeout", [e]);
+    /**
+     *
+     * @param timeout {Number}
+     * @returns {Promise}
+     */
+    AppSheetApi.prototype.setPrepareTimeout = function (timeout) {
+        return this._nativeBridge.invoke(this._apiClass, "setPrepareTimeout", [timeout]);
     };
     AppSheetApi.prototype.getPrepareTimeout = function () {
         return this._nativeBridge.invoke(this._apiClass, "getPrepareTimeout");
     };
-    AppSheetApi.prototype.handleEvent = function (t, n) {
-        switch (t) {
+    AppSheetApi.prototype.handleEvent = function (e, args) {
+        switch (e) {
             case AppSheetEvent[AppSheetEvent.PREPARED]:
-                this.onPrepared.trigger(n[0]);
+                this.onPrepared.trigger(args[0]);
                 break;
 
             case AppSheetEvent[AppSheetEvent.OPENED]:
-                this.onOpen.trigger(n[0]);
+                this.onOpen.trigger(args[0]);
                 break;
 
             case AppSheetEvent[AppSheetEvent.CLOSED]:
-                this.onClose.trigger(n[0]);
+                this.onClose.trigger(args[0]);
                 break;
 
             case AppSheetEvent[AppSheetEvent.FAILED]:
-                this.onError.trigger(n[0], n[1]);
+                this.onError.trigger(args[0], args[1]);
                 break;
 
             default:
-                NativeApi.prototype.handleEvent.call(this, t, n);
+                NativeApi.prototype.handleEvent.call(this, e, args);
         }
     };
 

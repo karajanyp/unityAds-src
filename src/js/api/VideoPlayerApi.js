@@ -42,14 +42,25 @@ CMD.register("api.VideoPlayerApi", function (require) {
     }
     extend(VideoPlayerApi, NativeApi);
 
-    VideoPlayerApi.prototype.setProgressEventInterval = function (e) {
-        return this._nativeBridge.invoke(this._apiClass, "setProgressEventInterval", [e]);
+    /**
+     *
+     * @param milliseconds {Number}
+     * @returns {Promise}
+     */
+    VideoPlayerApi.prototype.setProgressEventInterval = function (milliseconds) {
+        return this._nativeBridge.invoke(this._apiClass, "setProgressEventInterval", [milliseconds]);
     };
     VideoPlayerApi.prototype.getProgressEventInterval = function () {
         return this._nativeBridge.invoke(this._apiClass, "getProgressEventInterval");
     };
-    VideoPlayerApi.prototype.prepare = function (e, t) {
-        return this._nativeBridge.invoke(this._apiClass, "prepare", [e, t]);
+    /**
+     *
+     * @param url           {String}
+     * @param initialVolume {Double}
+     * @returns {Promise}
+     */
+    VideoPlayerApi.prototype.prepare = function (url, initialVolume) {
+        return this._nativeBridge.invoke(this._apiClass, "prepare", [url, initialVolume]);
     };
     VideoPlayerApi.prototype.play = function () {
         return this._nativeBridge.invoke(this._apiClass, "play");
@@ -60,8 +71,13 @@ CMD.register("api.VideoPlayerApi", function (require) {
     VideoPlayerApi.prototype.stop = function () {
         return this._nativeBridge.invoke(this._apiClass, "stop");
     };
-    VideoPlayerApi.prototype.seekTo = function (e) {
-        return this._nativeBridge.invoke(this._apiClass, "seekTo", [e]);
+    /**
+     *
+     * @param time {Number}
+     * @returns {Promise}
+     */
+    VideoPlayerApi.prototype.seekTo = function (time) {
+        return this._nativeBridge.invoke(this._apiClass, "seekTo", [time]);
     };
     VideoPlayerApi.prototype.getCurrentPosition = function () {
         return this._nativeBridge.invoke(this._apiClass, "getCurrentPosition");
@@ -69,48 +85,53 @@ CMD.register("api.VideoPlayerApi", function (require) {
     VideoPlayerApi.prototype.getVolume = function () {
         return this._nativeBridge.invoke(this._apiClass, "getVolume");
     };
-    VideoPlayerApi.prototype.setVolume = function (e) {
-        return this._nativeBridge.invoke(this._apiClass, "setVolume", [e]);
+    /**
+     *
+     * @param volume {Double}
+     * @returns {Promise}
+     */
+    VideoPlayerApi.prototype.setVolume = function (volume) {
+        return this._nativeBridge.invoke(this._apiClass, "setVolume", [volume]);
     };
-    VideoPlayerApi.prototype.handleEvent = function (e, t) {
+    VideoPlayerApi.prototype.handleEvent = function (e, arg) {
         switch (e) {
             case Event[Event.GENERIC_ERROR]:
-                this.onError.trigger(t[0], t[1], t[2]);
+                this.onError.trigger(arg[0], arg[1], arg[2]);
                 break;
 
             case Event[Event.PROGRESS]:
-                this.onProgress.trigger(t[0]);
+                this.onProgress.trigger(arg[0]);
                 break;
 
             case Event[Event.COMPLETED]:
-                this.onCompleted.trigger(t[0]);
+                this.onCompleted.trigger(arg[0]);
                 break;
 
             case Event[Event.PREPARED]:
-                this.onPrepared.trigger(t[0], t[1], t[2], t[3]);
+                this.onPrepared.trigger(arg[0], arg[1], arg[2], arg[3]);
                 break;
 
             case Event[Event.PLAY]:
-                this.onPlay.trigger(t[0]);
+                this.onPlay.trigger(arg[0]);
                 break;
 
             case Event[Event.PAUSE]:
-                this.onPause.trigger(t[0]);
+                this.onPause.trigger(arg[0]);
                 break;
 
             case Event[Event.SEEKTO]:
-                this.onSeek.trigger(t[0]);
+                this.onSeek.trigger(arg[0]);
                 break;
 
             case Event[Event.STOP]:
-                this.onStop.trigger(t[0]);
+                this.onStop.trigger(arg[0]);
                 break;
 
             default:
                 if(this._nativeBridge.getPlatform() === Platform.IOS){
-                    this.Ios.handleEvent(e, t);
+                    this.Ios.handleEvent(e, arg);
                 }else if(this._nativeBridge.getPlatform() === Platform.ANDROID){
-                    this.Android.handleEvent(e, t);
+                    this.Android.handleEvent(e, arg);
                 }
         }
     };

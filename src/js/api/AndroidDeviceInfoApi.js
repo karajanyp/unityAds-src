@@ -26,26 +26,26 @@ CMD.register("api.AndroidDeviceInfoApi", function (require) {
     AndroidDeviceInfoApi.prototype.getScreenDensity = function () {
         return this._nativeBridge.invoke(this._apiClass, "getScreenDensity");
     };
-    AndroidDeviceInfoApi.prototype.isAppInstalled = function (e) {
-        return this._nativeBridge.invoke(this._apiClass, "isAppInstalled", [e]);
+    AndroidDeviceInfoApi.prototype.isAppInstalled = function (isInstalled) {
+        return this._nativeBridge.invoke(this._apiClass, "isAppInstalled", [isInstalled]);
     };
-    AndroidDeviceInfoApi.prototype.getInstalledPackages = function (e) {
-        return this._nativeBridge.invoke(this._apiClass, "getInstalledPackages", [e]);
+    AndroidDeviceInfoApi.prototype.getInstalledPackages = function (packages) {
+        return this._nativeBridge.invoke(this._apiClass, "getInstalledPackages", [packages]);
     };
-    AndroidDeviceInfoApi.prototype.getSystemProperty = function (e, t) {
-        return this._nativeBridge.invoke(this._apiClass, "getSystemProperty", [e, t]);
+    AndroidDeviceInfoApi.prototype.getSystemProperty = function (propertyName, defaultValue) {
+        return this._nativeBridge.invoke(this._apiClass, "getSystemProperty", [propertyName, defaultValue]);
     };
     AndroidDeviceInfoApi.prototype.getRingerMode = function () {
         return this._nativeBridge.invoke(this._apiClass, "getRingerMode");
     };
-    AndroidDeviceInfoApi.prototype.getDeviceVolume = function (e) {
-        return this._nativeBridge.invoke(this._apiClass, "getDeviceVolume", [e]);
+    AndroidDeviceInfoApi.prototype.getDeviceVolume = function (streamType) {
+        return this._nativeBridge.invoke(this._apiClass, "getDeviceVolume", [streamType]);
     };
-    AndroidDeviceInfoApi.prototype.getFreeSpace = function (e) {
-        return this._nativeBridge.invoke(this._apiClass, "getFreeSpace", [AndroidStorageType[e]]);
+    AndroidDeviceInfoApi.prototype.getFreeSpace = function (storageType) {
+        return this._nativeBridge.invoke(this._apiClass, "getFreeSpace", [AndroidStorageType[storageType]]);
     };
-    AndroidDeviceInfoApi.prototype.getTotalSpace = function (e) {
-        return this._nativeBridge.invoke(this._apiClass, "getTotalSpace", [AndroidStorageType[e]]);
+    AndroidDeviceInfoApi.prototype.getTotalSpace = function (storageType) {
+        return this._nativeBridge.invoke(this._apiClass, "getTotalSpace", [AndroidStorageType[storageType]]);
     };
 
     return AndroidDeviceInfoApi;

@@ -7,7 +7,7 @@ CMD.register("api.NativeApi", function() {
         this._nativeBridge = nativeBridge;
         this._apiClass = apiClass;
     }
-    NativeApi.prototype.handleEvent = function (e, t) {
+    NativeApi.prototype.handleEvent = function (e, args) {
         throw new Error(this._apiClass + " event " + e + " does not have an observable");
     };
     return NativeApi;

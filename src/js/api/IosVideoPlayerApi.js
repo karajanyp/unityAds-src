@@ -18,18 +18,18 @@ CMD.register("api.IosVideoPlayerApi", function (require) {
     }
     extend(IosVideoPlayerApi, NativeApi);
 
-    IosVideoPlayerApi.prototype.handleEvent = function (e, d) {
+    IosVideoPlayerApi.prototype.handleEvent = function (e, args) {
         switch (e) {
             case Event[Event.LIKELY_TO_KEEP_UP]:
-                this.onLikelyToKeepUp.trigger(d[0], d[1]);
+                this.onLikelyToKeepUp.trigger(args[0], args[1]);
                 break;
 
             case Event[Event.BUFFER_EMPTY]:
-                this.onBufferEmpty.trigger(d[0], d[1]);
+                this.onBufferEmpty.trigger(args[0], args[1]);
                 break;
 
             case Event[Event.BUFFER_FULL]:
-                this.onBufferFull.trigger(d[0], d[1]);
+                this.onBufferFull.trigger(args[0], args[1]);
                 break;
 
             default:

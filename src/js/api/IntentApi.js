@@ -10,8 +10,8 @@ CMD.register("api.IntentApi", function (require) {
     }
     extend(IntentApi, NativeApi);
 
-    IntentApi.prototype.launch = function (e) {
-        return this._nativeBridge.invoke(this._apiClass, "launch", [e]);
+    IntentApi.prototype.launch = function (intentData) {
+        return this._nativeBridge.invoke(this._apiClass, "launch", [intentData]);
     };
     return IntentApi;
 });

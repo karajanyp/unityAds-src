@@ -57,9 +57,9 @@ CMD.register("adunit.VideoAdUnit", function (require) {
         if(!this._placement.useDeviceOrientationForVideo()){
             orientation = ScreenOrientation.SCREEN_ORIENTATION_SENSOR_LANDSCAPE;
         }
-        var s = [];
+        var keyevents = [];
         if(this._placement.disableBackButton()){
-            s = [4];
+            keyevents = [4];
             this._onBackKeyObserver = this._nativeBridge.AndroidAdUnit.onKeyDown.subscribe(function (t, n, i, r) {
                 return me.onKeyEvent(t);
             });
@@ -69,7 +69,7 @@ CMD.register("adunit.VideoAdUnit", function (require) {
             acceleration = false;
         }
         this._nativeBridge.Sdk.logInfo("Opening game ad with orientation " + orientation + ", hardware acceleration " + (acceleration ? "enabled" : "disabled"));
-        return this._nativeBridge.AndroidAdUnit.open(this._activityId, ["videoplayer", "webview"], orientation, s, 1, acceleration);
+        return this._nativeBridge.AndroidAdUnit.open(this._activityId, ["videoplayer", "webview"], orientation, keyevents, 1, acceleration);
     };
     VideoAdUnit.prototype.onKeyEvent = function (e) {
         4 !== e || this.isVideoActive() || this.hide();

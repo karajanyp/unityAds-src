@@ -2,7 +2,7 @@
  * Created by duo on 2016/8/31.
  */
 
-CMD.register("api.PlacementApi", function (require, t, n) {
+CMD.register("api.PlacementApi", function (require) {
     var NativeApi = require("api.NativeApi");
     var PlacementState = require("placement.PlacementState");
 
@@ -11,12 +11,22 @@ CMD.register("api.PlacementApi", function (require, t, n) {
     }
     extend(PlacementApi, NativeApi);
 
-    PlacementApi.prototype.setDefaultPlacement = function (e) {
-        return this._nativeBridge.invoke(this._apiClass, "setDefaultPlacement", [e]);
+    /**
+     *
+     * @param placement {String}
+     * @returns {Promise}
+     */
+    PlacementApi.prototype.setDefaultPlacement = function (placement) {
+        return this._nativeBridge.invoke(this._apiClass, "setDefaultPlacement", [placement]);
     };
-
-    PlacementApi.prototype.setPlacementState = function (e, n) {
-        return this._nativeBridge.invoke(this._apiClass, "setPlacementState", [e, PlacementState[n]]);
+    /**
+     *
+     * @param placement {String}
+     * @param placementState {Number}
+     * @returns {*}
+     */
+    PlacementApi.prototype.setPlacementState = function (placement, placementState) {
+        return this._nativeBridge.invoke(this._apiClass, "setPlacementState", [placement, PlacementState[placementState]]);
     };
 
     PlacementApi.prototype.setPlacementAnalytics = function (e) {

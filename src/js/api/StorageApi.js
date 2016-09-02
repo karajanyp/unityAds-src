@@ -11,36 +11,36 @@ CMD.register("api.StorageApi", function (require) {
     }
     extend(StorageApi, NativeApi);
 
-    StorageApi.prototype.read = function (e) {
-        return this._nativeBridge.invoke(this._apiClass, "read", [StorageType[e]]);
+    StorageApi.prototype.read = function (storageType) {
+        return this._nativeBridge.invoke(this._apiClass, "read", [StorageType[storageType]]);
     };
-    StorageApi.prototype.write = function (e) {
-        return this._nativeBridge.invoke(this._apiClass, "write", [StorageType[e]]);
+    StorageApi.prototype.write = function (storageType) {
+        return this._nativeBridge.invoke(this._apiClass, "write", [StorageType[storageType]]);
     };
-    StorageApi.prototype.get = function (e, t) {
-        return this._nativeBridge.invoke(this._apiClass, "get", [StorageType[e], t]);
+    StorageApi.prototype.get = function (storageType, key) {
+        return this._nativeBridge.invoke(this._apiClass, "get", [StorageType[storageType], key]);
     };
-    StorageApi.prototype.set = function (e, t, i) {
-        return this._nativeBridge.invoke(this._apiClass, "set", [StorageType[e], t, i]);
+    StorageApi.prototype.set = function (storageType, key, value) {
+        return this._nativeBridge.invoke(this._apiClass, "set", [StorageType[storageType], key, value]);
     };
-    StorageApi.prototype["delete"] = function (e, t) {
-        return this._nativeBridge.invoke(this._apiClass, "delete", [StorageType[e], t]);
+    StorageApi.prototype["delete"] = function (storageType, category) {
+        return this._nativeBridge.invoke(this._apiClass, "delete", [StorageType[storageType], category]);
     };
-    StorageApi.prototype.clear = function (e) {
-        return this._nativeBridge.invoke(this._apiClass, "clear", [StorageType[e]]);
+    StorageApi.prototype.clear = function (storageType) {
+        return this._nativeBridge.invoke(this._apiClass, "clear", [StorageType[storageType]]);
     };
 
     /**
      *
-     * @param storageType
-     * @param category
-     * @param recursive
-     * @return keys {Array}
+     * @param storageType   {String}
+     * @param category      {String}
+     * @param recursive     {Boolean}
+     * @return {Promise}    resolve(keys:Array) | reject(err:StorageError, storageType:StorageType, category:String)
      */
     StorageApi.prototype.getKeys = function (storageType, category, recursive) {
         return this._nativeBridge.invoke(this._apiClass, "getKeys", [StorageType[storageType], category, recursive]);
     };
-    StorageApi.prototype.handleEvent = function (e, t) {
+    StorageApi.prototype.handleEvent = function (e, arg) {
         switch (e) {
         }
     };

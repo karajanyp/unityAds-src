@@ -15,7 +15,12 @@ CMD.register("api.CacheApi", function (require) {
         this.onDownloadError = new Observable();
     }
     extend(CacheApi, NativeApi);
-
+    /**
+     *
+     * @param fileUrl {String}
+     * @param fileId {String}
+     * @returns {Promise}
+     */
     CacheApi.prototype.download = function (fileUrl, fileId) {
         return this._nativeBridge.invoke(this._apiClass, "download", [fileUrl, fileId]);
     };
@@ -28,26 +33,51 @@ CMD.register("api.CacheApi", function (require) {
     CacheApi.prototype.getFiles = function () {
         return this._nativeBridge.invoke(this._apiClass, "getFiles");
     };
-    CacheApi.prototype.getFileInfo = function (e) {
-        return this._nativeBridge.invoke(this._apiClass, "getFileInfo", [e]);
+    /**
+     *
+     * @param fileId {String}
+     * @returns {Promise}
+     */
+    CacheApi.prototype.getFileInfo = function (fileId) {
+        return this._nativeBridge.invoke(this._apiClass, "getFileInfo", [fileId]);
     };
-    CacheApi.prototype.getFilePath = function (e) {
-        return this._nativeBridge.invoke(this._apiClass, "getFilePath", [e]);
+    /**
+     *
+     * @param fileId {String}
+     * @returns {Promise}
+     */
+    CacheApi.prototype.getFilePath = function (fileId) {
+        return this._nativeBridge.invoke(this._apiClass, "getFilePath", [fileId]);
     };
-    CacheApi.prototype.getHash = function (e) {
-        return this._nativeBridge.invoke(this._apiClass, "getHash", [e]);
+    /**
+     *
+     * @param fileId {String}
+     * @returns {Promise}
+     */
+    CacheApi.prototype.getHash = function (fileId) {
+        return this._nativeBridge.invoke(this._apiClass, "getHash", [fileId]);
     };
-    CacheApi.prototype.deleteFile = function (file) {
-        return this._nativeBridge.invoke(this._apiClass, "deleteFile", [file]);
+    /**
+     *
+     * @param fileId {String}
+     * @returns {Promise}
+     */
+    CacheApi.prototype.deleteFile = function (fileId) {
+        return this._nativeBridge.invoke(this._apiClass, "deleteFile", [fileId]);
     };
-    CacheApi.prototype.setProgressInterval = function (e) {
-        return this._nativeBridge.invoke(this._apiClass, "setProgressInterval", [e]);
+    /**
+     *
+     * @param interval {Number}
+     * @returns {Promise}
+     */
+    CacheApi.prototype.setProgressInterval = function (interval) {
+        return this._nativeBridge.invoke(this._apiClass, "setProgressInterval", [interval]);
     };
     CacheApi.prototype.getProgressInterval = function () {
         return this._nativeBridge.invoke(this._apiClass, "getProgressInterval");
     };
-    CacheApi.prototype.setTimeouts = function (e, t) {
-        return this._nativeBridge.invoke(this._apiClass, "setTimeouts", [e, t]);
+    CacheApi.prototype.setTimeouts = function (connectTimeout, readTimeout) {
+        return this._nativeBridge.invoke(this._apiClass, "setTimeouts", [connectTimeout, readTimeout]);
     };
     CacheApi.prototype.getTimeouts = function () {
         return this._nativeBridge.invoke(this._apiClass, "getTimeouts");
@@ -58,30 +88,30 @@ CMD.register("api.CacheApi", function (require) {
     CacheApi.prototype.getTotalSpace = function () {
         return this._nativeBridge.invoke(this._apiClass, "getTotalSpace");
     };
-    CacheApi.prototype.handleEvent = function (e, d) {
+    CacheApi.prototype.handleEvent = function (e, args) {
         switch (e) {
             case CacheEvent[CacheEvent.DOWNLOAD_STARTED]:
-                this.onDownloadStarted.trigger(d[0], d[1], d[2], d[3], d[4]);
+                this.onDownloadStarted.trigger(args[0], args[1], args[2], args[3], args[4]);
                 break;
 
             case CacheEvent[CacheEvent.DOWNLOAD_PROGRESS]:
-                this.onDownloadProgress.trigger(d[0], d[1], d[2]);
+                this.onDownloadProgress.trigger(args[0], args[1], args[2]);
                 break;
 
             case CacheEvent[CacheEvent.DOWNLOAD_END]:
-                this.onDownloadEnd.trigger(d[0], d[1], d[2], d[3], d[4], d[5]);
+                this.onDownloadEnd.trigger(args[0], args[1], args[2], args[3], args[4], args[5]);
                 break;
 
             case CacheEvent[CacheEvent.DOWNLOAD_STOPPED]:
-                this.onDownloadStopped.trigger(d[0], d[1], d[2], d[3], d[4], d[5]);
+                this.onDownloadStopped.trigger(args[0], args[1], args[2], args[3], args[4], args[5]);
                 break;
 
             case CacheEvent[CacheEvent.DOWNLOAD_ERROR]:
-                this.onDownloadError.trigger(d[0], d[1], d[2]);
+                this.onDownloadError.trigger(args[0], args[1], args[2]);
                 break;
 
             default:
-                NativeApi.prototype.handleEvent.call(this, e, d);
+                NativeApi.prototype.handleEvent.call(this, e, args);
         }
     };
     return CacheApi;
