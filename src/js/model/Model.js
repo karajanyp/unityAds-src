@@ -3,6 +3,6 @@
  */
 CMD.register("model.Model", function () {
     var Model = function () {
-    }();
+    };
     return Model;
 });

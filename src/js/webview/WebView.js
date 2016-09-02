@@ -46,7 +46,9 @@ CMD.register("webview.WebView", function (require) {
         var me = this;
         return this._nativeBridge.Sdk.loadComplete()
             .then(function (nativeClientInfo) {
+                me._nativeBridge.Sdk.logError("=====+===+========new DeviceInfo before");
                 me._deviceInfo = new DeviceInfo(me._nativeBridge);
+                me._nativeBridge.Sdk.logError("=====+===+========new DeviceInfo after");
                 me._wakeUpManager = new WakeUpManager(me._nativeBridge);
                 me._cacheManager = new CacheManager(me._nativeBridge, me._wakeUpManager);
                 me._request = new Request(me._nativeBridge, me._wakeUpManager);
