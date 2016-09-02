@@ -2,12 +2,11 @@
 document.addEventListener('DOMContentLoaded', function () {//}, false);
 
 /**
- * Created by duo on 2016/8/24.
+ * Created by duo on 2016/9/2.
  */
-
-(function(exports){
+!(function(exports){
     var moduleCache = {},
-    pending = {};
+        pending = {};
 
     var require = exports.require = function(id) {
         var mod = moduleCache[id];
@@ -53,30 +52,25 @@ document.addEventListener('DOMContentLoaded', function () {//}, false);
 }(window.CMD || (window.CMD = {})));
 
 /**
- * 扩展对象
- * @grammer __extends(dest, src);
- * @type {Function}
- * @param Object dest
- * @param Object src
+ * Created by duo on 2016/8/24.
  */
-var extend = (this && this.extend) || function (dest, src) {
-    for (var key in src){
-        if (src.hasOwnProperty(key)){
-            dest[key] = src[key];
+var extend = this && this.extend || function (constructor, superClass) {
+    function cls() {
+        this.constructor = constructor;
+    }
+
+    for (var key in superClass){
+        if(superClass.hasOwnProperty(key) ){
+            constructor[key] = superClass[key];
         }
     }
-    function __() {
-        this.constructor = dest;
-    }
-
-    if(src === null){
-        dest.prototype = Object.create(src);
+    if(null === superClass){
+        constructor.prototype = Object.create(superClass);
     }else{
-        __.prototype = src.prototype;
-        dest.prototype = new __();
+        cls.prototype = superClass.prototype;
+        constructor.prototype = new cls();
     }
 };
-
 /**
  * 遍历数组项
  * @param fn {Function} 遍历回调方法
@@ -135,8 +129,13 @@ Array.prototype.forEach || (Array.prototype.forEach = function (fn, context) {
         return api;
     }
 });
-/**
- * Created by duo on 2016/8/31.
+
+/*!
+ * @overview es6-promise - a tiny implementation of Promises/A+.
+ * @copyright Copyright (c) 2014 Yehuda Katz, Tom Dale, Stefan Penner and contributors (Conversion to ES6 API by Jake Archibald)
+ * @license   Licensed under MIT license
+ *            See https://raw.githubusercontent.com/jakearchibald/es6-promise/master/LICENSE
+ * @version   3.2.1
  */
 
 !(function () {
@@ -657,39 +656,6 @@ Array.prototype.forEach || (Array.prototype.forEach = function (fn, context) {
     polyfill();
 
 }).call(this);
-
-CMD.register("platform.Platform", function(require, exports){
-    var platform = {};
-
-    platform[platform.ANDROID = 0] = "ANDROID";
-    platform[platform.IOS = 1] = "IOS";
-    platform[platform.TEST = 2] = "TEST";
-
-    return platform;
-});
-
-/**
- * Created by duo on 2016/8/31.
- */
-CMD.register("webview.bridge.IosWebViewBridge", function(){
-
-    function IosWebViewBridge() {}
-
-    IosWebViewBridge.prototype.handleInvocation = function (t) {
-        var xhr = new XMLHttpRequest();
-        xhr.open("POST", IosWebViewBridge._nativeUrl + "/handleInvocation", false);
-        xhr.send(t);
-    };
-    IosWebViewBridge.prototype.handleCallback = function (id, callbackStatus, parameters) {
-        var xhr = new XMLHttpRequest();
-        xhr.open("POST", IosWebViewBridge._nativeUrl + "/handleCallback", false);
-        xhr.send('{"id":"' + id + '","status":"' + callbackStatus + '","parameters":' + parameters + "}");
-    };
-    IosWebViewBridge._nativeUrl = "https://webviewbridge.unityads.unity3d.com";
-
-    return IosWebViewBridge;
-});
-
 
 /**
  * Created by duo on 2016/9/1.
@@ -4055,11 +4021,11 @@ CMD.register("configuration.ConfigManager", function (require) {
 
     function ConfigManager() {}
 
-    ConfigManager.fetch = function (t, o, a, s) {
-        return MetaDataManager.fetchAdapterMetaData(t).then(function (i) {
-            var c = ConfigManager.createConfigUrl(a, s, i);
-            t.Sdk.logInfo("Requesting configuration from " + c);
-            return o.get(c, [], {
+    ConfigManager.fetch = function (nativeBridge, request, clientInfo, deviceInfo) {
+        return MetaDataManager.fetchAdapterMetaData(nativeBridge).then(function (i) {
+            var configUrl = ConfigManager.createConfigUrl(clientInfo, deviceInfo, i);
+            nativeBridge.Sdk.logInfo("Requesting configuration from " + configUrl);
+            return request.get(configUrl, [], {
                 retries: 5,
                 retryDelay: 5e3,
                 followRedirects: false,
@@ -4068,10 +4034,10 @@ CMD.register("configuration.ConfigManager", function (require) {
                 try {
                     var i = JsonParser.parse(e.response),
                         o = new Configuration(i);
-                    t.Sdk.logInfo("Received configuration with " + o.getPlacementCount() + " placements");
+                    nativeBridge.Sdk.logInfo("Received configuration with " + o.getPlacementCount() + " placements");
                     return o;
                 } catch (e) {
-                    t.Sdk.logError("Config request failed " + e);
+                    nativeBridge.Sdk.logError("Config request failed " + e);
                     throw new Error(e);
                 }
             });
@@ -4117,24 +4083,30 @@ CMD.register("device.ClientInfo", function (require, t, n) {
     var AdsError = require("AdsError");
     var Platform = require("platform.Platform");
 
-    function ClientInfo(platform, n) {
+    /**
+     * SDK环境信息
+     * @param platform
+     * @param nativeClientInfo {Array} 由Native提供
+     * @constructor
+     */
+    function ClientInfo(platform, nativeClientInfo) {
         Model.call(this);
         this._platform = platform;
-        var r = n.shift();
+        var r = nativeClientInfo.shift();
         if ("string" != typeof r || !/^\d+$/.test(r)){
             throw new Error(AdsError[AdsError.INVALID_ARGUMENT]);
         }
         this._gameId = r;
-        this._testMode = n.shift();
-        this._applicationName = n.shift();
-        this._applicationVersion = n.shift();
-        this._sdkVersion = n.shift();
-        this._sdkVersionName = n.shift();
-        this._debuggable = n.shift();
-        this._configUrl = n.shift();
-        this._webviewUrl = n.shift();
-        this._webviewHash = n.shift();
-        this._webviewVersion = n.shift();
+        this._testMode = nativeClientInfo.shift();
+        this._applicationName = nativeClientInfo.shift();
+        this._applicationVersion = nativeClientInfo.shift();
+        this._sdkVersion = nativeClientInfo.shift();
+        this._sdkVersionName = nativeClientInfo.shift();
+        this._debuggable = nativeClientInfo.shift();
+        this._configUrl = nativeClientInfo.shift();
+        this._webviewUrl = nativeClientInfo.shift();
+        this._webviewHash = nativeClientInfo.shift();
+        this._webviewVersion = nativeClientInfo.shift();
     }
     extend(ClientInfo, Model);
 
@@ -4997,7 +4969,7 @@ CMD.register("metadata.MetaDataManager", function (require) {
         if(r && MetaDataManager.caches[t]){
             return Promise.resolve(MetaDataManager.caches[t]);
         }else{
-            return  MetaDataManager.getValues(t, n, i).then(function (n) {
+            return MetaDataManager.getValues(t, n, i).then(function (n) {
                 return MetaDataManager.createAndCache(t, n, r);
             });
         }
@@ -5120,6 +5092,16 @@ CMD.register("placement.PlacementState", function () {
     PlacementState[PlacementState.NO_FILL = 4] = "NO_FILL";
 
     return PlacementState;
+});
+
+CMD.register("platform.Platform", function(require, exports){
+    var platform = {};
+
+    platform[platform.ANDROID = 0] = "ANDROID";
+    platform[platform.IOS = 1] = "IOS";
+    platform[platform.TEST = 2] = "TEST";
+
+    return platform;
 });
 
 /**
@@ -7477,14 +7459,14 @@ CMD.register("webview.WebView", function (require) {
     WebView.prototype.initialize = function () {
         var me = this;
         return this._nativeBridge.Sdk.loadComplete()
-            .then(function (t) {
+            .then(function (nativeClientInfo) {
                 me._deviceInfo = new DeviceInfo(me._nativeBridge);
                 me._wakeUpManager = new WakeUpManager(me._nativeBridge);
                 me._cacheManager = new CacheManager(me._nativeBridge, me._wakeUpManager);
                 me._request = new Request(me._nativeBridge, me._wakeUpManager);
                 me._resolve = new Resolve(me._nativeBridge);
                 me._eventManager = new EventManager(me._nativeBridge, me._request);
-                me._clientInfo = new ClientInfo(me._nativeBridge.getPlatform(), t);
+                me._clientInfo = new ClientInfo(me._nativeBridge.getPlatform(), nativeClientInfo);
                 return me._deviceInfo.fetch();
             })
             .then(function () {
@@ -7991,9 +7973,9 @@ CMD.register("webview.bridge.BatchInvocation", function(require){
     BatchInvocation.prototype.rawQueue = function (apiClass, method, args) {
         var me = this;
         void 0 === args && (args = []);
-        return new Promise(function (r, o) {
-            var id = me._nativeBridge.registerCallback(r, o);
-            me._batch.push([apiClass, method, args, id.toString()]);
+        return new Promise(function (resolve, reject) {
+            var jsCallbackId = me._nativeBridge.registerCallback(resolve, reject);
+            me._batch.push([apiClass, method, args, jsCallbackId.toString()]);
         });
     };
     BatchInvocation.prototype.getBatch = function () {
@@ -8027,6 +8009,29 @@ CMD.register("webview.bridge.CallbackStatus", function(){
 
     return CallbackStatus;
 });
+/**
+ * Created by duo on 2016/8/31.
+ */
+CMD.register("webview.bridge.IosWebViewBridge", function(){
+
+    function IosWebViewBridge() {}
+
+    IosWebViewBridge.prototype.handleInvocation = function (t) {
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", IosWebViewBridge._nativeUrl + "/handleInvocation", false);
+        xhr.send(t);
+    };
+    IosWebViewBridge.prototype.handleCallback = function (id, callbackStatus, parameters) {
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", IosWebViewBridge._nativeUrl + "/handleCallback", false);
+        xhr.send('{"id":"' + id + '","status":"' + callbackStatus + '","parameters":' + parameters + "}");
+    };
+    IosWebViewBridge._nativeUrl = "https://webviewbridge.unityads.unity3d.com";
+
+    return IosWebViewBridge;
+});
+
+
 /**
  * Created by duo on 2016/8/31.
  */

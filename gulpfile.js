@@ -11,11 +11,11 @@ var DIR_DIST = "dist";
 
 //待合并的JS文件
 var comboFileList = [
-    DIR_SRC + '/js/wrap-before.js',
-    DIR_SRC + '/js/base.js',
-    DIR_SRC + '/js/Promise.js',
-    DIR_SRC + '/js/platform/Platform.js',
-    DIR_SRC + '/js/webview/bridge/IosWebViewBridge.js',
+    //base
+    DIR_SRC + '/js/base/wrap-before.js',
+    DIR_SRC + '/js/base/CMD.js',
+    DIR_SRC + '/js/base/compat.js',
+    DIR_SRC + '/js/base/Promise.js',
 
     //ad unit
     DIR_SRC + '/js/adunit/AbstractAdUnit.js',
@@ -151,7 +151,8 @@ var comboFileList = [
     DIR_SRC + '/js/AdsError.js',
     DIR_SRC + '/js/FinishState.js',
     DIR_SRC + '/js/main.js',
-    DIR_SRC + '/js/wrap-after.js'
+
+    DIR_SRC + '/js/base/wrap-after.js'
 ];
 
 gulp.task("default", ["inline-dist"]);

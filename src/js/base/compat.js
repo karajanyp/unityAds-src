@@ -1,79 +1,23 @@
 /**
  * Created by duo on 2016/8/24.
  */
-
-(function(exports){
-    var moduleCache = {},
-    pending = {};
-
-    var require = exports.require = function(id) {
-        var mod = moduleCache[id];
-        if (!mod) {
-            throw ('required module not found: ' + id);
-        }
-        return (mod.loaded || pending[id]) ? mod : exec(mod);
-    };
-    var register = exports.register = function(id, factory) {
-        if (typeof factory !== 'function')
-            throw ('invalid module: ' + factory);
-        makeModule(id, factory);
-    };
-    function exec(module) {
-        pending[module.id] = true;
-        var exports = module.factory(module.require, module.exports, module);
-        if(exports){
-            module.exports = exports;
-        }
-        module.loaded = true;
-
-        pending[module.id] = false;
-        return module;
+var extend = this && this.extend || function (constructor, superClass) {
+    function cls() {
+        this.constructor = constructor;
     }
-    function makeModule(id, factory) {
-        var mod = {
-            require: function(mid) {
-                var dep = require(mid);
-                return dep.exports;
-            },
-            id: id,
-            exports: {},
-            factory: factory,
-            loaded: false
-        };
 
-        return moduleCache[id] = mod;
-    }
-    return {
-        require: require,
-        register: register
-    }
-}(window.CMD || (window.CMD = {})));
-
-/**
- * 扩展对象
- * @grammer __extends(dest, src);
- * @type {Function}
- * @param Object dest
- * @param Object src
- */
-var extend = (this && this.extend) || function (dest, src) {
-    for (var key in src){
-        if (src.hasOwnProperty(key)){
-            dest[key] = src[key];
+    for (var key in superClass){
+        if(superClass.hasOwnProperty(key) ){
+            constructor[key] = superClass[key];
         }
     }
-    function __() {
-        this.constructor = dest;
-    }
-
-    if(src === null){
-        dest.prototype = Object.create(src);
+    if(null === superClass){
+        constructor.prototype = Object.create(superClass);
     }else{
-        __.prototype = src.prototype;
-        dest.prototype = new __();
+        cls.prototype = superClass.prototype;
+        constructor.prototype = new cls();
     }
 };
-
 /**
  * 遍历数组项
  * @param fn {Function} 遍历回调方法
