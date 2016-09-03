@@ -1,25 +1,25 @@
 /**
  * Created by duo on 2016/9/1.
  */
-CMD.register("device.ClientInfo", function (require, t, n) {
+CMD.register("device.ClientInfo", function (require) {
     var Model = require("model.Model");
     var AdsError = require("AdsError");
     var Platform = require("platform.Platform");
 
     /**
-     * SDK环境信息
+     * SDK Environment info
      * @param platform
-     * @param nativeClientInfo {Array} 由Native提供
+     * @param nativeClientInfo {Array} from native
      * @constructor
      */
     function ClientInfo(platform, nativeClientInfo) {
         Model.call(this);
         this._platform = platform;
-        var r = nativeClientInfo.shift();
-        if ("string" != typeof r || !/^\d+$/.test(r)){
+        var gameId = nativeClientInfo.shift();
+        if ("string" != typeof gameId || !/^\d+$/.test(gameId)){
             throw new Error(AdsError[AdsError.INVALID_ARGUMENT]);
         }
-        this._gameId = r;
+        this._gameId = gameId;
         this._testMode = nativeClientInfo.shift();
         this._applicationName = nativeClientInfo.shift();
         this._applicationVersion = nativeClientInfo.shift();

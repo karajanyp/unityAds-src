@@ -15,136 +15,140 @@ CMD.register("device.DeviceInfo", function (require) {
     }
     extend(DeviceInfo, Model);
     DeviceInfo.prototype.fetch = function () {
-        var me = this, t = [];
-        t.push(this._nativeBridge.DeviceInfo.getAdvertisingTrackingId().then(function (id) {
+        var me = this, tasks = [];
+        tasks.push(this._nativeBridge.DeviceInfo.getAdvertisingTrackingId().then(function (id) {
             return me._advertisingIdentifier = id;
         }).catch(function (e) {
             return me.handleDeviceInfoError(e);
         }));
 
-        t.push(this._nativeBridge.DeviceInfo.getLimitAdTrackingFlag().then(function (flag) {
-            me._nativeBridge.getPlatform() === Platform.IOS ? me._limitAdTracking = !flag : me._limitAdTracking = flag;
+        tasks.push(this._nativeBridge.DeviceInfo.getLimitAdTrackingFlag().then(function (flag) {
+            if(me._nativeBridge.getPlatform() === Platform.IOS){
+                me._limitAdTracking = !flag
+            }else{
+                me._limitAdTracking = flag;
+            }
         })["catch"](function (e) {
             return me.handleDeviceInfoError(e);
         }));
 
-        t.push(this._nativeBridge.DeviceInfo.getOsVersion().then(function (version) {
+        tasks.push(this._nativeBridge.DeviceInfo.getOsVersion().then(function (version) {
             return me._osVersion = version;
         })["catch"](function (e) {
             return me.handleDeviceInfoError(e);
         }));
 
-        t.push(this._nativeBridge.DeviceInfo.getModel().then(function (model) {
+        tasks.push(this._nativeBridge.DeviceInfo.getModel().then(function (model) {
             return me._model = model;
         })["catch"](function (e) {
             return me.handleDeviceInfoError(e);
         }));
 
-        t.push(this._nativeBridge.DeviceInfo.getScreenWidth().then(function (width) {
+        tasks.push(this._nativeBridge.DeviceInfo.getScreenWidth().then(function (width) {
             return me._screenWidth = width;
         })["catch"](function (e) {
             return me.handleDeviceInfoError(e);
         }));
 
-        t.push(this._nativeBridge.DeviceInfo.getScreenHeight().then(function (height) {
+        tasks.push(this._nativeBridge.DeviceInfo.getScreenHeight().then(function (height) {
             return me._screenHeight = height;
         })["catch"](function (e) {
             return me.handleDeviceInfoError(e);
         }));
 
-        t.push(this._nativeBridge.DeviceInfo.getSystemLanguage().then(function (lang) {
+        tasks.push(this._nativeBridge.DeviceInfo.getSystemLanguage().then(function (lang) {
             return me._language = lang;
         })["catch"](function (e) {
             return me.handleDeviceInfoError(e);
         }));
 
-        t.push(this._nativeBridge.DeviceInfo.isRooted().then(function (rooted) {
+        tasks.push(this._nativeBridge.DeviceInfo.isRooted().then(function (rooted) {
             return me._rooted = rooted;
         })["catch"](function (e) {
             return me.handleDeviceInfoError(e);
         }));
 
-        t.push(this._nativeBridge.DeviceInfo.getTimeZone(false).then(function (timeZone) {
+        tasks.push(this._nativeBridge.DeviceInfo.getTimeZone(false).then(function (timeZone) {
             return me._timeZone = timeZone;
         })["catch"](function (e) {
             return me.handleDeviceInfoError(e);
         }));
 
-        t.push(this._nativeBridge.DeviceInfo.getTotalMemory().then(function (totalMemory) {
+        tasks.push(this._nativeBridge.DeviceInfo.getTotalMemory().then(function (totalMemory) {
             return me._totalMemory = totalMemory;
         })["catch"](function (e) {
             return me.handleDeviceInfoError(e);
         }));
 
         if(this._nativeBridge.getPlatform() === Platform.IOS ){
-            t.push(this._nativeBridge.DeviceInfo.Ios.getUserInterfaceIdiom().then(function (userInterfaceIdiom) {
+            tasks.push(this._nativeBridge.DeviceInfo.Ios.getUserInterfaceIdiom().then(function (userInterfaceIdiom) {
                 return me._userInterfaceIdiom = userInterfaceIdiom;
             })["catch"](function (e) {
                 return me.handleDeviceInfoError(e);
             }));
 
-            t.push(this._nativeBridge.DeviceInfo.Ios.getScreenScale().then(function (scale) {
+            tasks.push(this._nativeBridge.DeviceInfo.Ios.getScreenScale().then(function (scale) {
                 return me._screenScale = scale;
             })["catch"](function (e) {
                 return me.handleDeviceInfoError(e);
             }));
 
-            t.push(this._nativeBridge.DeviceInfo.Ios.isSimulator().then(function (isSimulator) {
+            tasks.push(this._nativeBridge.DeviceInfo.Ios.isSimulator().then(function (isSimulator) {
                 return me._simulator = isSimulator;
             })["catch"](function (e) {
                 return me.handleDeviceInfoError(e);
             }));
 
-            t.push(this._nativeBridge.DeviceInfo.Ios.getTotalSpace().then(function (totalSpace) {
+            tasks.push(this._nativeBridge.DeviceInfo.Ios.getTotalSpace().then(function (totalSpace) {
                 return me._totalInternalSpace = totalSpace;
             })["catch"](function (e) {
                 return me.handleDeviceInfoError(e);
             }))
         } else if(this._nativeBridge.getPlatform() === Platform.ANDROID){
-            t.push(this._nativeBridge.DeviceInfo.Android.getAndroidId().then(function (id) {
+            tasks.push(this._nativeBridge.DeviceInfo.Android.getAndroidId().then(function (id) {
                 return me._androidId = id;
             })["catch"](function (e) {
                 return me.handleDeviceInfoError(e);
             }));
 
-            t.push(this._nativeBridge.DeviceInfo.Android.getApiLevel().then(function (apiLevel) {
+            tasks.push(this._nativeBridge.DeviceInfo.Android.getApiLevel().then(function (apiLevel) {
                 return me._apiLevel = apiLevel;
             })["catch"](function (e) {
                 return me.handleDeviceInfoError(e);
             }));
 
-            t.push(this._nativeBridge.DeviceInfo.Android.getTotalSpace(AndroidStorageType.INTERNAL).then(function (totalSpace) {
+            tasks.push(this._nativeBridge.DeviceInfo.Android.getTotalSpace(AndroidStorageType.INTERNAL).then(function (totalSpace) {
                 return me._totalInternalSpace = totalSpace;
             })["catch"](function (e) {
                 return me.handleDeviceInfoError(e);
             }));
 
-            t.push(this._nativeBridge.DeviceInfo.Android.getTotalSpace(AndroidStorageType.EXTERNAL).then(function (totalSpace) {
+            tasks.push(this._nativeBridge.DeviceInfo.Android.getTotalSpace(AndroidStorageType.EXTERNAL).then(function (totalSpace) {
                 return me._totalExternalSpace = totalSpace;
             })["catch"](function (e) {
                 return me.handleDeviceInfoError(e);
             }));
 
-            t.push(this._nativeBridge.DeviceInfo.Android.getManufacturer().then(function (manufacturer) {
+            tasks.push(this._nativeBridge.DeviceInfo.Android.getManufacturer().then(function (manufacturer) {
                 return me._manufacturer = manufacturer;
             })["catch"](function (e) {
                 return me.handleDeviceInfoError(e);
             }));
 
-            t.push(this._nativeBridge.DeviceInfo.Android.getScreenDensity().then(function (screenDensity) {
+            tasks.push(this._nativeBridge.DeviceInfo.Android.getScreenDensity().then(function (screenDensity) {
                 return me._screenDensity = screenDensity;
             })["catch"](function (e) {
                 return me.handleDeviceInfoError(e);
             }));
 
-            t.push(this._nativeBridge.DeviceInfo.Android.getScreenLayout().then(function (screenLayout) {
+            tasks.push(this._nativeBridge.DeviceInfo.Android.getScreenLayout().then(function (screenLayout) {
                 return me._screenLayout = screenLayout;
             })["catch"](function (e) {
                 return me.handleDeviceInfoError(e);
             }))
         }
 
-        return Promise.all(t);
+        return Promise.all(tasks);
     };
     DeviceInfo.prototype.getAndroidId = function () {
         return this._androidId;
@@ -343,53 +347,53 @@ CMD.register("device.DeviceInfo", function (require) {
         return this._totalMemory;
     };
     DeviceInfo.prototype.getDTO = function () {
-        var me = this, t = [];
-        t.push(this.getConnectionType()["catch"](function (e) {
+        var me = this, tasks = [];
+        tasks.push(this.getConnectionType()["catch"](function (e) {
             return me.handleDeviceInfoError(e);
         }));
-        t.push(this.getNetworkType()["catch"](function (e) {
+        tasks.push(this.getNetworkType()["catch"](function (e) {
             return me.handleDeviceInfoError(e);
         }));
-        t.push(this.getNetworkOperator()["catch"](function (e) {
+        tasks.push(this.getNetworkOperator()["catch"](function (e) {
             return me.handleDeviceInfoError(e);
         }));
-        t.push(this.getNetworkOperatorName()["catch"](function (e) {
+        tasks.push(this.getNetworkOperatorName()["catch"](function (e) {
             return me.handleDeviceInfoError(e);
         }));
-        t.push(this.getHeadset()["catch"](function (e) {
+        tasks.push(this.getHeadset()["catch"](function (e) {
             return me.handleDeviceInfoError(e);
         }));
-        t.push(this.getDeviceVolume()["catch"](function (e) {
+        tasks.push(this.getDeviceVolume()["catch"](function (e) {
             return me.handleDeviceInfoError(e);
         }));
-        t.push(this.getScreenBrightness()["catch"](function (e) {
+        tasks.push(this.getScreenBrightness()["catch"](function (e) {
             return me.handleDeviceInfoError(e);
         }));
-        t.push(this.getFreeSpace()["catch"](function (e) {
+        tasks.push(this.getFreeSpace()["catch"](function (e) {
             return me.handleDeviceInfoError(e);
         }));
-        t.push(this.getBatteryLevel()["catch"](function (e) {
+        tasks.push(this.getBatteryLevel()["catch"](function (e) {
             return me.handleDeviceInfoError(e);
         }));
-        t.push(this.getBatteryStatus()["catch"](function (e) {
+        tasks.push(this.getBatteryStatus()["catch"](function (e) {
             return me.handleDeviceInfoError(e);
         }));
-        t.push(this.getFreeMemory()["catch"](function (e) {
+        tasks.push(this.getFreeMemory()["catch"](function (e) {
             return me.handleDeviceInfoError(e);
         }));
         if(this._nativeBridge.getPlatform() === Platform.IOS ){
-            t.push(this.isAppleWatchPaired()["catch"](function (e) {
+            tasks.push(this.isAppleWatchPaired()["catch"](function (e) {
                 return me.handleDeviceInfoError(e);
             }))
         }else if(this._nativeBridge.getPlatform() === Platform.ANDROID){
-            t.push(this.getFreeSpaceExternal()["catch"](function (e) {
+            tasks.push(this.getFreeSpaceExternal()["catch"](function (e) {
                 return me.handleDeviceInfoError(e);
             }));
-            t.push(this.getRingerMode()["catch"](function (e) {
+            tasks.push(this.getRingerMode()["catch"](function (e) {
                 return me.handleDeviceInfoError(e);
             }))
         }
-        return Promise.all(t).then(function (t) {
+        return Promise.all(tasks).then(function () {
             return {
                 androidId: me._androidId,
                 advertisingId: me._advertisingIdentifier,

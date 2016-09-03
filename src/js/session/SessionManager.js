@@ -19,9 +19,9 @@ CMD.register("session.SessionManager", function (require) {
     };
     SessionManager.prototype.create = function () {
         var me = this;
-        return this._eventManager.getUniqueEventId().then(function (n) {
-            me._currentSession = new Session(n);
-            return me._eventManager.startNewSession(n);
+        return this._eventManager.getUniqueEventId().then(function (id) {
+            me._currentSession = new Session(id);
+            return me._eventManager.startNewSession(id);
         });
     };
     SessionManager.prototype.getSession = function () {

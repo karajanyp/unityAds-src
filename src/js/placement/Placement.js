@@ -2,17 +2,17 @@
  * Created by duo on 2016/8/31.
  */
 
-CMD.register("placement.Placement", function (require) {
+CMD.register("placement.Placement", function () {
 
-    function Placement(e) {
-        this._id = e.id;
-        this._name = e.name;
-        this._default = e["default"];
-        this._allowSkip = e.allowSkip;
-        this._skipInSeconds = e.skipInSeconds;
-        this._disableBackButton = e.disableBackButton;
-        this._useDeviceOrientationForVideo = e.useDeviceOrientationForVideo;
-        this._muteVideo = e.muteVideo;
+    function Placement(placementData) {
+        this._id = placementData.id;
+        this._name = placementData.name;
+        this._default = placementData["default"];
+        this._allowSkip = placementData.allowSkip;
+        this._skipInSeconds = placementData.skipInSeconds;
+        this._disableBackButton = placementData.disableBackButton;
+        this._useDeviceOrientationForVideo = placementData.useDeviceOrientationForVideo;
+        this._muteVideo = placementData.muteVideo;
     }
     Placement.prototype.getId = function () {
         return this._id;

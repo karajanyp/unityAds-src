@@ -10,20 +10,20 @@ CMD.register("configuration.ConfigManager", function (require) {
     function ConfigManager() {}
 
     ConfigManager.fetch = function (nativeBridge, request, clientInfo, deviceInfo) {
-        return MetaDataManager.fetchAdapterMetaData(nativeBridge).then(function (i) {
-            var configUrl = ConfigManager.createConfigUrl(clientInfo, deviceInfo, i);
+        return MetaDataManager.fetchAdapterMetaData(nativeBridge).then(function (metaData) {
+            var configUrl = ConfigManager.createConfigUrl(clientInfo, deviceInfo, metaData);
             nativeBridge.Sdk.logInfo("Requesting configuration from " + configUrl);
             return request.get(configUrl, [], {
                 retries: 5,
                 retryDelay: 5e3,
                 followRedirects: false,
                 retryWithConnectionEvents: true
-            }).then(function (e) {
+            }).then(function (res) {
                 try {
-                    var i = JsonParser.parse(e.response),
-                        o = new Configuration(i);
-                    nativeBridge.Sdk.logInfo("Received configuration with " + o.getPlacementCount() + " placements");
-                    return o;
+                    var configData = JsonParser.parse(res.response),
+                        configuration = new Configuration(configData);
+                    nativeBridge.Sdk.logInfo("Received configuration with " + configuration.getPlacementCount() + " placements");
+                    return configuration;
                 } catch (e) {
                     nativeBridge.Sdk.logError("Config request failed " + e);
                     throw new Error(e);
@@ -34,15 +34,15 @@ CMD.register("configuration.ConfigManager", function (require) {
     ConfigManager.setTestBaseUrl = function (baseUrl) {
         ConfigManager.ConfigBaseUrl = baseUrl + "/games";
     };
-    ConfigManager.createConfigUrl = function (n, i, r) {
-        var configUrl = [ConfigManager.ConfigBaseUrl, n.getGameId(), "configuration"].join("/");
+    ConfigManager.createConfigUrl = function (clientInfo, deviceInfo, metaData) {
+        var configUrl = [ConfigManager.ConfigBaseUrl, clientInfo.getGameId(), "configuration"].join("/");
         configUrl = Url.addParameters(configUrl, {
-            bundleId: n.getApplicationName(),
-            encrypted: !n.isDebuggable(),
-            rooted: i.isRooted()
+            bundleId: clientInfo.getApplicationName(),
+            encrypted: !clientInfo.isDebuggable(),
+            rooted: deviceInfo.isRooted()
         });
-        if(r){
-            configUrl = Url.addParameters(configUrl, r.getDTO());
+        if(metaData){
+            configUrl = Url.addParameters(configUrl, metaData.getDTO());
         }
         return configUrl;
     };

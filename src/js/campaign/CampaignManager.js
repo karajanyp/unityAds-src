@@ -26,52 +26,53 @@ CMD.register("campaign.CampaignManager", function (require) {
     };
     CampaignManager.prototype.request = function () {
         var me = this;
-        return Promise.all([this.createRequestUrl(), this.createRequestBody()]).then(function (t) {
-            var n = t[0], a = t[1];
-            me._nativeBridge.Sdk.logInfo("Requesting ad plan from " + n);
-            return me._request.post(n, a, [], {
+        return Promise.all([this.createRequestUrl(), this.createRequestBody()]).then(function (res) {
+            var requestUrl = res[0],
+                requestBody = res[1];
+            me._nativeBridge.Sdk.logInfo("Requesting ad plan from " + requestUrl);
+            return me._request.post(requestUrl, requestBody, [], {
                 retries: 5,
                 retryDelay: 5e3,
-                followRedirects: !1,
-                retryWithConnectionEvents: !0
-            }).then(function (t) {
-                var n = JsonParser.parse(t.response);
-                if (n.campaign) {
+                followRedirects: false,
+                retryWithConnectionEvents: true
+            }).then(function (data) {
+                var response = JsonParser.parse(data.response);
+                if (response.campaign) {
                     me._nativeBridge.Sdk.logInfo("Unity Ads server returned game advertisement");
-                    var a = new Campaign(n.campaign, n.gamerId, n.abGroup);
-                    me.onCampaign.trigger(a);
-                } else if("vast" in n ){
-                    if(null === n.vast){
+                    var campaign = new Campaign(response.campaign, response.gamerId, response.abGroup);
+                    me.onCampaign.trigger(campaign);
+                } else if("vast" in response ){
+                    if(null === response.vast){
                         me._nativeBridge.Sdk.logInfo("Unity Ads server returned no fill");
                         me.onNoFill.trigger(3600)
                     }else{
                         me._nativeBridge.Sdk.logInfo("Unity Ads server returned VAST advertisement");
-                        me._vastParser.retrieveVast(n.vast, me._nativeBridge, me._request).then(function (t) {
-                            var i = void 0;
+                        me._vastParser.retrieveVast(response.vast, me._nativeBridge, me._request).then(function (vastData) {
+                            var campaignId = void 0;
                             if(me._nativeBridge.getPlatform() === Platform.IOS){
-                                i = "00005472656d6f7220694f53";
+                                campaignId = "00005472656d6f7220694f53";
                             }else if(me._nativeBridge.getPlatform() === Platform.ANDROID){
-                                i = "005472656d6f7220416e6472";
+                                campaignId = "005472656d6f7220416e6472";
                             }
 
-                            var a = new VastCampaign(t, i, n.gamerId, n.abGroup);
-                            if(0 === a.getVast().getImpressionUrls().length){
+                            var vastCampaign = new VastCampaign(vastData, campaignId, response.gamerId, response.abGroup);
+                            if(0 === vastCampaign.getVast().getImpressionUrls().length){
                                 me.onError.trigger(new Error("Campaign does not have an impression url"))
 
                             }else{
-                                if(0 === a.getVast().getErrorURLTemplates().length){
+                                if(0 === vastCampaign.getVast().getErrorURLTemplates().length){
                                     me._nativeBridge.Sdk.logWarning("Campaign does not have an error url for game id " + me._clientInfo.getGameId())
                                 }
-                                if(a.getVideoUrl()){
-                                    me.onVastCampaign.trigger(a)
+                                if(vastCampaign.getVideoUrl()){
+                                    me.onVastCampaign.trigger(vastCampaign)
                                 }else{
                                     me.onError.trigger(new Error("Campaign does not have a video url"))
                                 }
                             }
 
 
-                        })["catch"](function (t) {
-                            me.onError.trigger(t);
+                        })["catch"](function (e) {
+                            me.onError.trigger(e);
                         })
                     }
                 }else{
@@ -79,25 +80,25 @@ CMD.register("campaign.CampaignManager", function (require) {
                     me.onNoFill.trigger(3600);
                 }
             });
-        })["catch"](function (t) {
-            me.onError.trigger(t);
+        })["catch"](function (e) {
+            me.onError.trigger(e);
         });
     };
     CampaignManager.prototype.createRequestUrl = function () {
-        var t = [CampaignManager.CampaignBaseUrl, this._clientInfo.getGameId(), "fill"].join("/");
+        var requestUrl = [CampaignManager.CampaignBaseUrl, this._clientInfo.getGameId(), "fill"].join("/");
 
         if(this._deviceInfo.getAdvertisingIdentifier() ){
-            t = Url.addParameters(t, {
+            requestUrl = Url.addParameters(requestUrl, {
                 advertisingTrackingId: this._deviceInfo.getAdvertisingIdentifier(),
                 limitAdTracking: this._deviceInfo.getLimitAdTracking()
             })
         }else if(this._clientInfo.getPlatform() === Platform.ANDROID){
-            t = Url.addParameters(t, {
+            requestUrl = Url.addParameters(requestUrl, {
                 androidId: this._deviceInfo.getAndroidId()
             })
         }
 
-        t = Url.addParameters(t, {
+        requestUrl = Url.addParameters(requestUrl, {
             deviceMake: this._deviceInfo.getManufacturer(),
             deviceModel: this._deviceInfo.getModel(),
             platform: Platform[this._clientInfo.getPlatform()].toLowerCase(),
@@ -109,51 +110,51 @@ CMD.register("campaign.CampaignManager", function (require) {
         });
 
         if("undefined" != typeof navigator && navigator.userAgent ){
-            t = Url.addParameters(t, {
+            requestUrl = Url.addParameters(requestUrl, {
                 webviewUa: encodeURIComponent(navigator.userAgent)
             });
         }
 
         if(this._clientInfo.getPlatform() === Platform.IOS){
-            t = Url.addParameters(t, {osVersion: this._deviceInfo.getOsVersion()})
+            requestUrl = Url.addParameters(requestUrl, {osVersion: this._deviceInfo.getOsVersion()})
         }else{
-            t = Url.addParameters(t, {apiLevel: this._deviceInfo.getApiLevel()});
+            requestUrl = Url.addParameters(requestUrl, {apiLevel: this._deviceInfo.getApiLevel()});
         }
 
         if(this._clientInfo.getTestMode()){
-            t = Url.addParameters(t, {test: !0});
+            requestUrl = Url.addParameters(requestUrl, {test: true});
         }
-        var i = [];
-        i.push(this._deviceInfo.getConnectionType());
-        i.push(this._deviceInfo.getNetworkType());
-        return Promise.all(i).then(function (e) {
-            var i = e[0], r = e[1];
-            return t = Url.addParameters(t, {
-                connectionType: i,
-                networkType: r
+        var tasks = [];
+        tasks.push(this._deviceInfo.getConnectionType());
+        tasks.push(this._deviceInfo.getNetworkType());
+        return Promise.all(tasks).then(function (res) {
+            var connectionType = res[0], networkType = res[1];
+            return requestUrl = Url.addParameters(requestUrl, {
+                connectionType: connectionType,
+                networkType: networkType
             });
         });
     };
     CampaignManager.prototype.createRequestBody = function () {
         var me = this,
-            t = [];
-        t.push(this._deviceInfo.getFreeSpace());
-        t.push(this._deviceInfo.getNetworkOperator());
-        t.push(this._deviceInfo.getNetworkOperatorName());
-        var n = {
+            tasks = [];
+        tasks.push(this._deviceInfo.getFreeSpace());
+        tasks.push(this._deviceInfo.getNetworkOperator());
+        tasks.push(this._deviceInfo.getNetworkOperatorName());
+        var params = {
             bundleVersion: this._clientInfo.getApplicationVersion(),
             bundleId: this._clientInfo.getApplicationName(),
             language: this._deviceInfo.getLanguage(),
             timeZone: this._deviceInfo.getTimeZone()
         };
-        return Promise.all(t).then(function (t) {
-            var i = t[0], r = t[1], o = t[2];
-            n.deviceFreeSpace = i;
-            n.networkOperator = r;
-            n.networkOperatorName = o;
-            return MetaDataManager.fetchMediationMetaData(me._nativeBridge).then(function (e) {
-                e && (n.mediation = e.getDTO());
-                return JSON.stringify(n);
+        return Promise.all(tasks).then(function (res) {
+            var deviceFreeSpace = res[0], networkOperator = res[1], networkOperatorName = res[2];
+            params.deviceFreeSpace = deviceFreeSpace;
+            params.networkOperator = networkOperator;
+            params.networkOperatorName = networkOperatorName;
+            return MetaDataManager.fetchMediationMetaData(me._nativeBridge).then(function (metaData) {
+                metaData && (params.mediation = metaData.getDTO());
+                return JSON.stringify(params);
             });
         });
     };

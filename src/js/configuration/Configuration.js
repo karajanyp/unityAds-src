@@ -3,16 +3,17 @@
  */
 CMD.register("configuration.Configuration", function (require){
     var CacheMode = require("cache.CacheMode");
+    var Placement = require("placement.Placement");
 
-    function Configuration(e) {
+    function Configuration(configData) {
         var me = this;
         this._placements = {};
         this._defaultPlacement = null;
-        this._enabled = e.enabled;
-        this._country = e.country;
-        this._coppaCompliant = e.coppaCompliant;
+        this._enabled = configData.enabled;
+        this._country = configData.country;
+        this._coppaCompliant = configData.coppaCompliant;
 
-        switch (e.assetCaching) {
+        switch (configData.assetCaching) {
             case "forced":
                 this._cacheMode = CacheMode.FORCED;
                 break;
@@ -26,12 +27,12 @@ CMD.register("configuration.Configuration", function (require){
                 break;
 
             default:
-                throw new Error('Unknown assetCaching value "' + e.assetCaching + '"');
+                throw new Error('Unknown assetCaching value "' + configData.assetCaching + '"');
         }
 
-        var placements = e.placements;
+        var placements = configData.placements;
         placements.forEach(function (item) {
-            var placement = new t.Placement(item);
+            var placement = new Placement(item);
             me._placements[placement.getId()] = placement;
 
             if(placement.isDefault()){

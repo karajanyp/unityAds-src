@@ -61,9 +61,9 @@ CMD.register("adunit.VastAdUnit", function (require) {
             }
         }
     };
-    VastAdUnit.prototype.sendThirdPartyEvent = function (e, t, n, i) {
-        i = i.replace(/%ZONE%/, this.getPlacement().getId());
-        e.thirdPartyEvent(t, n, i);
+    VastAdUnit.prototype.sendThirdPartyEvent = function (eventManager, eventName, sessionId, eventUrl) {
+        eventUrl = eventUrl.replace(/%ZONE%/, this.getPlacement().getId());
+        eventManager.thirdPartyEvent(eventName, sessionId, eventUrl);
     };
     VastAdUnit.prototype.getTrackingEventUrls = function (e) {
         return this.getVast().getTrackingEventUrls(e);
