@@ -14,8 +14,8 @@ CMD.register("adunit.view.View", function (require) {
         this._container.innerHTML = this._template.render(this._templateData);
         this._bindings.forEach(function (interaction) {
             var els = me._container.querySelectorAll(interaction.selector);
-            for (var r = 0; r < els.length; ++r) {
-                var el = els[r];
+            for (var i = 0; i < els.length; ++i) {
+                var el = els[i];
                 if("click" === interaction.event ){
                     interaction.tap = new Tap(el);
                 }

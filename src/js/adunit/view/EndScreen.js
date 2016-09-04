@@ -118,8 +118,8 @@ CMD.register("adunit.view.EndScreen", function (require) {
         var privacy = new Privacy(this._coppaCompliant);
         privacy.render();
         document.body.appendChild(privacy.container());
-        privacy.onPrivacy.subscribe(function (e) {
-            me.onPrivacy.trigger(e);
+        privacy.onPrivacy.subscribe(function (url) {
+            me.onPrivacy.trigger(url);
         });
         privacy.onClose.subscribe(function () {
             privacy.hide();
