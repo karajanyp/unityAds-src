@@ -6,6 +6,7 @@ CMD.register("webview.WebView", function (require) {
     var DeviceInfo = require("device.DeviceInfo");
     var ConfigManager = require("configuration.ConfigManager");
     var CacheMode = require("cache.CacheMode");
+    var CacheStatus = require("cache.CacheStatus");
     var CampaignManager = require("campaign.CampaignManager");
     var CacheManager = require("cache.CacheManager");
     var PlacementState = require("placement.PlacementState");
@@ -24,6 +25,7 @@ CMD.register("webview.WebView", function (require) {
     var VastParser = require("util.VastParser");
     var JsonParser = require("util.JsonParser");
     var StorageType = require("storage.StorageType");
+    var StorageError = require("storage.StorageError");
 
     /**
      * @param bridge
@@ -46,9 +48,7 @@ CMD.register("webview.WebView", function (require) {
         var me = this;
         return this._nativeBridge.Sdk.loadComplete()
             .then(function (nativeClientInfo) {
-                me._nativeBridge.Sdk.logError("=====+===+========new DeviceInfo before");
                 me._deviceInfo = new DeviceInfo(me._nativeBridge);
-                me._nativeBridge.Sdk.logError("=====+===+========new DeviceInfo after");
                 me._wakeUpManager = new WakeUpManager(me._nativeBridge);
                 me._cacheManager = new CacheManager(me._nativeBridge, me._wakeUpManager);
                 me._request = new Request(me._nativeBridge, me._wakeUpManager);
@@ -61,14 +61,16 @@ CMD.register("webview.WebView", function (require) {
                 if (me._clientInfo.getPlatform() === Platform.ANDROID) {
                     document.body.classList.add("android");
                     me._nativeBridge.setApiLevel(me._deviceInfo.getApiLevel());
+
                 }else if (me._clientInfo.getPlatform() === Platform.IOS) {
-                    var t = me._deviceInfo.getModel();
-                    if( t.match(/iphone/i) || t.match(/ipod/i) ){
+                    var model = me._deviceInfo.getModel();
+                    if( model.match(/iphone/i) || model.match(/ipod/i) ){
                         document.body.classList.add("iphone")
-                    }else if( t.match(/ipad/i) ){
+                    }else if( model.match(/ipad/i) ){
                         document.body.classList.add("ipad");
                     }
                 }
+
                 me._sessionManager = new SessionManager(me._nativeBridge, me._clientInfo, me._deviceInfo, me._eventManager);
                 me._initializedAt = me._configJsonCheckedAt = Date.now();
                 me._nativeBridge.Sdk.initComplete();
@@ -109,8 +111,8 @@ CMD.register("webview.WebView", function (require) {
                 me._campaignManager.onVastCampaign.subscribe(function (campaign) {
                     return me.onVastCampaign(campaign);
                 });
-                me._campaignManager.onNoFill.subscribe(function (t) {
-                    return me.onNoFill(t);
+                me._campaignManager.onNoFill.subscribe(function (seconds) {
+                    return me.onNoFill(seconds);
                 });
                 me._campaignManager.onError.subscribe(function (e) {
                     return me.onCampaignError(e);
@@ -223,161 +225,174 @@ CMD.register("webview.WebView", function (require) {
         var me = this;
         this._campaign = campaign;
         var mode = this._configuration.getCacheMode();
-        var cache = function (fileUrl) {
+        var cacheFile = function (fileUrl) {
             return me._cacheManager.cache(fileUrl, {
                 retries: 5
-            }).then(function (e) {
-                var n = e[0], i = e[1];
-                if (n === a.CacheStatus.OK) {
-                    return me._cacheManager.getFileUrl(i);
+            }).then(function (res) {
+                var cacheStatus = res[0],
+                    fileId = res[1];
+
+                if (cacheStatus === CacheStatus.OK) {
+                    return me._cacheManager.getFileUrl(fileId);
                 }
-                throw n;
+                throw cacheStatus;
+
             }).catch(function (e) {
-                if (e !== a.CacheStatus.STOPPED){
+                if (e !== CacheStatus.STOPPED){
                     me.onError(e);
                     return e;
                 }
                 throw e;
             });
         };
-        var o = function () {
-            return cache(campaign.getVideoUrl())
+        var cacheAllFiles = function () {
+            return cacheFile(campaign.getVideoUrl())
                 .then(function (t) {
                     campaign.setVideoUrl(t);
                     campaign.setVideoCached(true);
                 })
                 .then(function () {
-                    return cache(campaign.getLandscapeUrl());
+                    return cacheFile(campaign.getLandscapeUrl());
                 })
                 .then(function (t) {
                     return campaign.setLandscapeUrl(t);
                 })
                 .then(function () {
-                    return cache(campaign.getPortraitUrl());
+                    return cacheFile(campaign.getPortraitUrl());
                 })
                 .then(function (t) {
                     return campaign.setPortraitUrl(t);
                 })
                 .then(function () {
-                    return cache(campaign.getGameIcon());
+                    return cacheFile(campaign.getGameIcon());
                 })
                 .then(function (t) {
                     return campaign.setGameIcon(t);
                 })
                 .catch(function (e) {
-                    if(e === a.CacheStatus.STOPPED){
+                    if(e === CacheStatus.STOPPED){
                         me._nativeBridge.Sdk.logInfo("Caching was stopped, using streaming instead");
                     }
                 });
         };
-        var c = function () {
+        var setPlacementReady = function () {
             me.setPlacementStates(PlacementState.READY);
         };
 
         if (mode === CacheMode.FORCED) {
-            o().then(function () {
+            cacheAllFiles().then(function () {
                 if (me._showing){
-                    var e = me._adUnit.onClose.subscribe(function () {
-                        me._adUnit.onClose.unsubscribe(e);
-                        c();
+                    var fn = me._adUnit.onClose.subscribe(function () {
+                        me._adUnit.onClose.unsubscribe(fn);
+                        setPlacementReady();
                     });
                 }else {
-                    c();
+                    setPlacementReady();
                 }
             });
         }else if (mode === CacheMode.ALLOWED) {
             if (this._showing) {
-                var u = this._adUnit.onClose.subscribe(function () {
-                    me._adUnit.onClose.unsubscribe(u);
-                    o();
-                    c();
+                var fn = this._adUnit.onClose.subscribe(function () {
+                    me._adUnit.onClose.unsubscribe(fn);
+                    cacheAllFiles();
+                    setPlacementReady();
                 });
             }else {
-                o();
-                c();
+                cacheAllFiles();
+                setPlacementReady();
             }
         }else{
-            c();
+            setPlacementReady();
         }
     };
 
     WebView.prototype.onVastCampaign = function (campaign) {
         var me = this;
         this._campaign = campaign;
-        var n = this._configuration.getCacheMode();
-        var i = function (e) {
-            return me._cacheManager.cache(e, {
+        var cacheMode = this._configuration.getCacheMode();
+        var cacheFile = function (fileUrl) {
+            return me._cacheManager.cache(fileUrl, {
                 retries: 5
-            }).then(function (e) {
-                var n = e[0], i = e[1];
-                if (n === a.CacheStatus.OK) return me._cacheManager.getFileUrl(i);
-                throw n;
-            })["catch"](function (n) {
-                if (n !== a.CacheStatus.STOPPED) return me.onError(n), e;
-                throw n;
+            }).then(function (res) {
+                var cacheStatus = res[0], fileId = res[1];
+                if (cacheStatus === CacheStatus.OK){
+                    return me._cacheManager.getFileUrl(fileId);
+                }
+                throw cacheStatus;
+
+            })["catch"](function (e) {
+                if (e !== CacheStatus.STOPPED) {
+                    me.onError(e);
+                    return fileUrl;
+                }
+                throw e;
             });
         };
-        var o = function () {
-            var n = campaign.getVideoUrl();
-            return me._request.head(n, [], {
+        var cacheAllFiles = function () {
+            var videoUrl = campaign.getVideoUrl();
+            return me._request.head(videoUrl, [], {
                 retries: 5,
                 retryDelay: 1e3,
-                followRedirects: !0,
-                retryWithConnectionEvents: !1
-            }).then(function (r) {
-                var o = r.url || n;
-                i(o).then(function (t) {
-                    campaign.setVideoUrl(t);
-                    campaign.setVideoCached(!0);
+                followRedirects: true,
+                retryWithConnectionEvents: false
+            }).then(function (response) {
+                var url = response.url || videoUrl;
+                cacheFile(url).then(function (cachedFileUrl) {
+                    campaign.setVideoUrl(cachedFileUrl);
+                    campaign.setVideoCached(true);
                 })["catch"](function (e) {
-                    e === a.CacheStatus.STOPPED && me._nativeBridge.Sdk.logInfo("Caching was stopped, using streaming instead");
+                    if(e === CacheStatus.STOPPED){
+                        me._nativeBridge.Sdk.logInfo("Caching was stopped, using streaming instead");
+                    }
                 });
             })["catch"](function (e) {
                 me._nativeBridge.Sdk.logError("Caching failed to get VAST video URL location: " + e);
             });
         };
-        var c = function () {
+        var setPlacementReady = function () {
             me.setPlacementStates(PlacementState.READY);
         };
 
-        if (n === CacheMode.FORCED) {
-            o().then(function () {
+        if (cacheMode === CacheMode.FORCED) {
+            cacheAllFiles().then(function () {
                 if (me._showing){
-                    var e = me._adUnit.onClose.subscribe(function () {
-                        me._adUnit.onClose.unsubscribe(e);
-                        c();
+                    var fn = me._adUnit.onClose.subscribe(function () {
+                        me._adUnit.onClose.unsubscribe(fn);
+                        setPlacementReady();
                     });
 
                 }else{
-                    c();
+                    setPlacementReady();
                 }
             });
-        }else if (n === CacheMode.ALLOWED) {
+        }else if (cacheMode === CacheMode.ALLOWED) {
             if (this._showing){
-                var u = this._adUnit.onClose.subscribe(function () {
-                    me._adUnit.onClose.unsubscribe(u);
-                    o();
-                    c();
+                var fn = this._adUnit.onClose.subscribe(function () {
+                    me._adUnit.onClose.unsubscribe(fn);
+                    cacheAllFiles();
+                    setPlacementReady();
                 });
             }else{
-                o();
-                c();
+                cacheAllFiles();
+                setPlacementReady();
             }
         }else{
-            c();
+            setPlacementReady();
         }
     };
-    WebView.prototype.onNoFill = function (e) {
-        this._refillTimestamp = Date.now() + 1000 * e;
+    WebView.prototype.onNoFill = function (seconds) {
+        this._refillTimestamp = Date.now() + 1000 * seconds;
         this._nativeBridge.Sdk.logInfo("Unity Ads server returned no fill, no ads to show");
         this.setPlacementStates(PlacementState.NO_FILL);
     };
     WebView.prototype.onCampaignError = function (e) {
-        e instanceof Error && (e = {
-            message: e.message,
-            name: e.name,
-            stack: e.stack
-        });
+        if(e instanceof Error){
+            e = {
+                message: e.message,
+                name: e.name,
+                stack: e.stack
+            };
+        }
         this._nativeBridge.Sdk.logError(JSON.stringify(e));
         Diagnostics.trigger(
             this._eventManager,
@@ -416,8 +431,8 @@ CMD.register("webview.WebView", function (require) {
     WebView.prototype.onNetworkConnected = function () {
         var me = this;
         if(!this.isShowing() && this._initialized ){
-            this.shouldReinitialize().then(function (t) {
-                if(t){
+            this.shouldReinitialize().then(function (isShouldReInit) {
+                if(isShouldReInit){
                     if(me.isShowing()){
                         me._mustReinitialize = true
                     }else{
@@ -485,39 +500,39 @@ CMD.register("webview.WebView", function (require) {
     };
     WebView.prototype.setupTestEnvironment = function () {
         var me = this;
-        this._nativeBridge.Storage.get(StorageType.PUBLIC, "test.serverUrl.value").then(function (t) {
-            if(t){
-                ConfigManager.setTestBaseUrl(t);
-                CampaignManager.setTestBaseUrl(t);
-                SessionManager.setTestBaseUrl(t);
+        this._nativeBridge.Storage.get(StorageType.PUBLIC, "test.serverUrl.value").then(function (testUrl) {
+            if(testUrl){
+                ConfigManager.setTestBaseUrl(testUrl);
+                CampaignManager.setTestBaseUrl(testUrl);
+                SessionManager.setTestBaseUrl(testUrl);
                 me._nativeBridge.Storage["delete"](StorageType.PUBLIC, "test.serverUrl");
                 me._nativeBridge.Storage.write(StorageType.PUBLIC)
             }
         }).catch(function (e) {
-            var t = e[0];
-            switch (t) {
-                case S.StorageError[S.StorageError.COULDNT_GET_VALUE]:
+            var errorState = e[0];
+            switch (errorState) {
+                case StorageError[StorageError.COULDNT_GET_VALUE]:
                     break;
 
                 default:
-                    throw new Error(t);
+                    throw new Error(errorState);
             }
         });
 
-        this._nativeBridge.Storage.get(StorageType.PUBLIC, "test.kafkaUrl.value").then(function (t) {
-            if(t){
-                Diagnostics.setTestBaseUrl(t);
+        this._nativeBridge.Storage.get(StorageType.PUBLIC, "test.kafkaUrl.value").then(function (testUrl) {
+            if(testUrl){
+                Diagnostics.setTestBaseUrl(testUrl);
                 me._nativeBridge.Storage["delete"](StorageType.PUBLIC, "test.kafkaUrl");
                 me._nativeBridge.Storage.write(StorageType.PUBLIC)
             }
         }).catch(function (e) {
-            var t = e[0];
-            switch (t) {
-                case S.StorageError[S.StorageError.COULDNT_GET_VALUE]:
+            var errorState = e[0];
+            switch (errorState) {
+                case StorageError[StorageError.COULDNT_GET_VALUE]:
                     break;
 
                 default:
-                    throw new Error(t);
+                    throw new Error(errorState);
             }
         });
     };

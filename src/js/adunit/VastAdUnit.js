@@ -21,8 +21,8 @@ CMD.register("adunit.VastAdUnit", function (require) {
     VastAdUnit.prototype.sendImpressionEvent = function (eventManager, sessionId) {
         var urls = this.getVast().getImpressionUrls();
         if (urls){
-            for (var i = 0, r = urls; i < r.length; i++) {
-                var url = r[i];
+            for (var i = 0; i < urls.length; i++) {
+                var url = urls[i];
                 this.sendThirdPartyEvent(eventManager, "vast impression", sessionId, url);
             }
         }
@@ -30,34 +30,43 @@ CMD.register("adunit.VastAdUnit", function (require) {
     VastAdUnit.prototype.sendTrackingEvent = function (eventManager, eventName, sessionId) {
         var urls = this.getVast().getTrackingEventUrls(eventName);
         if (urls){
-            for (var r = 0, o = urls; r < o.length; r++) {
-                var url = o[r];
+            for (var i = 0; i < urls.length; i++) {
+                var url = urls[i];
                 this.sendThirdPartyEvent(eventManager, "vast " + eventName, sessionId, url);
             }
         }
     };
-    VastAdUnit.prototype.sendProgressEvents = function (e, t, n, i) {
-        this.sendQuartileEvent(e, t, n, i, 1);
-        this.sendQuartileEvent(e, t, n, i, 2);
-        this.sendQuartileEvent(e, t, n, i, 3);
+    VastAdUnit.prototype.sendProgressEvents = function (eventManager, sessionId, n, position) {
+        this.sendQuartileEvent(eventManager, sessionId, n, position, 1);
+        this.sendQuartileEvent(eventManager, sessionId, n, position, 2);
+        this.sendQuartileEvent(eventManager, sessionId, n, position, 3);
     };
     VastAdUnit.prototype.getVideoClickThroughURL = function () {
-        var e = this.getVast().getVideoClickThroughURL(), t = new RegExp("^(https?)://.+$");
-        return t.test(e) ? e : null;
+        var url = this.getVast().getVideoClickThroughURL(),
+            isHttps = new RegExp("^(https?)://.+$");
+        return isHttps.test(url) ? url : null;
     };
-    VastAdUnit.prototype.sendVideoClickTrackingEvent = function (e, t) {
-        var n = this.getVast().getVideoClickTrackingURLs();
-        if (n) for (var i = 0; i < n.length; i++) this.sendThirdPartyEvent(e, "vast video click", t, n[i]);
+    VastAdUnit.prototype.sendVideoClickTrackingEvent = function (eventManager, sessionId) {
+        var urls = this.getVast().getVideoClickTrackingURLs();
+        if (urls) {
+            for (var i = 0; i < urls.length; i++) {
+                this.sendThirdPartyEvent(eventManager, "vast video click", sessionId, urls[i]);
+            }
+        }
     };
-    VastAdUnit.prototype.sendQuartileEvent = function (e, t, n, i, r) {
-        var o;
-        1 === r && (o = "firstQuartile");
-        2 === r && (o = "midpoint");
-        3 === r && (o = "thirdQuartile");
-        if (this.getTrackingEventUrls(o)) {
-            var a = this.getDuration();
-            if(a > 0 && n / 1e3 > .25 * a * r && .25 * a * r > i / 1e3){
-                this.sendTrackingEvent(e, o, t);
+    VastAdUnit.prototype.sendQuartileEvent = function (eventManager, sessionId, n, position, point) {
+        var eventName;
+        if(1 === point){
+            eventName = "firstQuartile";
+        }else if(2 === point){
+            eventName = "midpoint";
+        }else if(3 === point){
+            eventName = "thirdQuartile";
+        }
+        if (this.getTrackingEventUrls(eventName)) {
+            var duration = this.getDuration();
+            if(duration > 0 && n / 1e3 > .25 * duration * point && .25 * duration * point > position / 1e3){
+                this.sendTrackingEvent(eventManager, eventName, sessionId);
             }
         }
     };
@@ -65,8 +74,13 @@ CMD.register("adunit.VastAdUnit", function (require) {
         eventUrl = eventUrl.replace(/%ZONE%/, this.getPlacement().getId());
         eventManager.thirdPartyEvent(eventName, sessionId, eventUrl);
     };
-    VastAdUnit.prototype.getTrackingEventUrls = function (e) {
-        return this.getVast().getTrackingEventUrls(e);
+    /**
+     * 根据事件名称返回对应的跟踪链接
+     * @param event {String} 事件名称
+     * @returns {String}
+     */
+    VastAdUnit.prototype.getTrackingEventUrls = function (event) {
+        return this.getVast().getTrackingEventUrls(event);
     };
     return VastAdUnit;
 });

@@ -82,10 +82,12 @@ CMD.register("api.RequestApi", function (require) {
     RequestApi.prototype.handleEvent = function (e, arg) {
         switch (e) {
             case RequestEvent[RequestEvent.COMPLETE]:
+                //id url response responseCode headers
                 this.onComplete.trigger(arg[0], arg[1], arg[2], arg[3], arg[4]);
                 break;
 
             case RequestEvent[RequestEvent.FAILED]:
+                //id url errorMsg
                 this.onFailed.trigger(arg[0], arg[1], arg[2]);
                 break;
 

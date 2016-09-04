@@ -1,5 +1,7 @@
 /**
  * Created by duo on 2016/8/31.
+ *
+ * iOS only
  */
 
 CMD.register("api.NotificationApi", function (require) {
@@ -27,6 +29,7 @@ CMD.register("api.NotificationApi", function (require) {
     NotificationApi.prototype.handleEvent = function (e, args) {
         switch (e) {
             case Event[Event.ACTION]:
+                // name info
                 this.onNotification.trigger(args[0], args[1]);
                 break;
 

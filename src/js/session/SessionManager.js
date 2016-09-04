@@ -38,21 +38,21 @@ CMD.register("session.SessionManager", function (require) {
             }
             this._currentSession.showSent = true;
         }
-        var n = function (n) {
-            var i = n[0], r = n[1];
-            me._eventManager.operativeEvent("show", i, r.sessionId, me.createShowEventUrl(adUnit), JSON.stringify(r));
+        var sendEvent = function (res) {
+            var eventId = res[0], metaData = res[1];
+            me._eventManager.operativeEvent("show", eventId, metaData.sessionId, me.createShowEventUrl(adUnit), JSON.stringify(metaData));
         };
-        return this._eventMetadataCreator.createUniqueEventMetadata(adUnit, this._currentSession, this._gamerServerId).then(n);
+        return this._eventMetadataCreator.createUniqueEventMetadata(adUnit, this._currentSession, this._gamerServerId).then(sendEvent);
     };
-    SessionManager.prototype.sendImpressionEvent = function (e) {
+    SessionManager.prototype.sendImpressionEvent = function (adUnit) {
         if (this._currentSession) {
             if (this._currentSession.impressionSent){
                 return;
             }
             this._currentSession.impressionSent = true;
         }
-        e.sendImpressionEvent(this._eventManager, this._currentSession.getId());
-        e.sendTrackingEvent(this._eventManager, "creativeView", this._currentSession.getId());
+        adUnit.sendImpressionEvent(this._eventManager, this._currentSession.getId());
+        adUnit.sendTrackingEvent(this._eventManager, "creativeView", this._currentSession.getId());
     };
     SessionManager.prototype.sendStart = function (adUnit) {
         var me = this;
@@ -62,12 +62,12 @@ CMD.register("session.SessionManager", function (require) {
             }
             this._currentSession.startSent = true;
         }
-        var n = function (n) {
-            var i = n[0], r = n[1];
-            me._eventManager.operativeEvent("start", i, r.sessionId, me.createVideoEventUrl(adUnit, "video_start"), JSON.stringify(r));
-            adUnit.sendTrackingEvent(me._eventManager, "start", r.sessionId);
+        var sendVent = function (res) {
+            var eventId = res[0], metaData = res[1];
+            me._eventManager.operativeEvent("start", eventId, metaData.sessionId, me.createVideoEventUrl(adUnit, "video_start"), JSON.stringify(metaData));
+            adUnit.sendTrackingEvent(me._eventManager, "start", metaData.sessionId);
         };
-        return this._eventMetadataCreator.createUniqueEventMetadata(adUnit, this._currentSession, this._gamerServerId).then(n);
+        return this._eventMetadataCreator.createUniqueEventMetadata(adUnit, this._currentSession, this._gamerServerId).then(sendVent);
     };
     SessionManager.prototype.sendProgress = function (adUnit, session, n, position) {
         session && adUnit.sendProgressEvents(this._eventManager, session.getId(), n, position);
@@ -80,11 +80,11 @@ CMD.register("session.SessionManager", function (require) {
             }
             this._currentSession.firstQuartileSent = true;
         }
-        var n = function (n) {
-            var i = n[0], r = n[1];
-            me._eventManager.operativeEvent("first_quartile", i, r.sessionId, me.createVideoEventUrl(adUnit, "first_quartile"), JSON.stringify(r));
+        var sendEvent = function (res) {
+            var eventId = res[0], metaData = res[1];
+            me._eventManager.operativeEvent("first_quartile", eventId, metaData.sessionId, me.createVideoEventUrl(adUnit, "first_quartile"), JSON.stringify(metaData));
         };
-        return this._eventMetadataCreator.createUniqueEventMetadata(adUnit, this._currentSession, this._gamerServerId).then(n);
+        return this._eventMetadataCreator.createUniqueEventMetadata(adUnit, this._currentSession, this._gamerServerId).then(sendEvent);
     };
     SessionManager.prototype.sendMidpoint = function (adUnit) {
         var me = this;
@@ -94,11 +94,11 @@ CMD.register("session.SessionManager", function (require) {
             }
             this._currentSession.midpointSent = true;
         }
-        var n = function (n) {
-            var i = n[0], r = n[1];
-            me._eventManager.operativeEvent("midpoint", i, r.sessionId, me.createVideoEventUrl(adUnit, "midpoint"), JSON.stringify(r));
+        var sendEvent = function (res) {
+            var eventId = res[0], metaData = res[1];
+            me._eventManager.operativeEvent("midpoint", eventId, metaData.sessionId, me.createVideoEventUrl(adUnit, "midpoint"), JSON.stringify(metaData));
         };
-        return this._eventMetadataCreator.createUniqueEventMetadata(adUnit, this._currentSession, this._gamerServerId).then(n);
+        return this._eventMetadataCreator.createUniqueEventMetadata(adUnit, this._currentSession, this._gamerServerId).then(sendEvent);
     };
     SessionManager.prototype.sendThirdQuartile = function (adUnit) {
         var me = this;
@@ -108,11 +108,11 @@ CMD.register("session.SessionManager", function (require) {
             }
             this._currentSession.thirdQuartileSent = true;
         }
-        var n = function (n) {
-            var i = n[0], r = n[1];
-            me._eventManager.operativeEvent("third_quartile", i, r.sessionId, me.createVideoEventUrl(adUnit, "third_quartile"), JSON.stringify(r));
+        var sendEvent = function (res) {
+            var eventId = res[0], metaData = res[1];
+            me._eventManager.operativeEvent("third_quartile", eventId, metaData.sessionId, me.createVideoEventUrl(adUnit, "third_quartile"), JSON.stringify(metaData));
         };
-        return this._eventMetadataCreator.createUniqueEventMetadata(adUnit, this._currentSession, this._gamerServerId).then(n);
+        return this._eventMetadataCreator.createUniqueEventMetadata(adUnit, this._currentSession, this._gamerServerId).then(sendEvent);
     };
     SessionManager.prototype.sendSkip = function (adUnit, position) {
         var me = this;
@@ -122,14 +122,17 @@ CMD.register("session.SessionManager", function (require) {
             }
             this._currentSession.skipSent = true;
         }
-        var i = function (i) {
-            var r = i[0], o = i[1];
-            position && (o.skippedAt = position);
-            me._eventManager.operativeEvent("skip", r, me._currentSession.getId(), me.createVideoEventUrl(adUnit, "video_skip"), JSON.stringify(o));
+        var sendEvent = function (res) {
+            var eventId = res[0], metaData = res[1];
+            //跳过时的进度
+            if(position){
+                metaData.skippedAt = position;
+            }
+            me._eventManager.operativeEvent("skip", eventId, me._currentSession.getId(), me.createVideoEventUrl(adUnit, "video_skip"), JSON.stringify(metaData));
         };
-        this._eventMetadataCreator.createUniqueEventMetadata(adUnit, this._currentSession, this._gamerServerId).then(i);
+        this._eventMetadataCreator.createUniqueEventMetadata(adUnit, this._currentSession, this._gamerServerId).then(sendEvent);
     };
-    SessionManager.prototype.sendView = function (e) {
+    SessionManager.prototype.sendView = function (adUnit) {
         var me = this;
         if (this._currentSession) {
             if (this._currentSession.viewSent) {
@@ -137,21 +140,21 @@ CMD.register("session.SessionManager", function (require) {
             }
             this._currentSession.viewSent = true;
         }
-        var n = function (n) {
-            var i = n[0], r = n[1];
-            me._eventManager.operativeEvent("view", i, r.sessionId, me.createVideoEventUrl(e, "video_end"), JSON.stringify(r));
-            e.sendTrackingEvent(me._eventManager, "complete", r.sessionId);
+        var sendEvent = function (res) {
+            var eventId = res[0], metaData = res[1];
+            me._eventManager.operativeEvent("view", eventId, metaData.sessionId, me.createVideoEventUrl(adUnit, "video_end"), JSON.stringify(metaData));
+            adUnit.sendTrackingEvent(me._eventManager, "complete", metaData.sessionId);
         };
-        return this._eventMetadataCreator.createUniqueEventMetadata(e, this._currentSession, this._gamerServerId).then(n);
+        return this._eventMetadataCreator.createUniqueEventMetadata(adUnit, this._currentSession, this._gamerServerId).then(sendEvent);
     };
     SessionManager.prototype.sendClick = function (adUnit) {
         var me = this,
             campaign = adUnit.getCampaign(),
-            i = function (res) {
+            sendEvent = function (res) {
                 var eventId = res[0], metaData = res[1];
                 me._eventManager.operativeEvent("click", eventId, me._currentSession.getId(), me.createClickEventUrl(adUnit), JSON.stringify(metaData));
             };
-        this._eventMetadataCreator.createUniqueEventMetadata(adUnit, this._currentSession, this._gamerServerId).then(i);
+        this._eventMetadataCreator.createUniqueEventMetadata(adUnit, this._currentSession, this._gamerServerId).then(sendEvent);
         if(campaign.getClickAttributionUrl()){
             return this._eventManager.clickAttributionEvent(this._currentSession.getId(), campaign.getClickAttributionUrl(), campaign.getClickAttributionUrlFollowsRedirects())
         }else{
@@ -175,9 +178,9 @@ CMD.register("session.SessionManager", function (require) {
         var campaign = adUnit.getCampaign();
         return [SessionManager.VideoEventBaseUrl, campaign.getGamerId(), "show", campaign.getId(), this._clientInfo.getGameId()].join("/");
     };
-    SessionManager.prototype.createVideoEventUrl = function (adUnit, n) {
+    SessionManager.prototype.createVideoEventUrl = function (adUnit, eventName) {
         var campaign = adUnit.getCampaign();
-        return [SessionManager.VideoEventBaseUrl, campaign.getGamerId(), "video", n, campaign.getId(), this._clientInfo.getGameId()].join("/");
+        return [SessionManager.VideoEventBaseUrl, campaign.getGamerId(), "video", eventName, campaign.getId(), this._clientInfo.getGameId()].join("/");
     };
     SessionManager.prototype.createClickEventUrl = function (adUnit) {
         var campaign = adUnit.getCampaign(),

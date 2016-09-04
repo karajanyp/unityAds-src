@@ -1,5 +1,7 @@
 /**
  * Created by duo on 2016/8/31.
+ *
+ * Android only
  */
 CMD.register("api.BroadcastApi", function(require) {
     var NativeApi = require("api.NativeApi");
@@ -28,6 +30,7 @@ CMD.register("api.BroadcastApi", function(require) {
     };
     BroadcastApi.prototype.handleEvent = function (e, args) {
         if(e === Event[Event.ACTION]){
+            //name action data extra
             this.onBroadcastAction.trigger(args[0], args[1], args[2], args[3])
         }else{
             NativeApi.prototype.handleEvent.call(this, e, args);

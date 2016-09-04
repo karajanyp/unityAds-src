@@ -37,15 +37,15 @@ CMD.register("util.VastParser", function (require) {
         if ("VAST" !== vastXml.documentElement.nodeName) {
             throw new Error("VAST xml is invalid - document element must be VAST but was " + vastXml.documentElement.nodeName);
         }
-        var nodes = vastXml.documentElement.childNodes;
-        for (var i = 0; i < nodes.length; i++) {
-            var node = nodes[i];
+        var nodes = vastXml.documentElement.childNodes, i, node;
+        for (i = 0; i < nodes.length; i++) {
+            node = nodes[i];
             if("Error" === node.nodeName ){
                 errorTags.push(this.parseNodeText(node));
             }
         }
-        for (var i = 0; i < nodes.length; i++) {
-            var node = nodes[i];
+        for (i = 0; i < nodes.length; i++) {
+            node = nodes[i];
             if (0 === adTags.length && "Ad" === node.nodeName) {
                 var adTag = this.parseAdElement(node);
                 if(null != adTag){
@@ -58,65 +58,69 @@ CMD.register("util.VastParser", function (require) {
         }
         return new Vast(adTags, errorTags, vastData.tracking);
     };
-    VastParser.prototype.retrieveVast = function (vastData, nativeBridge, request, i, r) {
+    VastParser.prototype.retrieveVast = function (vastData, nativeBridge, request, parentVast, level) {
         var me = this;
-        if(void 0 === r ){
-            r = 0;
+        if(void 0 === level ){
+            level = 0;
         }
         var vast = this.parseVast(vastData);
-        this.applyParentURLs(vast, i);
+        this.applyParentURLs(vast, parentVast);
         var url = vast.getWrapperURL();
         if (!url){
             return Promise.resolve(vast);
         }
-        if (r >= this._maxWrapperDepth){
+        if (level >= this._maxWrapperDepth){
             throw new Error("VAST wrapper depth exceeded");
         }
         nativeBridge.Sdk.logInfo("Unity Ads is requesting VAST ad unit from " + url);
         return request.get(url, [], {
             retries: 5,
             retryDelay: 5e3,
-            followRedirects: !0,
-            retryWithConnectionEvents: !1
+            followRedirects: true,
+            retryWithConnectionEvents: false
         }).then(function (e) {
             return me.retrieveVast({
                 data: e.response,
                 tracking: {}
-            }, nativeBridge, request, vast, r + 1);
+            }, nativeBridge, request, vast, level + 1);
         });
     };
-    VastParser.prototype.applyParentURLs = function (e, vast) {
-        if (vast) {
-            var urlTemplates = vast.getAd().getErrorURLTemplates();
-            for (var n = 0; n < urlTemplates.length; n++) {
-                var tpl = urlTemplates[n];
-                e.getAd().addErrorURLTemplate(tpl);
+    VastParser.prototype.applyParentURLs = function (vast, parentVast) {
+        if (parentVast) {
+            var errorURLTemplates = parentVast.getAd().getErrorURLTemplates(), i, tpl;
+            for (i = 0; i < errorURLTemplates.length; i++) {
+                tpl = errorURLTemplates[i];
+                vast.getAd().addErrorURLTemplate(tpl);
             }
 
-            var a = vast.getAd().getImpressionURLTemplates();
-            for (var o = 0; o < a.length; o++) {
-                var s = a[o];
-                e.getAd().addImpressionURLTemplate(s);
+            var impressionURLTemplates = parentVast.getAd().getImpressionURLTemplates();
+            for (i = 0; i < impressionURLTemplates.length; i++) {
+                tpl = impressionURLTemplates[i];
+                vast.getAd().addImpressionURLTemplate(tpl);
             }
 
-            var u = vast.getAd().getVideoClickTrackingURLTemplates();
-            for (var c = 0; c < u.length; c++) {
-                var l = u[c];
-                e.getAd().addVideoClickTrackingURLTemplate(l);
+            var videoClickTrackingURLTemplates = parentVast.getAd().getVideoClickTrackingURLTemplates();
+            for (i = 0; i < videoClickTrackingURLTemplates.length; i++) {
+                tpl = videoClickTrackingURLTemplates[i];
+                vast.getAd().addVideoClickTrackingURLTemplate(tpl);
             }
 
-            var p = ["creativeView", "start", "firstQuartile", "midpoint", "thirdQuartile", "complete", "mute", "unmute"];
-            for (var h = 0; h < p.length; h++) for (var d = p[h], f = 0, v = vast.getTrackingEventUrls(d); f < v.length; f++) {
-                var g = v[f];
-                e.addTrackingEventUrl(d, g);
+            var trackingEvents = ["creativeView", "start", "firstQuartile", "midpoint", "thirdQuartile", "complete", "mute", "unmute"];
+            for (i = 0; i < trackingEvents.length; i++) {
+                var trackingEvent = trackingEvents[i],
+                    trackingEventUrl = parentVast.getTrackingEventUrls(trackingEvent);
+                for (var j = 0; j < trackingEventUrl.length; j++) {
+                    var url = trackingEventUrl[j];
+                    vast.addTrackingEventUrl(trackingEvent, url);
+                }
             }
         }
     };
     VastParser.prototype.parseNodeText = function (node) {
         return node && (node.textContent || node.text);
     };
-    VastParser.prototype.parseAdElement = function (e) {
-        for (var el, nodes = e.childNodes, i = 0; i < nodes.length; i++) {
+    VastParser.prototype.parseAdElement = function (adElement) {
+        for (var el, nodes = adElement.childNodes, i = 0; i < nodes.length; i++) {
             var node = nodes[i];
             if ("Wrapper" === node.nodeName) {
                 el = this.parseWrapperElement(node);
@@ -127,15 +131,15 @@ CMD.register("util.VastParser", function (require) {
                 break;
             }
         }
-        el && el.setId(e.getAttribute("id"));
+        el && el.setId(adElement.getAttribute("id"));
         return el;
     };
-    VastParser.prototype.parseWrapperElement = function (e) {
-        return this.parseInLineElement(e);
+    VastParser.prototype.parseWrapperElement = function (wrapperElement) {
+        return this.parseInLineElement(wrapperElement);
     };
-    VastParser.prototype.parseInLineElement = function (e) {
+    VastParser.prototype.parseInLineElement = function (inlineElement) {
         var ad = new VastAd();
-        for (var nodes = e.childNodes, i = 0; i < nodes.length; i++) {
+        for (var nodes = inlineElement.childNodes, i = 0; i < nodes.length; i++) {
             var node = nodes[i],
                 txt = this.parseNodeText(node);
             switch (node.nodeName) {
@@ -148,15 +152,19 @@ CMD.register("util.VastParser", function (require) {
                     break;
 
                 case "Creatives":
-                    var s = this.childsByName(node, "Creative");
-                    for (var c = 0; c < s.length; c++) {
-                        for (var u = s[c], l = u.childNodes, h = 0; h < l.length; h++) {
-                            var p = l[h], d = void 0;
-                            switch (p.nodeName) {
+                    var creativeNodes = this.childsByName(node, "Creative");
+                    for (var j = 0; j < creativeNodes.length; j++) {
+                        var creativeNode = creativeNodes[j],
+                            childNodes = creativeNode.childNodes;
+                        for (var k = 0; k < childNodes.length; k++) {
+                            var childNode = childNodes[k], linear = void 0;
+                            switch (childNode.nodeName) {
                                 case "Linear":
                                     if(0 === ad.getCreatives().length){
-                                        d = this.parseCreativeLinearElement(p);
-                                        d && ad.addCreative(d);
+                                        linear = this.parseCreativeLinearElement(childNode);
+                                        if(linear){
+                                            ad.addCreative(linear);
+                                        }
                                     }
                             }
                         }
@@ -169,76 +177,103 @@ CMD.register("util.VastParser", function (require) {
         }
         return ad;
     };
-    VastParser.prototype.parseCreativeLinearElement = function (e) {
+    VastParser.prototype.parseCreativeLinearElement = function (linearElement) {
         var linear = new VastCreativeLinear();
-        linear.setDuration(this.parseDuration(this.parseNodeText(this.childByName(e, "Duration"))));
-        if (-1 === linear.getDuration() && "Wrapper" !== e.parentNode.parentNode.parentNode.nodeName) {
+        linear.setDuration(this.parseDuration(this.parseNodeText(this.childByName(linearElement, "Duration"))));
+        if (-1 === linear.getDuration() && "Wrapper" !== linearElement.parentNode.parentNode.parentNode.nodeName) {
             return null;
         }
-        var n = e.getAttribute("skipoffset");
-        if (null == n) {
+        var skipOffset = linearElement.getAttribute("skipoffset");
+        if (null == skipOffset) {
             linear.setSkipDelay(null);
-        } else if ("%" === n.charAt(n.length - 1)) {
-            var o = parseInt(n, 10);
-            linear.setSkipDelay(linear.getDuration() * (o / 100));
+        } else if ("%" === skipOffset.charAt(skipOffset.length - 1)) {
+            var offset = parseInt(skipOffset, 10);
+            linear.setSkipDelay(linear.getDuration() * (offset / 100));
         } else {
-            linear.setSkipDelay(this.parseDuration(n));
+            linear.setSkipDelay(this.parseDuration(skipOffset));
         }
-        var a = this.childByName(e, "VideoClicks");
-        if (null != a) {
-            linear.setVideoClickThroughURLTemplate(this.parseNodeText(this.childByName(a, "ClickThrough")));
-            for (var s = this.childsByName(a, "ClickTracking"), c = 0; c < s.length; c++) {
-                var u = s[c], l = this.parseNodeText(u);
-                null != l && linear.addVideoClickTrackingURLTemplate(l);
+        var videoClicksElement = this.childByName(linearElement, "VideoClicks"), i;
+        if (null != videoClicksElement) {
+            linear.setVideoClickThroughURLTemplate(this.parseNodeText(this.childByName(videoClicksElement, "ClickThrough")));
+            var clickTrackingElements = this.childsByName(videoClicksElement, "ClickTracking");
+            for (i = 0; i < clickTrackingElements.length; i++) {
+                var clickTrackingElement = clickTrackingElements[i],
+                    tpl = this.parseNodeText(clickTrackingElement);
+                if(null != tpl){
+                    linear.addVideoClickTrackingURLTemplate(tpl);
+                }
             }
         }
-        for (var h = this.childsByName(e, "TrackingEvents"), c = 0; c < h.length; c++) {
-            for (var p = h[c], d = this.childsByName(p, "Tracking"), f = 0; f < d.length; f++) {
-                var v = d[f], g = v.getAttribute("event"), _ = this.parseNodeText(v);
-                null != g && null != _ && linear.addTrackingEvent(g, _);
+        var trackingEventsElements = this.childsByName(linearElement, "TrackingEvents");
+        for (i = 0; i < trackingEventsElements.length; i++) {
+            var trackingEventsElement = trackingEventsElements[i],
+                trackingElements = this.childsByName(trackingEventsElement, "Tracking");
+            for (var j = 0; j < trackingElements.length; j++) {
+                var trackingElement = trackingElements[j],
+                    event = trackingElement.getAttribute("event"),
+                    handler = this.parseNodeText(trackingElement);
+                if(null != event && null != handler){
+                    linear.addTrackingEvent(event, handler);
+                }
             }
         }
-        var m = this.childsByName(e, "MediaFiles");
-        if (m.length > 0){
-            for (var y = m[0], E = this.childsByName(y, "MediaFile"), c = 0; c < E.length; c++) {
-                var S = E[c],
-                    I = new VastMediaFile(
-                        this.parseNodeText(S).trim(),
-                        S.getAttribute("delivery"),
-                        S.getAttribute("codec"),
-                        S.getAttribute("type"),
-                        parseInt(S.getAttribute("bitrate") || 0, 10),
-                        parseInt(S.getAttribute("minBitrate") || 0, 10),
-                        parseInt(S.getAttribute("maxBitrate") || 0, 10),
-                        parseInt(S.getAttribute("width") || 0, 10),
-                        parseInt(S.getAttribute("height") || 0, 10)
+        var mediaFilesElements = this.childsByName(linearElement, "MediaFiles");
+        if (mediaFilesElements.length > 0){
+            var mediaFilesElement = mediaFilesElements[0],
+                mediaFileElements = this.childsByName(mediaFilesElement, "MediaFile");
+            for (i = 0; i < mediaFileElements.length; i++) {
+                var mediaFileElement = mediaFileElements[i],
+                    mediaFile = new VastMediaFile(
+                        this.parseNodeText(mediaFileElement).trim(),
+                        mediaFileElement.getAttribute("delivery"),
+                        mediaFileElement.getAttribute("codec"),
+                        mediaFileElement.getAttribute("type"),
+                        parseInt(mediaFileElement.getAttribute("bitrate") || 0, 10),
+                        parseInt(mediaFileElement.getAttribute("minBitrate") || 0, 10),
+                        parseInt(mediaFileElement.getAttribute("maxBitrate") || 0, 10),
+                        parseInt(mediaFileElement.getAttribute("width") || 0, 10),
+                        parseInt(mediaFileElement.getAttribute("height") || 0, 10)
                     );
-                linear.addMediaFile(I);
+                linear.addMediaFile(mediaFile);
             }
         }
         return linear;
     };
-    VastParser.prototype.parseDuration = function (e) {
-        if (null == e) return -1;
-        var t = e.split(":");
-        if (3 !== t.length) return -1;
-        var n = t[2].split("."), i = parseInt(n[0], 10);
-        2 === n.length && (i += parseFloat("0." + n[1]));
-        var r = 60 * parseInt(t[1], 10), o = 60 * parseInt(t[0], 10) * 60;
-        return isNaN(o) || isNaN(r) || isNaN(i) || r > 3600 || i > 60 ? -1 : o + r + i;
-    };
-    VastParser.prototype.childByName = function (e, t) {
-        for (var n = e.childNodes, i = 0; i < n.length; i++) {
-            var r = n[i];
-            if (r.nodeName === t) return r;
+    VastParser.prototype.parseDuration = function (durationText) {
+        if (null == durationText){
+            return -1;
+        }
+        var t = durationText.split(":");
+        if (3 !== t.length){
+            return -1;
+        }
+        var n = t[2].split("."),
+            i = parseInt(n[0], 10);
+        if(2 === n.length){
+            i += parseFloat("0." + n[1]);
+        }
+        var r = 60 * parseInt(t[1], 10),
+            o = 60 * parseInt(t[0], 10) * 60;
+        if(isNaN(o) || isNaN(r) || isNaN(i) || r > 3600 || i > 60){
+            return -1
+        }else{
+            return o + r + i;
         }
     };
-    VastParser.prototype.childsByName = function (e, t) {
-        for (var n = [], i = e.childNodes, r = 0; r < i.length; r++) {
-            var o = i[r];
-            o.nodeName === t && n.push(o);
+    VastParser.prototype.childByName = function (parentNode, name) {
+        for (var nodes = parentNode.childNodes, i = 0; i < nodes.length; i++) {
+            var node = nodes[i];
+            if (node.nodeName === name){
+                return node;
+            }
         }
-        return n;
+    };
+    VastParser.prototype.childsByName = function (parentNode, name) {
+        for (var childs = [], nodes = parentNode.childNodes, i = 0; i < nodes.length; i++) {
+            var node = nodes[i];
+            node.nodeName === name && childs.push(node);
+        }
+        return childs;
     };
     VastParser.DEFAULT_MAX_WRAPPER_DEPTH = 8;
     return VastParser;

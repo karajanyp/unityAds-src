@@ -12,6 +12,12 @@ CMD.register("util.JsonParser", function () {
 
     function JsonParser() {}
 
+    /**
+     * 将JSON格式的字符串解释为JSON对象
+     * @param text      {String}    JSON字符串
+     * @param reviver   {Function}  optional, 对象值处理函数
+     * @returns {Object}
+     */
     JsonParser.parse = function (text, reviver) {
         try {
             return JSON.parse(text, reviver);

@@ -54,7 +54,7 @@ CMD.register("request.Request", function () {
      * @param url
      * @param headers
      * @param options
-     * @returns {Promise}
+     * @returns {Promise} resolve({url:String, response:String, responseCode:Number, headers:Object})
      */
     Request.prototype.get = function (url, headers, options) {
         if(void 0 === headers){
@@ -81,7 +81,7 @@ CMD.register("request.Request", function () {
      * @param requestBody
      * @param headers
      * @param options
-     * @returns {Promise}
+     * @returns {Promise} resolve({url:String, response:String, responseCode:Number, headers:Object})
      */
     Request.prototype.post = function (url, requestBody, headers, options) {
         if(void 0 === requestBody){
@@ -112,7 +112,7 @@ CMD.register("request.Request", function () {
      * @param url
      * @param headers
      * @param options
-     * @returns {Promise}
+     * @returns {Promise} resolve({url:String, response:String, responseCode:Number, headers:Object})
      */
     Request.prototype.head = function (url, headers, options) {
         if(void 0 === headers){

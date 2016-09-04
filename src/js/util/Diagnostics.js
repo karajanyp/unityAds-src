@@ -29,7 +29,7 @@ CMD.register("util.Diagnostics", function () {
             return deviceInfo.getDTO().then(function (deviceDto) {
                 o.device = deviceDto;
                 return o;
-            })["catch"](function (e) {
+            })["catch"](function () {
                 return o;
             });
         }else{

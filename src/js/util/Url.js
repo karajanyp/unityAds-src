@@ -4,6 +4,13 @@
 
 CMD.register("util.Url", function (){
     function Url() {}
+
+    /**
+     *
+     * @param baseUrl   {String}    url
+     * @param params    {Object}    query string object
+     * @returns {string}
+     */
     Url.addParameters = function (baseUrl, params) {
         var url = baseUrl.toString();
         url += -1 !== url.indexOf("?") ? "&" : "?";
@@ -18,6 +25,12 @@ CMD.register("util.Url", function (){
         }
         return url + paramArr.join("&");
     };
+    /**
+     * 在给定的url中查询参数值
+     * @param url       {String}    url
+     * @param paramName {String}    要查询的参数名
+     * @returns {*}     {Unknown} or {null}
+     */
     Url.getQueryParameter = function (url, paramName) {
         var params = url.split("?")[1].split("&");
         for (var i = 0; i < params.length; i++) {
