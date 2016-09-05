@@ -28,7 +28,7 @@ CMD.register("util.Diagnostics", function (require) {
         };
         if(deviceInfo){
             return deviceInfo.getDTO().then(function (deviceDto) {
-                o.device = deviceDto;
+                o.common.device = deviceDto;
                 return o;
             })["catch"](function () {
                 return o;
