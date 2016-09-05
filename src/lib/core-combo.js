@@ -857,8 +857,8 @@ CMD.register("adunit.VastAdUnit", function (require) {
     VastAdUnit.prototype.sendImpressionEvent = function (eventManager, sessionId) {
         var urls = this.getVast().getImpressionUrls();
         if (urls){
-            for (var i = 0, r = urls; i < r.length; i++) {
-                var url = r[i];
+            for (var i = 0; i < urls.length; i++) {
+                var url = urls[i];
                 this.sendThirdPartyEvent(eventManager, "vast impression", sessionId, url);
             }
         }
@@ -866,43 +866,57 @@ CMD.register("adunit.VastAdUnit", function (require) {
     VastAdUnit.prototype.sendTrackingEvent = function (eventManager, eventName, sessionId) {
         var urls = this.getVast().getTrackingEventUrls(eventName);
         if (urls){
-            for (var r = 0, o = urls; r < o.length; r++) {
-                var url = o[r];
+            for (var i = 0; i < urls.length; i++) {
+                var url = urls[i];
                 this.sendThirdPartyEvent(eventManager, "vast " + eventName, sessionId, url);
             }
         }
     };
-    VastAdUnit.prototype.sendProgressEvents = function (e, t, n, i) {
-        this.sendQuartileEvent(e, t, n, i, 1);
-        this.sendQuartileEvent(e, t, n, i, 2);
-        this.sendQuartileEvent(e, t, n, i, 3);
+    VastAdUnit.prototype.sendProgressEvents = function (eventManager, sessionId, n, position) {
+        this.sendQuartileEvent(eventManager, sessionId, n, position, 1);
+        this.sendQuartileEvent(eventManager, sessionId, n, position, 2);
+        this.sendQuartileEvent(eventManager, sessionId, n, position, 3);
     };
     VastAdUnit.prototype.getVideoClickThroughURL = function () {
-        var e = this.getVast().getVideoClickThroughURL(), t = new RegExp("^(https?)://.+$");
-        return t.test(e) ? e : null;
+        var url = this.getVast().getVideoClickThroughURL(),
+            isHttps = new RegExp("^(https?)://.+$");
+        return isHttps.test(url) ? url : null;
     };
-    VastAdUnit.prototype.sendVideoClickTrackingEvent = function (e, t) {
-        var n = this.getVast().getVideoClickTrackingURLs();
-        if (n) for (var i = 0; i < n.length; i++) this.sendThirdPartyEvent(e, "vast video click", t, n[i]);
-    };
-    VastAdUnit.prototype.sendQuartileEvent = function (e, t, n, i, r) {
-        var o;
-        1 === r && (o = "firstQuartile");
-        2 === r && (o = "midpoint");
-        3 === r && (o = "thirdQuartile");
-        if (this.getTrackingEventUrls(o)) {
-            var a = this.getDuration();
-            if(a > 0 && n / 1e3 > .25 * a * r && .25 * a * r > i / 1e3){
-                this.sendTrackingEvent(e, o, t);
+    VastAdUnit.prototype.sendVideoClickTrackingEvent = function (eventManager, sessionId) {
+        var urls = this.getVast().getVideoClickTrackingURLs();
+        if (urls) {
+            for (var i = 0; i < urls.length; i++) {
+                this.sendThirdPartyEvent(eventManager, "vast video click", sessionId, urls[i]);
             }
         }
     };
-    VastAdUnit.prototype.sendThirdPartyEvent = function (e, t, n, i) {
-        i = i.replace(/%ZONE%/, this.getPlacement().getId());
-        e.thirdPartyEvent(t, n, i);
+    VastAdUnit.prototype.sendQuartileEvent = function (eventManager, sessionId, n, position, point) {
+        var eventName;
+        if(1 === point){
+            eventName = "firstQuartile";
+        }else if(2 === point){
+            eventName = "midpoint";
+        }else if(3 === point){
+            eventName = "thirdQuartile";
+        }
+        if (this.getTrackingEventUrls(eventName)) {
+            var duration = this.getDuration();
+            if(duration > 0 && n / 1e3 > .25 * duration * point && .25 * duration * point > position / 1e3){
+                this.sendTrackingEvent(eventManager, eventName, sessionId);
+            }
+        }
     };
-    VastAdUnit.prototype.getTrackingEventUrls = function (e) {
-        return this.getVast().getTrackingEventUrls(e);
+    VastAdUnit.prototype.sendThirdPartyEvent = function (eventManager, eventName, sessionId, eventUrl) {
+        eventUrl = eventUrl.replace(/%ZONE%/, this.getPlacement().getId());
+        eventManager.thirdPartyEvent(eventName, sessionId, eventUrl);
+    };
+    /**
+     * 根据事件名称返回对应的跟踪链接
+     * @param event {String} 事件名称
+     * @returns {String}
+     */
+    VastAdUnit.prototype.getTrackingEventUrls = function (event) {
+        return this.getVast().getTrackingEventUrls(event);
     };
     return VastAdUnit;
 });
@@ -965,9 +979,9 @@ CMD.register("adunit.VideoAdUnit", function (require) {
         if(!this._placement.useDeviceOrientationForVideo()){
             orientation = ScreenOrientation.SCREEN_ORIENTATION_SENSOR_LANDSCAPE;
         }
-        var s = [];
+        var keyevents = [];
         if(this._placement.disableBackButton()){
-            s = [4];
+            keyevents = [4];
             this._onBackKeyObserver = this._nativeBridge.AndroidAdUnit.onKeyDown.subscribe(function (t, n, i, r) {
                 return me.onKeyEvent(t);
             });
@@ -977,7 +991,7 @@ CMD.register("adunit.VideoAdUnit", function (require) {
             acceleration = false;
         }
         this._nativeBridge.Sdk.logInfo("Opening game ad with orientation " + orientation + ", hardware acceleration " + (acceleration ? "enabled" : "disabled"));
-        return this._nativeBridge.AndroidAdUnit.open(this._activityId, ["videoplayer", "webview"], orientation, s, 1, acceleration);
+        return this._nativeBridge.AndroidAdUnit.open(this._activityId, ["videoplayer", "webview"], orientation, keyevents, 1, acceleration);
     };
     VideoAdUnit.prototype.onKeyEvent = function (e) {
         4 !== e || this.isVideoActive() || this.hide();
@@ -1443,8 +1457,8 @@ CMD.register("adunit.view.View", function (require) {
         this._container.innerHTML = this._template.render(this._templateData);
         this._bindings.forEach(function (interaction) {
             var els = me._container.querySelectorAll(interaction.selector);
-            for (var r = 0; r < els.length; ++r) {
-                var el = els[r];
+            for (var i = 0; i < els.length; ++i) {
+                var el = els[i];
                 if("click" === interaction.event ){
                     interaction.tap = new Tap(el);
                 }
@@ -1747,42 +1761,42 @@ CMD.register("adunit.view.EndScreen", function (require) {
         '</div>\n' +
         '</div>\n';
 
-    function EndScreen(n, o) {
-        var a = this;
+    function EndScreen(campaign, coppaCompliant) {
+        var me = this;
         View.call(this, "end-screen");
         this.onDownload = new Observable();
         this.onPrivacy = new Observable();
         this.onClose = new Observable();
-        this._coppaCompliant = o;
-        this._gameName = n.getGameName();
+        this._coppaCompliant = coppaCompliant;
+        this._gameName = campaign.getGameName();
         this._template = new Template(tpl);
-        if (n) {
-            var s = 20 * n.getRating();
+        if (campaign) {
+            var s = 20 * campaign.getRating();
             this._templateData = {
-                gameName: n.getGameName(),
-                gameIcon: n.getGameIcon(),
-                endScreenLandscape: n.getLandscapeUrl(),
-                endScreenPortrait: n.getPortraitUrl(),
+                gameName: campaign.getGameName(),
+                gameIcon: campaign.getGameIcon(),
+                endScreenLandscape: campaign.getLandscapeUrl(),
+                endScreenPortrait: campaign.getPortraitUrl(),
                 rating: s.toString(),
-                ratingCount: n.getRatingCount().toString()
+                ratingCount: campaign.getRatingCount().toString()
             };
         }
         this._bindings = [{
             event: "click",
             listener: function (e) {
-                return a.onDownloadEvent(e);
+                return me.onDownloadEvent(e);
             },
             selector: ".game-background, .btn-download, .store-button, .game-icon, .store-badge-container"
         }, {
             event: "click",
             listener: function (e) {
-                return a.onCloseEvent(e);
+                return me.onCloseEvent(e);
             },
             selector: ".btn-close-region"
         }, {
             event: "click",
             listener: function (e) {
-                return a.onPrivacyEvent(e);
+                return me.onPrivacyEvent(e);
             },
             selector: ".privacy-button"
         }];
@@ -1791,8 +1805,8 @@ CMD.register("adunit.view.EndScreen", function (require) {
 
     EndScreen.prototype.show = function () {
         View.prototype.show.call(this);
-        var t = this._container.querySelector(".name-container");
-        t.innerHTML = this._gameName + " ";
+        var el = this._container.querySelector(".name-container");
+        el.innerHTML = this._gameName + " ";
     };
     EndScreen.prototype.onDownloadEvent = function (e) {
         e.preventDefault();
@@ -1808,8 +1822,8 @@ CMD.register("adunit.view.EndScreen", function (require) {
         var privacy = new Privacy(this._coppaCompliant);
         privacy.render();
         document.body.appendChild(privacy.container());
-        privacy.onPrivacy.subscribe(function (e) {
-            me.onPrivacy.trigger(e);
+        privacy.onPrivacy.subscribe(function (url) {
+            me.onPrivacy.trigger(url);
         });
         privacy.onClose.subscribe(function () {
             privacy.hide();
@@ -1852,9 +1866,9 @@ CMD.register("adunit.view.util.Tap", function () {
         this._startX = e.touches[0].clientX;
         this._startY = e.touches[0].clientY;
     };
-    Tap.prototype.onTouchMove = function (t) {
-        var x = t.touches[0].clientX,
-            y = t.touches[0].clientY;
+    Tap.prototype.onTouchMove = function (e) {
+        var x = e.touches[0].clientX,
+            y = e.touches[0].clientY;
         if(Math.abs(x - this._startX) > Tap._moveTolerance || Math.abs(y - this._startY) > Tap._moveTolerance){
             this._moved = true;
         }
@@ -2266,72 +2280,72 @@ CMD.register("api.AndroidAdUnitApi", function (require) {
     }
     extend(AndroidAdUnitApi, NativeApi);
 
-    AndroidAdUnitApi.prototype.open = function (e, t, n, i, r, o) {
-        void 0 === i && (i = null);
-        void 0 === r && (r = 0);
-        void 0 === o && (o = !0);
-        return this._nativeBridge.invoke(this._apiClass, "open", [e, t, n, i, r, o]);
+    AndroidAdUnitApi.prototype.open = function (activityId, views, orientation, keyevents, systemUiVisibility, hardwareAcceleration) {
+        void 0 === keyevents && (keyevents = null);
+        void 0 === systemUiVisibility && (systemUiVisibility = 0);
+        void 0 === hardwareAcceleration && (hardwareAcceleration = true);
+        return this._nativeBridge.invoke(this._apiClass, "open", [activityId, views, orientation, keyevents, systemUiVisibility, hardwareAcceleration]);
     };
     AndroidAdUnitApi.prototype.close = function () {
         return this._nativeBridge.invoke(this._apiClass, "close");
     };
-    AndroidAdUnitApi.prototype.setViews = function (e) {
-        return this._nativeBridge.invoke(this._apiClass, "setViews", [e]);
+    AndroidAdUnitApi.prototype.setViews = function (views) {
+        return this._nativeBridge.invoke(this._apiClass, "setViews", [views]);
     };
     AndroidAdUnitApi.prototype.getViews = function () {
         return this._nativeBridge.invoke(this._apiClass, "getViews");
     };
-    AndroidAdUnitApi.prototype.setOrientation = function (e) {
-        return this._nativeBridge.invoke(this._apiClass, "setOrientation", [e]);
+    AndroidAdUnitApi.prototype.setOrientation = function (orientation) {
+        return this._nativeBridge.invoke(this._apiClass, "setOrientation", [orientation]);
     };
     AndroidAdUnitApi.prototype.getOrientation = function () {
         return this._nativeBridge.invoke(this._apiClass, "getOrientation");
     };
-    AndroidAdUnitApi.prototype.setKeepScreenOn = function (e) {
-        return this._nativeBridge.invoke(this._apiClass, "setKeepScreenOn", [e]);
+    AndroidAdUnitApi.prototype.setKeepScreenOn = function (isOn) {
+        return this._nativeBridge.invoke(this._apiClass, "setKeepScreenOn", [isOn]);
     };
-    AndroidAdUnitApi.prototype.setSystemUiVisibility = function (e) {
-        return this._nativeBridge.invoke(this._apiClass, "setSystemUiVisibility", [e]);
+    AndroidAdUnitApi.prototype.setSystemUiVisibility = function (visible) {
+        return this._nativeBridge.invoke(this._apiClass, "setSystemUiVisibility", [visible]);
     };
-    AndroidAdUnitApi.prototype.setKeyEventList = function (e) {
-        return this._nativeBridge.invoke(this._apiClass, "setKeyEventList", [e]);
+    AndroidAdUnitApi.prototype.setKeyEventList = function (list) {
+        return this._nativeBridge.invoke(this._apiClass, "setKeyEventList", [list]);
     };
-    AndroidAdUnitApi.prototype.handleEvent = function (t, n) {
-        switch (t) {
+    AndroidAdUnitApi.prototype.handleEvent = function (e, args) {
+        switch (e) {
             case Event[Event.ON_START]:
-                this.onStart.trigger(n[0]);
+                this.onStart.trigger(args[0]);
                 break;
 
             case Event[Event.ON_CREATE]:
-                this.onCreate.trigger(n[0]);
+                this.onCreate.trigger(args[0]);
                 break;
 
             case Event[Event.ON_RESUME]:
-                this.onResume.trigger(n[0]);
+                this.onResume.trigger(args[0]);
                 break;
 
             case Event[Event.ON_DESTROY]:
-                this.onDestroy.trigger(n[0], n[1]);
+                this.onDestroy.trigger(args[0], args[1]);
                 break;
 
             case Event[Event.ON_PAUSE]:
-                this.onPause.trigger(n[0], n[1]);
+                this.onPause.trigger(args[0], args[1]);
                 break;
 
             case Event[Event.KEY_DOWN]:
-                this.onKeyDown.trigger(n[0], n[1], n[2], n[3], n[4]);
+                this.onKeyDown.trigger(args[0], args[1], args[2], args[3], args[4]);
                 break;
 
             case Event[Event.ON_RESTORE]:
-                this.onRestore.trigger(n[0]);
+                this.onRestore.trigger(args[0]);
                 break;
 
             case Event[Event.ON_STOP]:
-                this.onStop.trigger(n[0]);
+                this.onStop.trigger(args[0]);
                 break;
 
             default:
-                NativeApi.prototype.handleEvent.call(this, t, n);
+                NativeApi.prototype.handleEvent.call(this, e, args);
         }
     };
 
@@ -2366,26 +2380,26 @@ CMD.register("api.AndroidDeviceInfoApi", function (require) {
     AndroidDeviceInfoApi.prototype.getScreenDensity = function () {
         return this._nativeBridge.invoke(this._apiClass, "getScreenDensity");
     };
-    AndroidDeviceInfoApi.prototype.isAppInstalled = function (e) {
-        return this._nativeBridge.invoke(this._apiClass, "isAppInstalled", [e]);
+    AndroidDeviceInfoApi.prototype.isAppInstalled = function (isInstalled) {
+        return this._nativeBridge.invoke(this._apiClass, "isAppInstalled", [isInstalled]);
     };
-    AndroidDeviceInfoApi.prototype.getInstalledPackages = function (e) {
-        return this._nativeBridge.invoke(this._apiClass, "getInstalledPackages", [e]);
+    AndroidDeviceInfoApi.prototype.getInstalledPackages = function (packages) {
+        return this._nativeBridge.invoke(this._apiClass, "getInstalledPackages", [packages]);
     };
-    AndroidDeviceInfoApi.prototype.getSystemProperty = function (e, t) {
-        return this._nativeBridge.invoke(this._apiClass, "getSystemProperty", [e, t]);
+    AndroidDeviceInfoApi.prototype.getSystemProperty = function (propertyName, defaultValue) {
+        return this._nativeBridge.invoke(this._apiClass, "getSystemProperty", [propertyName, defaultValue]);
     };
     AndroidDeviceInfoApi.prototype.getRingerMode = function () {
         return this._nativeBridge.invoke(this._apiClass, "getRingerMode");
     };
-    AndroidDeviceInfoApi.prototype.getDeviceVolume = function (e) {
-        return this._nativeBridge.invoke(this._apiClass, "getDeviceVolume", [e]);
+    AndroidDeviceInfoApi.prototype.getDeviceVolume = function (streamType) {
+        return this._nativeBridge.invoke(this._apiClass, "getDeviceVolume", [streamType]);
     };
-    AndroidDeviceInfoApi.prototype.getFreeSpace = function (e) {
-        return this._nativeBridge.invoke(this._apiClass, "getFreeSpace", [AndroidStorageType[e]]);
+    AndroidDeviceInfoApi.prototype.getFreeSpace = function (storageType) {
+        return this._nativeBridge.invoke(this._apiClass, "getFreeSpace", [AndroidStorageType[storageType]]);
     };
-    AndroidDeviceInfoApi.prototype.getTotalSpace = function (e) {
-        return this._nativeBridge.invoke(this._apiClass, "getTotalSpace", [AndroidStorageType[e]]);
+    AndroidDeviceInfoApi.prototype.getTotalSpace = function (storageType) {
+        return this._nativeBridge.invoke(this._apiClass, "getTotalSpace", [AndroidStorageType[storageType]]);
     };
 
     return AndroidDeviceInfoApi;
@@ -2409,13 +2423,13 @@ CMD.register("api.AndroidVideoPlayerApi", function (require) {
     }
     extend(AndroidVideoPlayerApi, NativeApi);
 
-    AndroidVideoPlayerApi.prototype.setInfoListenerEnabled = function (e) {
-        return this._nativeBridge.invoke(this._apiClass, "setInfoListenerEnabled", [e]);
+    AndroidVideoPlayerApi.prototype.setInfoListenerEnabled = function (enabled) {
+        return this._nativeBridge.invoke(this._apiClass, "setInfoListenerEnabled", [enabled]);
     };
-    AndroidVideoPlayerApi.prototype.handleEvent = function (e, d) {
+    AndroidVideoPlayerApi.prototype.handleEvent = function (e, args) {
         switch (e) {
             case Event[Event.INFO]:
-                this.onInfo.trigger(d[0], d[1], d[2]);
+                this.onInfo.trigger(args[0], args[1], args[2]);
                 break;
 
             default:
@@ -2430,7 +2444,7 @@ CMD.register("api.AndroidVideoPlayerApi", function (require) {
  * Created by duo on 2016/8/31.
  */
 
-CMD.register("api.AppSheetApi", function (require, t, n) {
+CMD.register("api.AppSheetApi", function (require) {
     var NativeApi = require("api.NativeApi");
     var Observable = require("util.Observable");
     var AppSheetEvent = require("appsheet.AppSheetEvent");
@@ -2449,47 +2463,69 @@ CMD.register("api.AppSheetApi", function (require, t, n) {
     AppSheetApi.prototype.canOpen = function () {
         return this._nativeBridge.invoke(this._apiClass, "canOpen");
     };
-    AppSheetApi.prototype.prepare = function (e, t) {
-        void 0 === t && (t = 3e4);
-        return this._nativeBridge.invoke(this._apiClass, "prepare", [e, t]);
+    /**
+     *
+     * @param parameters {Object}
+     * @param timeout    {Number}
+     * @returns {Promise}
+     */
+    AppSheetApi.prototype.prepare = function (parameters, timeout) {
+        void 0 === timeout && (timeout = 3e4);
+        return this._nativeBridge.invoke(this._apiClass, "prepare", [parameters, timeout]);
     };
-    AppSheetApi.prototype.present = function (e, t) {
-        void 0 === t && (t = true);
-        return this._nativeBridge.invoke(this._apiClass, "present", [e, t]);
+    /**
+     *
+     * @param parameters {Object}
+     * @param animated   {Number}
+     * @returns {Promise}
+     */
+    AppSheetApi.prototype.present = function (parameters, animated) {
+        void 0 === animated && (animated = true);
+        return this._nativeBridge.invoke(this._apiClass, "present", [parameters, animated]);
     };
-    AppSheetApi.prototype.destroy = function (e) {
-        if("undefined" == typeof e){
+    /**
+     *
+     * @param parameters {Object}
+     * @returns {Promise}
+     */
+    AppSheetApi.prototype.destroy = function (parameters) {
+        if("undefined" == typeof parameters){
             return this._nativeBridge.invoke(this._apiClass, "destroy");
         }else{
-            return this._nativeBridge.invoke(this._apiClass, "destroy", [e]);
+            return this._nativeBridge.invoke(this._apiClass, "destroy", [parameters]);
         }
     };
-    AppSheetApi.prototype.setPrepareTimeout = function (e) {
-        return this._nativeBridge.invoke(this._apiClass, "setPrepareTimeout", [e]);
+    /**
+     *
+     * @param timeout {Number}
+     * @returns {Promise}
+     */
+    AppSheetApi.prototype.setPrepareTimeout = function (timeout) {
+        return this._nativeBridge.invoke(this._apiClass, "setPrepareTimeout", [timeout]);
     };
     AppSheetApi.prototype.getPrepareTimeout = function () {
         return this._nativeBridge.invoke(this._apiClass, "getPrepareTimeout");
     };
-    AppSheetApi.prototype.handleEvent = function (t, n) {
-        switch (t) {
+    AppSheetApi.prototype.handleEvent = function (e, args) {
+        switch (e) {
             case AppSheetEvent[AppSheetEvent.PREPARED]:
-                this.onPrepared.trigger(n[0]);
+                this.onPrepared.trigger(args[0]);
                 break;
 
             case AppSheetEvent[AppSheetEvent.OPENED]:
-                this.onOpen.trigger(n[0]);
+                this.onOpen.trigger(args[0]);
                 break;
 
             case AppSheetEvent[AppSheetEvent.CLOSED]:
-                this.onClose.trigger(n[0]);
+                this.onClose.trigger(args[0]);
                 break;
 
             case AppSheetEvent[AppSheetEvent.FAILED]:
-                this.onError.trigger(n[0], n[1]);
+                this.onError.trigger(args[0], args[1]);
                 break;
 
             default:
-                NativeApi.prototype.handleEvent.call(this, t, n);
+                NativeApi.prototype.handleEvent.call(this, e, args);
         }
     };
 
@@ -2498,6 +2534,8 @@ CMD.register("api.AppSheetApi", function (require, t, n) {
 
 /**
  * Created by duo on 2016/8/31.
+ *
+ * Android only
  */
 CMD.register("api.BroadcastApi", function(require) {
     var NativeApi = require("api.NativeApi");
@@ -2512,23 +2550,24 @@ CMD.register("api.BroadcastApi", function(require) {
         this.onBroadcastAction = new Observable();
     }
     extend(BroadcastApi, NativeApi);
-    BroadcastApi.prototype.addBroadcastListener = function (e, t) {
-        return this._nativeBridge.invoke(this._apiClass, "addBroadcastListener", [e, t]);
+    BroadcastApi.prototype.addBroadcastListener = function (name, actions) {
+        return this._nativeBridge.invoke(this._apiClass, "addBroadcastListener", [name, actions]);
     };
-    BroadcastApi.prototype.addDataSchemeBroadcastListener = function (e, t, n) {
-        return this._nativeBridge.invoke(this._apiClass, "addBroadcastListener", [e, t, n]);
+    BroadcastApi.prototype.addDataSchemeBroadcastListener = function (name, scheme, actions) {
+        return this._nativeBridge.invoke(this._apiClass, "addBroadcastListener", [name, scheme, actions]);
     };
-    BroadcastApi.prototype.removeBroadcastListener = function (e) {
-        return this._nativeBridge.invoke(this._apiClass, "removeBroadcastListener", [e]);
+    BroadcastApi.prototype.removeBroadcastListener = function (name) {
+        return this._nativeBridge.invoke(this._apiClass, "removeBroadcastListener", [name]);
     };
     BroadcastApi.prototype.removeAllBroadcastListeners = function () {
         return this._nativeBridge.invoke(this._apiClass, "removeAllBroadcastListeners", []);
     };
-    BroadcastApi.prototype.handleEvent = function (e, data) {
+    BroadcastApi.prototype.handleEvent = function (e, args) {
         if(e === Event[Event.ACTION]){
-            this.onBroadcastAction.trigger(data[0], data[1], data[2], data[3])
+            //name action data extra
+            this.onBroadcastAction.trigger(args[0], args[1], args[2], args[3])
         }else{
-            NativeApi.prototype.handleEvent.call(this, e, data);
+            NativeApi.prototype.handleEvent.call(this, e, args);
         }
 
 
@@ -2553,7 +2592,12 @@ CMD.register("api.CacheApi", function (require) {
         this.onDownloadError = new Observable();
     }
     extend(CacheApi, NativeApi);
-
+    /**
+     *
+     * @param fileUrl {String}
+     * @param fileId {String}
+     * @returns {Promise}
+     */
     CacheApi.prototype.download = function (fileUrl, fileId) {
         return this._nativeBridge.invoke(this._apiClass, "download", [fileUrl, fileId]);
     };
@@ -2566,26 +2610,51 @@ CMD.register("api.CacheApi", function (require) {
     CacheApi.prototype.getFiles = function () {
         return this._nativeBridge.invoke(this._apiClass, "getFiles");
     };
-    CacheApi.prototype.getFileInfo = function (e) {
-        return this._nativeBridge.invoke(this._apiClass, "getFileInfo", [e]);
+    /**
+     *
+     * @param fileId {String}
+     * @returns {Promise}
+     */
+    CacheApi.prototype.getFileInfo = function (fileId) {
+        return this._nativeBridge.invoke(this._apiClass, "getFileInfo", [fileId]);
     };
-    CacheApi.prototype.getFilePath = function (e) {
-        return this._nativeBridge.invoke(this._apiClass, "getFilePath", [e]);
+    /**
+     *
+     * @param fileId {String}
+     * @returns {Promise}
+     */
+    CacheApi.prototype.getFilePath = function (fileId) {
+        return this._nativeBridge.invoke(this._apiClass, "getFilePath", [fileId]);
     };
-    CacheApi.prototype.getHash = function (e) {
-        return this._nativeBridge.invoke(this._apiClass, "getHash", [e]);
+    /**
+     *
+     * @param fileId {String}
+     * @returns {Promise}
+     */
+    CacheApi.prototype.getHash = function (fileId) {
+        return this._nativeBridge.invoke(this._apiClass, "getHash", [fileId]);
     };
-    CacheApi.prototype.deleteFile = function (file) {
-        return this._nativeBridge.invoke(this._apiClass, "deleteFile", [file]);
+    /**
+     *
+     * @param fileId {String}
+     * @returns {Promise}
+     */
+    CacheApi.prototype.deleteFile = function (fileId) {
+        return this._nativeBridge.invoke(this._apiClass, "deleteFile", [fileId]);
     };
-    CacheApi.prototype.setProgressInterval = function (e) {
-        return this._nativeBridge.invoke(this._apiClass, "setProgressInterval", [e]);
+    /**
+     *
+     * @param interval {Number}
+     * @returns {Promise}
+     */
+    CacheApi.prototype.setProgressInterval = function (interval) {
+        return this._nativeBridge.invoke(this._apiClass, "setProgressInterval", [interval]);
     };
     CacheApi.prototype.getProgressInterval = function () {
         return this._nativeBridge.invoke(this._apiClass, "getProgressInterval");
     };
-    CacheApi.prototype.setTimeouts = function (e, t) {
-        return this._nativeBridge.invoke(this._apiClass, "setTimeouts", [e, t]);
+    CacheApi.prototype.setTimeouts = function (connectTimeout, readTimeout) {
+        return this._nativeBridge.invoke(this._apiClass, "setTimeouts", [connectTimeout, readTimeout]);
     };
     CacheApi.prototype.getTimeouts = function () {
         return this._nativeBridge.invoke(this._apiClass, "getTimeouts");
@@ -2596,30 +2665,30 @@ CMD.register("api.CacheApi", function (require) {
     CacheApi.prototype.getTotalSpace = function () {
         return this._nativeBridge.invoke(this._apiClass, "getTotalSpace");
     };
-    CacheApi.prototype.handleEvent = function (e, d) {
+    CacheApi.prototype.handleEvent = function (e, args) {
         switch (e) {
             case CacheEvent[CacheEvent.DOWNLOAD_STARTED]:
-                this.onDownloadStarted.trigger(d[0], d[1], d[2], d[3], d[4]);
+                this.onDownloadStarted.trigger(args[0], args[1], args[2], args[3], args[4]);
                 break;
 
             case CacheEvent[CacheEvent.DOWNLOAD_PROGRESS]:
-                this.onDownloadProgress.trigger(d[0], d[1], d[2]);
+                this.onDownloadProgress.trigger(args[0], args[1], args[2]);
                 break;
 
             case CacheEvent[CacheEvent.DOWNLOAD_END]:
-                this.onDownloadEnd.trigger(d[0], d[1], d[2], d[3], d[4], d[5]);
+                this.onDownloadEnd.trigger(args[0], args[1], args[2], args[3], args[4], args[5]);
                 break;
 
             case CacheEvent[CacheEvent.DOWNLOAD_STOPPED]:
-                this.onDownloadStopped.trigger(d[0], d[1], d[2], d[3], d[4], d[5]);
+                this.onDownloadStopped.trigger(args[0], args[1], args[2], args[3], args[4], args[5]);
                 break;
 
             case CacheEvent[CacheEvent.DOWNLOAD_ERROR]:
-                this.onDownloadError.trigger(d[0], d[1], d[2]);
+                this.onDownloadError.trigger(args[0], args[1], args[2]);
                 break;
 
             default:
-                NativeApi.prototype.handleEvent.call(this, e, d);
+                NativeApi.prototype.handleEvent.call(this, e, args);
         }
     };
     return CacheApi;
@@ -2644,13 +2713,18 @@ CMD.register("api.ConnectivityApi", function(require) {
     }
     extend(ConnectivityApi, NativeApi);
 
-    ConnectivityApi.prototype.setListeningStatus = function (e) {
-        return this._nativeBridge.invoke(this._apiClass, "setConnectionMonitoring", [e]);
+    /**
+     *
+     * @param monitoring {Boolean}
+     * @returns {Promise}
+     */
+    ConnectivityApi.prototype.setListeningStatus = function (monitoring) {
+        return this._nativeBridge.invoke(this._apiClass, "setConnectionMonitoring", [monitoring]);
     };
-    ConnectivityApi.prototype.handleEvent = function (e, d) {
+    ConnectivityApi.prototype.handleEvent = function (e, args) {
         switch (e) {
             case Event[Event.CONNECTED]:
-                this.onConnected.trigger(d[0], d[1]);
+                this.onConnected.trigger(args[0], args[1]);
                 break;
 
             case Event[Event.DISCONNECTED]:
@@ -2661,7 +2735,7 @@ CMD.register("api.ConnectivityApi", function(require) {
                 break;
 
             default:
-                NativeApi.prototype.handleEvent.call(this, e, d);
+                NativeApi.prototype.handleEvent.call(this, e, args);
         }
     };
     return ConnectivityApi;
@@ -2704,8 +2778,8 @@ CMD.register("api.DeviceInfoApi", function (require) {
     DeviceInfoApi.prototype.getScreenHeight = function () {
         return this._nativeBridge.invoke(this._apiClass, "getScreenHeight");
     };
-    DeviceInfoApi.prototype.getTimeZone = function (e) {
-        return this._nativeBridge.invoke(this._apiClass, "getTimeZone", [e]);
+    DeviceInfoApi.prototype.getTimeZone = function (dayLight) {
+        return this._nativeBridge.invoke(this._apiClass, "getTimeZone", [dayLight]);
     };
     DeviceInfoApi.prototype.getConnectionType = function () {
         return this._nativeBridge.invoke(this._apiClass, "getConnectionType");
@@ -2762,8 +2836,8 @@ CMD.register("api.IntentApi", function (require) {
     }
     extend(IntentApi, NativeApi);
 
-    IntentApi.prototype.launch = function (e) {
-        return this._nativeBridge.invoke(this._apiClass, "launch", [e]);
+    IntentApi.prototype.launch = function (intentData) {
+        return this._nativeBridge.invoke(this._apiClass, "launch", [intentData]);
     };
     return IntentApi;
 });
@@ -2795,42 +2869,74 @@ CMD.register("api.IosAdUnitApi", function (require) {
         this.onViewControllerDidReceiveMemoryWarning = new Observable();
     }
     extend(IosAdUnitApi, NativeApi);
-
-    IosAdUnitApi.prototype.open = function (e, t, n, i) {
-        return this._nativeBridge.invoke(this._apiClass, "open", [e, t, n, i]);
+    /**
+     *
+     * @param views                 {Array}
+     * @param supportedOrientations {Number}
+     * @param statusBarHidden       {Number}
+     * @param shouldAutorotate      {Number}
+     * @returns {Promise}
+     */
+    IosAdUnitApi.prototype.open = function (views, supportedOrientations, statusBarHidden, shouldAutorotate) {
+        return this._nativeBridge.invoke(this._apiClass, "open", [views, supportedOrientations, statusBarHidden, shouldAutorotate]);
     };
     IosAdUnitApi.prototype.close = function () {
         return this._nativeBridge.invoke(this._apiClass, "close");
     };
-    IosAdUnitApi.prototype.setViews = function (e) {
-        return this._nativeBridge.invoke(this._apiClass, "setViews", [e]);
+    /**
+     *
+     * @param views {Array}
+     * @returns {Promise}
+     */
+    IosAdUnitApi.prototype.setViews = function (views) {
+        return this._nativeBridge.invoke(this._apiClass, "setViews", [views]);
     };
     IosAdUnitApi.prototype.getViews = function () {
         return this._nativeBridge.invoke(this._apiClass, "getViews");
     };
-    IosAdUnitApi.prototype.setSupportedOrientations = function (e) {
-        return this._nativeBridge.invoke(this._apiClass, "setSupportedOrientations", [e]);
+    /**
+     *
+     * @param orientations {Number}
+     * @returns {Promise}
+     */
+    IosAdUnitApi.prototype.setSupportedOrientations = function (orientations) {
+        return this._nativeBridge.invoke(this._apiClass, "setSupportedOrientations", [orientations]);
     };
     IosAdUnitApi.prototype.getSupportedOrientations = function () {
         return this._nativeBridge.invoke(this._apiClass, "getSupportedOrientations");
     };
-    IosAdUnitApi.prototype.setKeepScreenOn = function (e) {
-        return this._nativeBridge.invoke(this._apiClass, "setKeepScreenOn", [e]);
+    /**
+     *
+     * @param screenOn {Number}
+     * @returns {Promise}
+     */
+    IosAdUnitApi.prototype.setKeepScreenOn = function (screenOn) {
+        return this._nativeBridge.invoke(this._apiClass, "setKeepScreenOn", [screenOn]);
     };
-    IosAdUnitApi.prototype.setStatusBarHidden = function (e) {
-        return this._nativeBridge.invoke(this._apiClass, "setStatusBarHidden", [e]);
+    /**
+     *
+     * @param hidden {Number}
+     * @returns {Promise}
+     */
+    IosAdUnitApi.prototype.setStatusBarHidden = function (hidden) {
+        return this._nativeBridge.invoke(this._apiClass, "setStatusBarHidden", [hidden]);
     };
     IosAdUnitApi.prototype.getStatusBarHidden = function () {
         return this._nativeBridge.invoke(this._apiClass, "getStatusBarHidden");
     };
-    IosAdUnitApi.prototype.setShouldAutorotate = function (e) {
-        return this._nativeBridge.invoke(this._apiClass, "setShouldAutorotate", [e]);
+    /**
+     *
+     * @param autorotate {Number}
+     * @returns {Promise}
+     */
+    IosAdUnitApi.prototype.setShouldAutorotate = function (autorotate) {
+        return this._nativeBridge.invoke(this._apiClass, "setShouldAutorotate", [autorotate]);
     };
     IosAdUnitApi.prototype.getShouldAutorotate = function () {
         return this._nativeBridge.invoke(this._apiClass, "getShouldAutorotate");
     };
-    IosAdUnitApi.prototype.handleEvent = function (t, n) {
-        switch (t) {
+    IosAdUnitApi.prototype.handleEvent = function (e, args) {
+        switch (e) {
             case Event[Event.VIEW_CONTROLLER_INIT]:
                 this.onViewControllerInit.trigger();
                 break;
@@ -2856,7 +2962,7 @@ CMD.register("api.IosAdUnitApi", function (require) {
                 break;
 
             default:
-                NativeApi.prototype.handleEvent.call(this, t, n);
+                NativeApi.prototype.handleEvent.call(this, e, args);
         }
     };
     return IosAdUnitApi;
@@ -2917,18 +3023,18 @@ CMD.register("api.IosVideoPlayerApi", function (require) {
     }
     extend(IosVideoPlayerApi, NativeApi);
 
-    IosVideoPlayerApi.prototype.handleEvent = function (e, d) {
+    IosVideoPlayerApi.prototype.handleEvent = function (e, args) {
         switch (e) {
             case Event[Event.LIKELY_TO_KEEP_UP]:
-                this.onLikelyToKeepUp.trigger(d[0], d[1]);
+                this.onLikelyToKeepUp.trigger(args[0], args[1]);
                 break;
 
             case Event[Event.BUFFER_EMPTY]:
-                this.onBufferEmpty.trigger(d[0], d[1]);
+                this.onBufferEmpty.trigger(args[0], args[1]);
                 break;
 
             case Event[Event.BUFFER_FULL]:
-                this.onBufferFull.trigger(d[0], d[1]);
+                this.onBufferFull.trigger(args[0], args[1]);
                 break;
 
             default:
@@ -2949,18 +3055,39 @@ CMD.register("api.ListenerApi", function (require) {
         NativeApi.call(this, nativeBridge, "Listener");
     }
     extend(ListenerApi, NativeApi);
-
-    ListenerApi.prototype.sendReadyEvent = function (e) {
-        return this._nativeBridge.invoke(this._apiClass, "sendReadyEvent", [e]);
+    /**
+     *
+     * @param placementId {String}
+     * @returns {Promise}
+     */
+    ListenerApi.prototype.sendReadyEvent = function (placementId) {
+        return this._nativeBridge.invoke(this._apiClass, "sendReadyEvent", [placementId]);
     };
-    ListenerApi.prototype.sendStartEvent = function (e) {
-        return this._nativeBridge.invoke(this._apiClass, "sendStartEvent", [e]);
+    /**
+     *
+     * @param placementId {String}
+     * @returns {Promise}
+     */
+    ListenerApi.prototype.sendStartEvent = function (placementId) {
+        return this._nativeBridge.invoke(this._apiClass, "sendStartEvent", [placementId]);
     };
-    ListenerApi.prototype.sendFinishEvent = function (e, n) {
-        return this._nativeBridge.invoke(this._apiClass, "sendFinishEvent", [e, FinishState[n]]);
+    /**
+     * 
+     * @param placementId {String}
+     * @param resultState {String}
+     * @returns {Promise}
+     */
+    ListenerApi.prototype.sendFinishEvent = function (placementId, resultState) {
+        return this._nativeBridge.invoke(this._apiClass, "sendFinishEvent", [placementId, FinishState[resultState]]);
     };
-    ListenerApi.prototype.sendErrorEvent = function (e, t) {
-        return this._nativeBridge.invoke(this._apiClass, "sendErrorEvent", [e, t]);
+    /**
+     *
+     * @param error {String} AdsErrorCode
+     * @param message {String}
+     * @returns {Promise}
+     */
+    ListenerApi.prototype.sendErrorEvent = function (error, message) {
+        return this._nativeBridge.invoke(this._apiClass, "sendErrorEvent", [error, message]);
     };
 
     return ListenerApi;
@@ -2975,7 +3102,7 @@ CMD.register("api.NativeApi", function() {
         this._nativeBridge = nativeBridge;
         this._apiClass = apiClass;
     }
-    NativeApi.prototype.handleEvent = function (e, t) {
+    NativeApi.prototype.handleEvent = function (e, args) {
         throw new Error(this._apiClass + " event " + e + " does not have an observable");
     };
     return NativeApi;
@@ -2983,6 +3110,8 @@ CMD.register("api.NativeApi", function() {
 
 /**
  * Created by duo on 2016/8/31.
+ *
+ * iOS only
  */
 
 CMD.register("api.NotificationApi", function (require) {
@@ -2998,23 +3127,24 @@ CMD.register("api.NotificationApi", function (require) {
     }
     extend(NotificationApi, NativeApi);
 
-    NotificationApi.prototype.addNotificationObserver = function (e, t) {
-        return this._nativeBridge.invoke(this._apiClass, "addNotificationObserver", [e, t]);
+    NotificationApi.prototype.addNotificationObserver = function (name, userInfoKeys) {
+        return this._nativeBridge.invoke(this._apiClass, "addNotificationObserver", [name, userInfoKeys]);
     };
-    NotificationApi.prototype.removeNotificationObserver = function (e) {
-        return this._nativeBridge.invoke(this._apiClass, "removeNotificationObserver", [e]);
+    NotificationApi.prototype.removeNotificationObserver = function (name) {
+        return this._nativeBridge.invoke(this._apiClass, "removeNotificationObserver", [name]);
     };
     NotificationApi.prototype.removeAllNotificationObservers = function () {
         return this._nativeBridge.invoke(this._apiClass, "removeAllNotificationObservers");
     };
-    NotificationApi.prototype.handleEvent = function (t, n) {
-        switch (t) {
+    NotificationApi.prototype.handleEvent = function (e, args) {
+        switch (e) {
             case Event[Event.ACTION]:
-                this.onNotification.trigger(n[0], n[1]);
+                // name info
+                this.onNotification.trigger(args[0], args[1]);
                 break;
 
             default:
-                NativeApi.prototype.handleEvent.call(this, t, n);
+                NativeApi.prototype.handleEvent.call(this, e, args);
         }
     };
     return NotificationApi;
@@ -3024,7 +3154,7 @@ CMD.register("api.NotificationApi", function (require) {
  * Created by duo on 2016/8/31.
  */
 
-CMD.register("api.PlacementApi", function (require, t, n) {
+CMD.register("api.PlacementApi", function (require) {
     var NativeApi = require("api.NativeApi");
     var PlacementState = require("placement.PlacementState");
 
@@ -3033,12 +3163,22 @@ CMD.register("api.PlacementApi", function (require, t, n) {
     }
     extend(PlacementApi, NativeApi);
 
-    PlacementApi.prototype.setDefaultPlacement = function (e) {
-        return this._nativeBridge.invoke(this._apiClass, "setDefaultPlacement", [e]);
+    /**
+     *
+     * @param placement {String}
+     * @returns {Promise}
+     */
+    PlacementApi.prototype.setDefaultPlacement = function (placement) {
+        return this._nativeBridge.invoke(this._apiClass, "setDefaultPlacement", [placement]);
     };
-
-    PlacementApi.prototype.setPlacementState = function (e, n) {
-        return this._nativeBridge.invoke(this._apiClass, "setPlacementState", [e, PlacementState[n]]);
+    /**
+     *
+     * @param placement {String}
+     * @param placementState {Number}
+     * @returns {*}
+     */
+    PlacementApi.prototype.setPlacementState = function (placement, placementState) {
+        return this._nativeBridge.invoke(this._apiClass, "setPlacementState", [placement, PlacementState[placementState]]);
     };
 
     PlacementApi.prototype.setPlacementAnalytics = function (e) {
@@ -3063,45 +3203,85 @@ CMD.register("api.RequestApi", function (require) {
     }
     extend(RequestApi, NativeApi);
 
-    RequestApi.prototype.get = function (e, t, n, r, o) {
+    /**
+     *
+     * @param id                {String}
+     * @param url               {String}
+     * @param headers           {Array}   JSONArray
+     * @param connectTimeout    {Number}
+     * @param readTimeout       {Number}
+     * @returns {Promise}
+     */
+    RequestApi.prototype.get = function (id, url, headers, connectTimeout, readTimeout) {
         return this._nativeBridge.getPlatform() === Platform.IOS ?
-            this._nativeBridge.invoke(this._apiClass, "get", [e, t, n, r]) :
-            this._nativeBridge.invoke(this._apiClass, "get", [e, t, n, r, o]);
+            this._nativeBridge.invoke(this._apiClass, "get", [id, url, headers, connectTimeout]) :
+            this._nativeBridge.invoke(this._apiClass, "get", [id, url, headers, connectTimeout, readTimeout]);
     };
-    RequestApi.prototype.post = function (e, t, n, r, o, a) {
+    /**
+     *
+     * @param id                {String}
+     * @param url               {String}
+     * @param requestBody       {String}
+     * @param headers           {Array}   JSONArray
+     * @param connectTimeout    {Number}
+     * @param readTimeout       {Number}
+     * @returns {Promise}
+     */
+    RequestApi.prototype.post = function (id, url, requestBody, headers, connectTimeout, readTimeout) {
         return this._nativeBridge.getPlatform() === Platform.IOS ?
-            this._nativeBridge.invoke(this._apiClass, "post", [e, t, n, r, o]) :
-            this._nativeBridge.invoke(this._apiClass, "post", [e, t, n, r, o, a]);
+            this._nativeBridge.invoke(this._apiClass, "post", [id, url, requestBody, headers, connectTimeout]) :
+            this._nativeBridge.invoke(this._apiClass, "post", [id, url, requestBody, headers, connectTimeout, readTimeout]);
     };
-    RequestApi.prototype.head = function (e, t, n, r, o) {
+    /**
+     *
+     * @param id                {String}
+     * @param url               {String}
+     * @param headers           {Array}   JSONArray
+     * @param connectTimeout    {Number}
+     * @param readTimeout       {Number}
+     * @returns {Promise}
+     */
+    RequestApi.prototype.head = function (id, url, headers, connectTimeout, readTimeout) {
         return this._nativeBridge.getPlatform() === Platform.IOS ?
-            this._nativeBridge.invoke(this._apiClass, "head", [e, t, n, r]) :
-            this._nativeBridge.invoke(this._apiClass, "head", [e, t, n, r, o]);
+            this._nativeBridge.invoke(this._apiClass, "head", [id, url, headers, connectTimeout]) :
+            this._nativeBridge.invoke(this._apiClass, "head", [id, url, headers, connectTimeout, readTimeout]);
     };
-    RequestApi.prototype.setConnectTimeout = function (e) {
-        return this._nativeBridge.invoke(this._apiClass, "setConnectTimeout", [e]);
+    /**
+     *
+     * @param timeout {Number}
+     * @returns {Promise}
+     */
+    RequestApi.prototype.setConnectTimeout = function (timeout) {
+        return this._nativeBridge.invoke(this._apiClass, "setConnectTimeout", [timeout]);
     };
     RequestApi.prototype.getConnectTimeout = function () {
         return this._nativeBridge.invoke(this._apiClass, "getConnectTimeout");
     };
-    RequestApi.prototype.setReadTimeout = function (e) {
-        return this._nativeBridge.invoke(this._apiClass, "setReadTimeout", [e]);
+    /**
+     *
+     * @param timeout {Number}
+     * @returns {Promise}
+     */
+    RequestApi.prototype.setReadTimeout = function (timeout) {
+        return this._nativeBridge.invoke(this._apiClass, "setReadTimeout", [timeout]);
     };
     RequestApi.prototype.getReadTimeout = function () {
         return this._nativeBridge.invoke(this._apiClass, "getReadTimeout");
     };
-    RequestApi.prototype.handleEvent = function (e, d) {
+    RequestApi.prototype.handleEvent = function (e, arg) {
         switch (e) {
             case RequestEvent[RequestEvent.COMPLETE]:
-                this.onComplete.trigger(d[0], d[1], d[2], d[3], d[4]);
+                //id url response responseCode headers
+                this.onComplete.trigger(arg[0], arg[1], arg[2], arg[3], arg[4]);
                 break;
 
             case RequestEvent[RequestEvent.FAILED]:
-                this.onFailed.trigger(d[0], d[1], d[2]);
+                //id url errorMsg
+                this.onFailed.trigger(arg[0], arg[1], arg[2]);
                 break;
 
             default:
-                NativeApi.prototype.handleEvent.call(this, e, d);
+                NativeApi.prototype.handleEvent.call(this, e, arg);
         }
     };
     return RequestApi;
@@ -3110,7 +3290,7 @@ CMD.register("api.RequestApi", function (require) {
  * Created by duo on 2016/8/31.
  */
 
-CMD.register("api.ResolveApi", function (require, t, n) {
+CMD.register("api.ResolveApi", function (require) {
     var NativeApi = require("api.NativeApi");
     var ResolveEvent = require("resolve.ResolveEvent");
     var Observable = require("util.Observable");
@@ -3122,21 +3302,27 @@ CMD.register("api.ResolveApi", function (require, t, n) {
     }
     extend(ResolveApi, NativeApi);
 
-    ResolveApi.prototype.resolve = function (e, t) {
-        return this._nativeBridge.invoke(this._apiClass, "resolve", [e, t]);
+    /**
+     *
+     * @param id    {String}
+     * @param host  {String}
+     * @returns {Promise}
+     */
+    ResolveApi.prototype.resolve = function (id, host) {
+        return this._nativeBridge.invoke(this._apiClass, "resolve", [id, host]);
     };
-    ResolveApi.prototype.handleEvent = function (t, n) {
-        switch (t) {
+    ResolveApi.prototype.handleEvent = function (e, arg) {
+        switch (e) {
             case ResolveEvent[ResolveEvent.COMPLETE]:
-                this.onComplete.trigger(n[0], n[1], n[2]);
+                this.onComplete.trigger(arg[0], arg[1], arg[2]);
                 break;
 
             case ResolveEvent[ResolveEvent.FAILED]:
-                this.onFailed.trigger(n[0], n[1], n[2], n[3]);
+                this.onFailed.trigger(arg[0], arg[1], arg[2], arg[3]);
                 break;
 
             default:
-                NativeApi.prototype.handleEvent.call(this, t, n);
+                NativeApi.prototype.handleEvent.call(this, e, arg);
         }
     };
     return ResolveApi;
@@ -3199,36 +3385,36 @@ CMD.register("api.StorageApi", function (require) {
     }
     extend(StorageApi, NativeApi);
 
-    StorageApi.prototype.read = function (e) {
-        return this._nativeBridge.invoke(this._apiClass, "read", [StorageType[e]]);
+    StorageApi.prototype.read = function (storageType) {
+        return this._nativeBridge.invoke(this._apiClass, "read", [StorageType[storageType]]);
     };
-    StorageApi.prototype.write = function (e) {
-        return this._nativeBridge.invoke(this._apiClass, "write", [StorageType[e]]);
+    StorageApi.prototype.write = function (storageType) {
+        return this._nativeBridge.invoke(this._apiClass, "write", [StorageType[storageType]]);
     };
-    StorageApi.prototype.get = function (e, t) {
-        return this._nativeBridge.invoke(this._apiClass, "get", [StorageType[e], t]);
+    StorageApi.prototype.get = function (storageType, key) {
+        return this._nativeBridge.invoke(this._apiClass, "get", [StorageType[storageType], key]);
     };
-    StorageApi.prototype.set = function (e, t, i) {
-        return this._nativeBridge.invoke(this._apiClass, "set", [StorageType[e], t, i]);
+    StorageApi.prototype.set = function (storageType, key, value) {
+        return this._nativeBridge.invoke(this._apiClass, "set", [StorageType[storageType], key, value]);
     };
-    StorageApi.prototype["delete"] = function (e, t) {
-        return this._nativeBridge.invoke(this._apiClass, "delete", [StorageType[e], t]);
+    StorageApi.prototype["delete"] = function (storageType, category) {
+        return this._nativeBridge.invoke(this._apiClass, "delete", [StorageType[storageType], category]);
     };
-    StorageApi.prototype.clear = function (e) {
-        return this._nativeBridge.invoke(this._apiClass, "clear", [StorageType[e]]);
+    StorageApi.prototype.clear = function (storageType) {
+        return this._nativeBridge.invoke(this._apiClass, "clear", [StorageType[storageType]]);
     };
 
     /**
      *
-     * @param storageType
-     * @param category
-     * @param recursive
-     * @return keys {Array}
+     * @param storageType   {String}
+     * @param category      {String}
+     * @param recursive     {Boolean}
+     * @return {Promise}    resolve(keys:Array) | reject(err:StorageError, storageType:StorageType, category:String)
      */
     StorageApi.prototype.getKeys = function (storageType, category, recursive) {
         return this._nativeBridge.invoke(this._apiClass, "getKeys", [StorageType[storageType], category, recursive]);
     };
-    StorageApi.prototype.handleEvent = function (e, t) {
+    StorageApi.prototype.handleEvent = function (e, arg) {
         switch (e) {
         }
     };
@@ -3247,8 +3433,8 @@ CMD.register("api.UrlSchemeApi", function (require) {
     }
     extend(UrlSchemeApi, NativeApi);
 
-    UrlSchemeApi.prototype.open = function (e) {
-        return this._nativeBridge.invoke(this._apiClass, "open", [e]);
+    UrlSchemeApi.prototype.open = function (url) {
+        return this._nativeBridge.invoke(this._apiClass, "open", [url]);
     };
     return UrlSchemeApi;
 });
@@ -3297,14 +3483,25 @@ CMD.register("api.VideoPlayerApi", function (require) {
     }
     extend(VideoPlayerApi, NativeApi);
 
-    VideoPlayerApi.prototype.setProgressEventInterval = function (e) {
-        return this._nativeBridge.invoke(this._apiClass, "setProgressEventInterval", [e]);
+    /**
+     *
+     * @param milliseconds {Number}
+     * @returns {Promise}
+     */
+    VideoPlayerApi.prototype.setProgressEventInterval = function (milliseconds) {
+        return this._nativeBridge.invoke(this._apiClass, "setProgressEventInterval", [milliseconds]);
     };
     VideoPlayerApi.prototype.getProgressEventInterval = function () {
         return this._nativeBridge.invoke(this._apiClass, "getProgressEventInterval");
     };
-    VideoPlayerApi.prototype.prepare = function (e, t) {
-        return this._nativeBridge.invoke(this._apiClass, "prepare", [e, t]);
+    /**
+     *
+     * @param url           {String}
+     * @param initialVolume {Double}
+     * @returns {Promise}
+     */
+    VideoPlayerApi.prototype.prepare = function (url, initialVolume) {
+        return this._nativeBridge.invoke(this._apiClass, "prepare", [url, initialVolume]);
     };
     VideoPlayerApi.prototype.play = function () {
         return this._nativeBridge.invoke(this._apiClass, "play");
@@ -3315,8 +3512,13 @@ CMD.register("api.VideoPlayerApi", function (require) {
     VideoPlayerApi.prototype.stop = function () {
         return this._nativeBridge.invoke(this._apiClass, "stop");
     };
-    VideoPlayerApi.prototype.seekTo = function (e) {
-        return this._nativeBridge.invoke(this._apiClass, "seekTo", [e]);
+    /**
+     *
+     * @param time {Number}
+     * @returns {Promise}
+     */
+    VideoPlayerApi.prototype.seekTo = function (time) {
+        return this._nativeBridge.invoke(this._apiClass, "seekTo", [time]);
     };
     VideoPlayerApi.prototype.getCurrentPosition = function () {
         return this._nativeBridge.invoke(this._apiClass, "getCurrentPosition");
@@ -3324,48 +3526,53 @@ CMD.register("api.VideoPlayerApi", function (require) {
     VideoPlayerApi.prototype.getVolume = function () {
         return this._nativeBridge.invoke(this._apiClass, "getVolume");
     };
-    VideoPlayerApi.prototype.setVolume = function (e) {
-        return this._nativeBridge.invoke(this._apiClass, "setVolume", [e]);
+    /**
+     *
+     * @param volume {Double}
+     * @returns {Promise}
+     */
+    VideoPlayerApi.prototype.setVolume = function (volume) {
+        return this._nativeBridge.invoke(this._apiClass, "setVolume", [volume]);
     };
-    VideoPlayerApi.prototype.handleEvent = function (e, t) {
+    VideoPlayerApi.prototype.handleEvent = function (e, arg) {
         switch (e) {
             case Event[Event.GENERIC_ERROR]:
-                this.onError.trigger(t[0], t[1], t[2]);
+                this.onError.trigger(arg[0], arg[1], arg[2]);
                 break;
 
             case Event[Event.PROGRESS]:
-                this.onProgress.trigger(t[0]);
+                this.onProgress.trigger(arg[0]);
                 break;
 
             case Event[Event.COMPLETED]:
-                this.onCompleted.trigger(t[0]);
+                this.onCompleted.trigger(arg[0]);
                 break;
 
             case Event[Event.PREPARED]:
-                this.onPrepared.trigger(t[0], t[1], t[2], t[3]);
+                this.onPrepared.trigger(arg[0], arg[1], arg[2], arg[3]);
                 break;
 
             case Event[Event.PLAY]:
-                this.onPlay.trigger(t[0]);
+                this.onPlay.trigger(arg[0]);
                 break;
 
             case Event[Event.PAUSE]:
-                this.onPause.trigger(t[0]);
+                this.onPause.trigger(arg[0]);
                 break;
 
             case Event[Event.SEEKTO]:
-                this.onSeek.trigger(t[0]);
+                this.onSeek.trigger(arg[0]);
                 break;
 
             case Event[Event.STOP]:
-                this.onStop.trigger(t[0]);
+                this.onStop.trigger(arg[0]);
                 break;
 
             default:
                 if(this._nativeBridge.getPlatform() === Platform.IOS){
-                    this.Ios.handleEvent(e, t);
+                    this.Ios.handleEvent(e, arg);
                 }else if(this._nativeBridge.getPlatform() === Platform.ANDROID){
-                    this.Android.handleEvent(e, t);
+                    this.Android.handleEvent(e, arg);
                 }
         }
     };
@@ -3844,52 +4051,53 @@ CMD.register("campaign.CampaignManager", function (require) {
     };
     CampaignManager.prototype.request = function () {
         var me = this;
-        return Promise.all([this.createRequestUrl(), this.createRequestBody()]).then(function (t) {
-            var n = t[0], a = t[1];
-            me._nativeBridge.Sdk.logInfo("Requesting ad plan from " + n);
-            return me._request.post(n, a, [], {
+        return Promise.all([this.createRequestUrl(), this.createRequestBody()]).then(function (res) {
+            var requestUrl = res[0],
+                requestBody = res[1];
+            me._nativeBridge.Sdk.logInfo("Requesting ad plan from " + requestUrl);
+            return me._request.post(requestUrl, requestBody, [], {
                 retries: 5,
                 retryDelay: 5e3,
-                followRedirects: !1,
-                retryWithConnectionEvents: !0
-            }).then(function (t) {
-                var n = JsonParser.parse(t.response);
-                if (n.campaign) {
+                followRedirects: false,
+                retryWithConnectionEvents: true
+            }).then(function (data) {
+                var response = JsonParser.parse(data.response);
+                if (response.campaign) {
                     me._nativeBridge.Sdk.logInfo("Unity Ads server returned game advertisement");
-                    var a = new Campaign(n.campaign, n.gamerId, n.abGroup);
-                    me.onCampaign.trigger(a);
-                } else if("vast" in n ){
-                    if(null === n.vast){
+                    var campaign = new Campaign(response.campaign, response.gamerId, response.abGroup);
+                    me.onCampaign.trigger(campaign);
+                } else if("vast" in response ){
+                    if(null === response.vast){
                         me._nativeBridge.Sdk.logInfo("Unity Ads server returned no fill");
                         me.onNoFill.trigger(3600)
                     }else{
                         me._nativeBridge.Sdk.logInfo("Unity Ads server returned VAST advertisement");
-                        me._vastParser.retrieveVast(n.vast, me._nativeBridge, me._request).then(function (t) {
-                            var i = void 0;
+                        me._vastParser.retrieveVast(response.vast, me._nativeBridge, me._request).then(function (vastData) {
+                            var campaignId = void 0;
                             if(me._nativeBridge.getPlatform() === Platform.IOS){
-                                i = "00005472656d6f7220694f53";
+                                campaignId = "00005472656d6f7220694f53";
                             }else if(me._nativeBridge.getPlatform() === Platform.ANDROID){
-                                i = "005472656d6f7220416e6472";
+                                campaignId = "005472656d6f7220416e6472";
                             }
 
-                            var a = new VastCampaign(t, i, n.gamerId, n.abGroup);
-                            if(0 === a.getVast().getImpressionUrls().length){
+                            var vastCampaign = new VastCampaign(vastData, campaignId, response.gamerId, response.abGroup);
+                            if(0 === vastCampaign.getVast().getImpressionUrls().length){
                                 me.onError.trigger(new Error("Campaign does not have an impression url"))
 
                             }else{
-                                if(0 === a.getVast().getErrorURLTemplates().length){
+                                if(0 === vastCampaign.getVast().getErrorURLTemplates().length){
                                     me._nativeBridge.Sdk.logWarning("Campaign does not have an error url for game id " + me._clientInfo.getGameId())
                                 }
-                                if(a.getVideoUrl()){
-                                    me.onVastCampaign.trigger(a)
+                                if(vastCampaign.getVideoUrl()){
+                                    me.onVastCampaign.trigger(vastCampaign)
                                 }else{
                                     me.onError.trigger(new Error("Campaign does not have a video url"))
                                 }
                             }
 
 
-                        })["catch"](function (t) {
-                            me.onError.trigger(t);
+                        })["catch"](function (e) {
+                            me.onError.trigger(e);
                         })
                     }
                 }else{
@@ -3897,25 +4105,25 @@ CMD.register("campaign.CampaignManager", function (require) {
                     me.onNoFill.trigger(3600);
                 }
             });
-        })["catch"](function (t) {
-            me.onError.trigger(t);
+        })["catch"](function (e) {
+            me.onError.trigger(e);
         });
     };
     CampaignManager.prototype.createRequestUrl = function () {
-        var t = [CampaignManager.CampaignBaseUrl, this._clientInfo.getGameId(), "fill"].join("/");
+        var requestUrl = [CampaignManager.CampaignBaseUrl, this._clientInfo.getGameId(), "fill"].join("/");
 
         if(this._deviceInfo.getAdvertisingIdentifier() ){
-            t = Url.addParameters(t, {
+            requestUrl = Url.addParameters(requestUrl, {
                 advertisingTrackingId: this._deviceInfo.getAdvertisingIdentifier(),
                 limitAdTracking: this._deviceInfo.getLimitAdTracking()
             })
         }else if(this._clientInfo.getPlatform() === Platform.ANDROID){
-            t = Url.addParameters(t, {
+            requestUrl = Url.addParameters(requestUrl, {
                 androidId: this._deviceInfo.getAndroidId()
             })
         }
 
-        t = Url.addParameters(t, {
+        requestUrl = Url.addParameters(requestUrl, {
             deviceMake: this._deviceInfo.getManufacturer(),
             deviceModel: this._deviceInfo.getModel(),
             platform: Platform[this._clientInfo.getPlatform()].toLowerCase(),
@@ -3927,51 +4135,51 @@ CMD.register("campaign.CampaignManager", function (require) {
         });
 
         if("undefined" != typeof navigator && navigator.userAgent ){
-            t = Url.addParameters(t, {
+            requestUrl = Url.addParameters(requestUrl, {
                 webviewUa: encodeURIComponent(navigator.userAgent)
             });
         }
 
         if(this._clientInfo.getPlatform() === Platform.IOS){
-            t = Url.addParameters(t, {osVersion: this._deviceInfo.getOsVersion()})
+            requestUrl = Url.addParameters(requestUrl, {osVersion: this._deviceInfo.getOsVersion()})
         }else{
-            t = Url.addParameters(t, {apiLevel: this._deviceInfo.getApiLevel()});
+            requestUrl = Url.addParameters(requestUrl, {apiLevel: this._deviceInfo.getApiLevel()});
         }
 
         if(this._clientInfo.getTestMode()){
-            t = Url.addParameters(t, {test: !0});
+            requestUrl = Url.addParameters(requestUrl, {test: true});
         }
-        var i = [];
-        i.push(this._deviceInfo.getConnectionType());
-        i.push(this._deviceInfo.getNetworkType());
-        return Promise.all(i).then(function (e) {
-            var i = e[0], r = e[1];
-            return t = Url.addParameters(t, {
-                connectionType: i,
-                networkType: r
+        var tasks = [];
+        tasks.push(this._deviceInfo.getConnectionType());
+        tasks.push(this._deviceInfo.getNetworkType());
+        return Promise.all(tasks).then(function (res) {
+            var connectionType = res[0], networkType = res[1];
+            return requestUrl = Url.addParameters(requestUrl, {
+                connectionType: connectionType,
+                networkType: networkType
             });
         });
     };
     CampaignManager.prototype.createRequestBody = function () {
         var me = this,
-            t = [];
-        t.push(this._deviceInfo.getFreeSpace());
-        t.push(this._deviceInfo.getNetworkOperator());
-        t.push(this._deviceInfo.getNetworkOperatorName());
-        var n = {
+            tasks = [];
+        tasks.push(this._deviceInfo.getFreeSpace());
+        tasks.push(this._deviceInfo.getNetworkOperator());
+        tasks.push(this._deviceInfo.getNetworkOperatorName());
+        var params = {
             bundleVersion: this._clientInfo.getApplicationVersion(),
             bundleId: this._clientInfo.getApplicationName(),
             language: this._deviceInfo.getLanguage(),
             timeZone: this._deviceInfo.getTimeZone()
         };
-        return Promise.all(t).then(function (t) {
-            var i = t[0], r = t[1], o = t[2];
-            n.deviceFreeSpace = i;
-            n.networkOperator = r;
-            n.networkOperatorName = o;
-            return MetaDataManager.fetchMediationMetaData(me._nativeBridge).then(function (e) {
-                e && (n.mediation = e.getDTO());
-                return JSON.stringify(n);
+        return Promise.all(tasks).then(function (res) {
+            var deviceFreeSpace = res[0], networkOperator = res[1], networkOperatorName = res[2];
+            params.deviceFreeSpace = deviceFreeSpace;
+            params.networkOperator = networkOperator;
+            params.networkOperatorName = networkOperatorName;
+            return MetaDataManager.fetchMediationMetaData(me._nativeBridge).then(function (metaData) {
+                metaData && (params.mediation = metaData.getDTO());
+                return JSON.stringify(params);
             });
         });
     };
@@ -4010,16 +4218,17 @@ CMD.register("campaign.VastCampaign", function (require) {
  */
 CMD.register("configuration.Configuration", function (require){
     var CacheMode = require("cache.CacheMode");
+    var Placement = require("placement.Placement");
 
-    function Configuration(e) {
+    function Configuration(configData) {
         var me = this;
         this._placements = {};
         this._defaultPlacement = null;
-        this._enabled = e.enabled;
-        this._country = e.country;
-        this._coppaCompliant = e.coppaCompliant;
+        this._enabled = configData.enabled;
+        this._country = configData.country;
+        this._coppaCompliant = configData.coppaCompliant;
 
-        switch (e.assetCaching) {
+        switch (configData.assetCaching) {
             case "forced":
                 this._cacheMode = CacheMode.FORCED;
                 break;
@@ -4033,12 +4242,12 @@ CMD.register("configuration.Configuration", function (require){
                 break;
 
             default:
-                throw new Error('Unknown assetCaching value "' + e.assetCaching + '"');
+                throw new Error('Unknown assetCaching value "' + configData.assetCaching + '"');
         }
 
-        var placements = e.placements;
+        var placements = configData.placements;
         placements.forEach(function (item) {
-            var placement = new t.Placement(item);
+            var placement = new Placement(item);
             me._placements[placement.getId()] = placement;
 
             if(placement.isDefault()){
@@ -4094,20 +4303,20 @@ CMD.register("configuration.ConfigManager", function (require) {
     function ConfigManager() {}
 
     ConfigManager.fetch = function (nativeBridge, request, clientInfo, deviceInfo) {
-        return MetaDataManager.fetchAdapterMetaData(nativeBridge).then(function (i) {
-            var configUrl = ConfigManager.createConfigUrl(clientInfo, deviceInfo, i);
+        return MetaDataManager.fetchAdapterMetaData(nativeBridge).then(function (metaData) {
+            var configUrl = ConfigManager.createConfigUrl(clientInfo, deviceInfo, metaData);
             nativeBridge.Sdk.logInfo("Requesting configuration from " + configUrl);
             return request.get(configUrl, [], {
                 retries: 5,
                 retryDelay: 5e3,
                 followRedirects: false,
                 retryWithConnectionEvents: true
-            }).then(function (e) {
+            }).then(function (res) {
                 try {
-                    var i = JsonParser.parse(e.response),
-                        o = new Configuration(i);
-                    nativeBridge.Sdk.logInfo("Received configuration with " + o.getPlacementCount() + " placements");
-                    return o;
+                    var configData = JsonParser.parse(res.response),
+                        configuration = new Configuration(configData);
+                    nativeBridge.Sdk.logInfo("Received configuration with " + configuration.getPlacementCount() + " placements");
+                    return configuration;
                 } catch (e) {
                     nativeBridge.Sdk.logError("Config request failed " + e);
                     throw new Error(e);
@@ -4118,15 +4327,15 @@ CMD.register("configuration.ConfigManager", function (require) {
     ConfigManager.setTestBaseUrl = function (baseUrl) {
         ConfigManager.ConfigBaseUrl = baseUrl + "/games";
     };
-    ConfigManager.createConfigUrl = function (n, i, r) {
-        var configUrl = [ConfigManager.ConfigBaseUrl, n.getGameId(), "configuration"].join("/");
+    ConfigManager.createConfigUrl = function (clientInfo, deviceInfo, metaData) {
+        var configUrl = [ConfigManager.ConfigBaseUrl, clientInfo.getGameId(), "configuration"].join("/");
         configUrl = Url.addParameters(configUrl, {
-            bundleId: n.getApplicationName(),
-            encrypted: !n.isDebuggable(),
-            rooted: i.isRooted()
+            bundleId: clientInfo.getApplicationName(),
+            encrypted: !clientInfo.isDebuggable(),
+            rooted: deviceInfo.isRooted()
         });
-        if(r){
-            configUrl = Url.addParameters(configUrl, r.getDTO());
+        if(metaData){
+            configUrl = Url.addParameters(configUrl, metaData.getDTO());
         }
         return configUrl;
     };
@@ -4150,25 +4359,25 @@ CMD.register("device.AndroidStorageType", function () {
 /**
  * Created by duo on 2016/9/1.
  */
-CMD.register("device.ClientInfo", function (require, t, n) {
+CMD.register("device.ClientInfo", function (require) {
     var Model = require("model.Model");
     var AdsError = require("AdsError");
     var Platform = require("platform.Platform");
 
     /**
-     * SDK������Ϣ
+     * SDK Environment info
      * @param platform
-     * @param nativeClientInfo {Array} ��Native�ṩ
+     * @param nativeClientInfo {Array} from native
      * @constructor
      */
     function ClientInfo(platform, nativeClientInfo) {
         Model.call(this);
         this._platform = platform;
-        var r = nativeClientInfo.shift();
-        if ("string" != typeof r || !/^\d+$/.test(r)){
+        var gameId = nativeClientInfo.shift();
+        if ("string" != typeof gameId || !/^\d+$/.test(gameId)){
             throw new Error(AdsError[AdsError.INVALID_ARGUMENT]);
         }
-        this._gameId = r;
+        this._gameId = gameId;
         this._testMode = nativeClientInfo.shift();
         this._applicationName = nativeClientInfo.shift();
         this._applicationVersion = nativeClientInfo.shift();
@@ -4255,136 +4464,140 @@ CMD.register("device.DeviceInfo", function (require) {
     }
     extend(DeviceInfo, Model);
     DeviceInfo.prototype.fetch = function () {
-        var me = this, t = [];
-        t.push(this._nativeBridge.DeviceInfo.getAdvertisingTrackingId().then(function (id) {
+        var me = this, tasks = [];
+        tasks.push(this._nativeBridge.DeviceInfo.getAdvertisingTrackingId().then(function (id) {
             return me._advertisingIdentifier = id;
         }).catch(function (e) {
             return me.handleDeviceInfoError(e);
         }));
 
-        t.push(this._nativeBridge.DeviceInfo.getLimitAdTrackingFlag().then(function (flag) {
-            me._nativeBridge.getPlatform() === Platform.IOS ? me._limitAdTracking = !flag : me._limitAdTracking = flag;
+        tasks.push(this._nativeBridge.DeviceInfo.getLimitAdTrackingFlag().then(function (flag) {
+            if(me._nativeBridge.getPlatform() === Platform.IOS){
+                me._limitAdTracking = !flag
+            }else{
+                me._limitAdTracking = flag;
+            }
         })["catch"](function (e) {
             return me.handleDeviceInfoError(e);
         }));
 
-        t.push(this._nativeBridge.DeviceInfo.getOsVersion().then(function (version) {
+        tasks.push(this._nativeBridge.DeviceInfo.getOsVersion().then(function (version) {
             return me._osVersion = version;
         })["catch"](function (e) {
             return me.handleDeviceInfoError(e);
         }));
 
-        t.push(this._nativeBridge.DeviceInfo.getModel().then(function (model) {
+        tasks.push(this._nativeBridge.DeviceInfo.getModel().then(function (model) {
             return me._model = model;
         })["catch"](function (e) {
             return me.handleDeviceInfoError(e);
         }));
 
-        t.push(this._nativeBridge.DeviceInfo.getScreenWidth().then(function (width) {
+        tasks.push(this._nativeBridge.DeviceInfo.getScreenWidth().then(function (width) {
             return me._screenWidth = width;
         })["catch"](function (e) {
             return me.handleDeviceInfoError(e);
         }));
 
-        t.push(this._nativeBridge.DeviceInfo.getScreenHeight().then(function (height) {
+        tasks.push(this._nativeBridge.DeviceInfo.getScreenHeight().then(function (height) {
             return me._screenHeight = height;
         })["catch"](function (e) {
             return me.handleDeviceInfoError(e);
         }));
 
-        t.push(this._nativeBridge.DeviceInfo.getSystemLanguage().then(function (lang) {
+        tasks.push(this._nativeBridge.DeviceInfo.getSystemLanguage().then(function (lang) {
             return me._language = lang;
         })["catch"](function (e) {
             return me.handleDeviceInfoError(e);
         }));
 
-        t.push(this._nativeBridge.DeviceInfo.isRooted().then(function (rooted) {
+        tasks.push(this._nativeBridge.DeviceInfo.isRooted().then(function (rooted) {
             return me._rooted = rooted;
         })["catch"](function (e) {
             return me.handleDeviceInfoError(e);
         }));
 
-        t.push(this._nativeBridge.DeviceInfo.getTimeZone(false).then(function (timeZone) {
+        tasks.push(this._nativeBridge.DeviceInfo.getTimeZone(false).then(function (timeZone) {
             return me._timeZone = timeZone;
         })["catch"](function (e) {
             return me.handleDeviceInfoError(e);
         }));
 
-        t.push(this._nativeBridge.DeviceInfo.getTotalMemory().then(function (totalMemory) {
+        tasks.push(this._nativeBridge.DeviceInfo.getTotalMemory().then(function (totalMemory) {
             return me._totalMemory = totalMemory;
         })["catch"](function (e) {
             return me.handleDeviceInfoError(e);
         }));
 
         if(this._nativeBridge.getPlatform() === Platform.IOS ){
-            t.push(this._nativeBridge.DeviceInfo.Ios.getUserInterfaceIdiom().then(function (userInterfaceIdiom) {
+            tasks.push(this._nativeBridge.DeviceInfo.Ios.getUserInterfaceIdiom().then(function (userInterfaceIdiom) {
                 return me._userInterfaceIdiom = userInterfaceIdiom;
             })["catch"](function (e) {
                 return me.handleDeviceInfoError(e);
             }));
 
-            t.push(this._nativeBridge.DeviceInfo.Ios.getScreenScale().then(function (scale) {
+            tasks.push(this._nativeBridge.DeviceInfo.Ios.getScreenScale().then(function (scale) {
                 return me._screenScale = scale;
             })["catch"](function (e) {
                 return me.handleDeviceInfoError(e);
             }));
 
-            t.push(this._nativeBridge.DeviceInfo.Ios.isSimulator().then(function (isSimulator) {
+            tasks.push(this._nativeBridge.DeviceInfo.Ios.isSimulator().then(function (isSimulator) {
                 return me._simulator = isSimulator;
             })["catch"](function (e) {
                 return me.handleDeviceInfoError(e);
             }));
 
-            t.push(this._nativeBridge.DeviceInfo.Ios.getTotalSpace().then(function (totalSpace) {
+            tasks.push(this._nativeBridge.DeviceInfo.Ios.getTotalSpace().then(function (totalSpace) {
                 return me._totalInternalSpace = totalSpace;
             })["catch"](function (e) {
                 return me.handleDeviceInfoError(e);
             }))
         } else if(this._nativeBridge.getPlatform() === Platform.ANDROID){
-            t.push(this._nativeBridge.DeviceInfo.Android.getAndroidId().then(function (id) {
+            tasks.push(this._nativeBridge.DeviceInfo.Android.getAndroidId().then(function (id) {
                 return me._androidId = id;
             })["catch"](function (e) {
                 return me.handleDeviceInfoError(e);
             }));
 
-            t.push(this._nativeBridge.DeviceInfo.Android.getApiLevel().then(function (apiLevel) {
+            tasks.push(this._nativeBridge.DeviceInfo.Android.getApiLevel().then(function (apiLevel) {
                 return me._apiLevel = apiLevel;
             })["catch"](function (e) {
                 return me.handleDeviceInfoError(e);
             }));
 
-            t.push(this._nativeBridge.DeviceInfo.Android.getTotalSpace(AndroidStorageType.INTERNAL).then(function (totalSpace) {
+            tasks.push(this._nativeBridge.DeviceInfo.Android.getTotalSpace(AndroidStorageType.INTERNAL).then(function (totalSpace) {
                 return me._totalInternalSpace = totalSpace;
             })["catch"](function (e) {
                 return me.handleDeviceInfoError(e);
             }));
 
-            t.push(this._nativeBridge.DeviceInfo.Android.getTotalSpace(AndroidStorageType.EXTERNAL).then(function (totalSpace) {
+            tasks.push(this._nativeBridge.DeviceInfo.Android.getTotalSpace(AndroidStorageType.EXTERNAL).then(function (totalSpace) {
                 return me._totalExternalSpace = totalSpace;
             })["catch"](function (e) {
                 return me.handleDeviceInfoError(e);
             }));
 
-            t.push(this._nativeBridge.DeviceInfo.Android.getManufacturer().then(function (manufacturer) {
+            tasks.push(this._nativeBridge.DeviceInfo.Android.getManufacturer().then(function (manufacturer) {
                 return me._manufacturer = manufacturer;
             })["catch"](function (e) {
                 return me.handleDeviceInfoError(e);
             }));
 
-            t.push(this._nativeBridge.DeviceInfo.Android.getScreenDensity().then(function (screenDensity) {
+            tasks.push(this._nativeBridge.DeviceInfo.Android.getScreenDensity().then(function (screenDensity) {
                 return me._screenDensity = screenDensity;
             })["catch"](function (e) {
                 return me.handleDeviceInfoError(e);
             }));
 
-            t.push(this._nativeBridge.DeviceInfo.Android.getScreenLayout().then(function (screenLayout) {
+            tasks.push(this._nativeBridge.DeviceInfo.Android.getScreenLayout().then(function (screenLayout) {
                 return me._screenLayout = screenLayout;
             })["catch"](function (e) {
                 return me.handleDeviceInfoError(e);
             }))
         }
 
-        return Promise.all(t);
+        return Promise.all(tasks);
     };
     DeviceInfo.prototype.getAndroidId = function () {
         return this._androidId;
@@ -4583,53 +4796,53 @@ CMD.register("device.DeviceInfo", function (require) {
         return this._totalMemory;
     };
     DeviceInfo.prototype.getDTO = function () {
-        var me = this, t = [];
-        t.push(this.getConnectionType()["catch"](function (e) {
+        var me = this, tasks = [];
+        tasks.push(this.getConnectionType()["catch"](function (e) {
             return me.handleDeviceInfoError(e);
         }));
-        t.push(this.getNetworkType()["catch"](function (e) {
+        tasks.push(this.getNetworkType()["catch"](function (e) {
             return me.handleDeviceInfoError(e);
         }));
-        t.push(this.getNetworkOperator()["catch"](function (e) {
+        tasks.push(this.getNetworkOperator()["catch"](function (e) {
             return me.handleDeviceInfoError(e);
         }));
-        t.push(this.getNetworkOperatorName()["catch"](function (e) {
+        tasks.push(this.getNetworkOperatorName()["catch"](function (e) {
             return me.handleDeviceInfoError(e);
         }));
-        t.push(this.getHeadset()["catch"](function (e) {
+        tasks.push(this.getHeadset()["catch"](function (e) {
             return me.handleDeviceInfoError(e);
         }));
-        t.push(this.getDeviceVolume()["catch"](function (e) {
+        tasks.push(this.getDeviceVolume()["catch"](function (e) {
             return me.handleDeviceInfoError(e);
         }));
-        t.push(this.getScreenBrightness()["catch"](function (e) {
+        tasks.push(this.getScreenBrightness()["catch"](function (e) {
             return me.handleDeviceInfoError(e);
         }));
-        t.push(this.getFreeSpace()["catch"](function (e) {
+        tasks.push(this.getFreeSpace()["catch"](function (e) {
             return me.handleDeviceInfoError(e);
         }));
-        t.push(this.getBatteryLevel()["catch"](function (e) {
+        tasks.push(this.getBatteryLevel()["catch"](function (e) {
             return me.handleDeviceInfoError(e);
         }));
-        t.push(this.getBatteryStatus()["catch"](function (e) {
+        tasks.push(this.getBatteryStatus()["catch"](function (e) {
             return me.handleDeviceInfoError(e);
         }));
-        t.push(this.getFreeMemory()["catch"](function (e) {
+        tasks.push(this.getFreeMemory()["catch"](function (e) {
             return me.handleDeviceInfoError(e);
         }));
         if(this._nativeBridge.getPlatform() === Platform.IOS ){
-            t.push(this.isAppleWatchPaired()["catch"](function (e) {
+            tasks.push(this.isAppleWatchPaired()["catch"](function (e) {
                 return me.handleDeviceInfoError(e);
             }))
         }else if(this._nativeBridge.getPlatform() === Platform.ANDROID){
-            t.push(this.getFreeSpaceExternal()["catch"](function (e) {
+            tasks.push(this.getFreeSpaceExternal()["catch"](function (e) {
                 return me.handleDeviceInfoError(e);
             }));
-            t.push(this.getRingerMode()["catch"](function (e) {
+            tasks.push(this.getRingerMode()["catch"](function (e) {
                 return me.handleDeviceInfoError(e);
             }))
         }
-        return Promise.all(t).then(function (t) {
+        return Promise.all(tasks).then(function () {
             return {
                 androidId: me._androidId,
                 advertisingId: me._advertisingIdentifier,
@@ -4741,69 +4954,84 @@ CMD.register("event.EventManager", function (require) {
         this._nativeBridge = nativeBridge;
         this._request = request;
     }
-    EventManager.getSessionKey = function (key) {
-        return "session." + key;
+    EventManager.getSessionKey = function (sessionId) {
+        return "session." + sessionId;
     };
-    EventManager.getSessionTimestampKey = function (key) {
-        return EventManager.getSessionKey(key) + ".ts";
+    EventManager.getSessionTimestampKey = function (sessionId) {
+        return EventManager.getSessionKey(sessionId) + ".ts";
     };
-    EventManager.getEventKey = function (key, e) {
-        return EventManager.getSessionKey(key) + ".operative." + e;
+    EventManager.getEventKey = function (sessionId, eventId) {
+        return EventManager.getSessionKey(sessionId) + ".operative." + eventId;
     };
-    EventManager.getUrlKey = function (t, n) {
-        return EventManager.getEventKey(t, n) + ".url";
+    EventManager.getUrlKey = function (sessionId, eventId) {
+        return EventManager.getEventKey(sessionId, eventId) + ".url";
     };
-    EventManager.getDataKey = function (t, n) {
-        return EventManager.getEventKey(t, n) + ".data";
+    EventManager.getDataKey = function (sessionId, eventId) {
+        return EventManager.getEventKey(sessionId, eventId) + ".data";
     };
-    EventManager.prototype.operativeEvent = function (n, i, r, o, a) {
+    EventManager.prototype.operativeEvent = function (eventName, eventId, sessionId, eventUrl, metaDataStr) {
         var me = this;
-        this._nativeBridge.Sdk.logInfo("Unity Ads event: sending " + n + " event to " + o);
-        this._nativeBridge.Storage.set(StorageType.PRIVATE, EventManager.getUrlKey(r, i), o);
-        this._nativeBridge.Storage.set(StorageType.PRIVATE, EventManager.getDataKey(r, i), a);
+        this._nativeBridge.Sdk.logInfo("Unity Ads event: sending " + eventName + " event to " + eventUrl);
+        this._nativeBridge.Storage.set(StorageType.PRIVATE, EventManager.getUrlKey(sessionId, eventId), eventUrl);
+        this._nativeBridge.Storage.set(StorageType.PRIVATE, EventManager.getDataKey(sessionId, eventId), metaDataStr);
         this._nativeBridge.Storage.write(StorageType.PRIVATE);
-        return this._request.post(o, a, [], {
+        return this._request.post(eventUrl, metaDataStr, [], {
             retries: 5,
             retryDelay: 5e3,
-            followRedirects: !1,
-            retryWithConnectionEvents: !1
+            followRedirects: false,
+            retryWithConnectionEvents: false
         }).then(function () {
-            return Promise.all([me._nativeBridge.Storage["delete"](StorageType.PRIVATE, EventManager.getEventKey(r, i)), me._nativeBridge.Storage.write(StorageType.PRIVATE)]);
+            return Promise.all([
+                me._nativeBridge.Storage["delete"](StorageType.PRIVATE, EventManager.getEventKey(sessionId, eventId)),
+                me._nativeBridge.Storage.write(StorageType.PRIVATE)
+            ]);
         });
     };
-    EventManager.prototype.clickAttributionEvent = function (e, t, n) {
-        return n ? this._request.get(t, [], {
-            retries: 0,
-            retryDelay: 0,
-            followRedirects: !0,
-            retryWithConnectionEvents: !1
-        }) : this._request.get(t);
+    EventManager.prototype.clickAttributionEvent = function (sessionId, clickAttributionUrl, clickAttributionUrlFollowsRedirects) {
+        if(clickAttributionUrlFollowsRedirects){
+            return this._request.get(clickAttributionUrl, [], {
+                retries: 0,
+                retryDelay: 0,
+                followRedirects: true,
+                retryWithConnectionEvents: false
+            })
+        }else{
+            return this._request.get(clickAttributionUrl);
+        }
     };
-    EventManager.prototype.thirdPartyEvent = function (e, t, n) {
-        this._nativeBridge.Sdk.logInfo("Unity Ads third party event: sending " + e + " event to " + n + " (session " + t + ")");
-        return this._request.get(n, [], {
+    EventManager.prototype.thirdPartyEvent = function (eventName, sessionId, eventUrl) {
+        this._nativeBridge.Sdk.logInfo("Unity Ads third party event: sending " + eventName + " event to " + eventUrl + " (session " + sessionId + ")");
+        return this._request.get(eventUrl, [], {
             retries: 0,
             retryDelay: 0,
-            followRedirects: !0,
-            retryWithConnectionEvents: !1
+            followRedirects: true,
+            retryWithConnectionEvents: false
         });
     };
-    EventManager.prototype.diagnosticEvent = function (e, t) {
-        return this._request.post(e, t);
+    EventManager.prototype.diagnosticEvent = function (url, data) {
+        return this._request.post(url, data);
     };
-    EventManager.prototype.startNewSession = function (n) {
-        return Promise.all([this._nativeBridge.Storage.set(StorageType.PRIVATE, EventManager.getSessionTimestampKey(n), Date.now()), this._nativeBridge.Storage.write(StorageType.PRIVATE)]);
+    EventManager.prototype.startNewSession = function (id) {
+        return Promise.all([this._nativeBridge.Storage.set(StorageType.PRIVATE, EventManager.getSessionTimestampKey(id), Date.now()), this._nativeBridge.Storage.write(StorageType.PRIVATE)]);
     };
+    /**
+     * 发送所有未发送过的session信息，成功后删除Storage信息
+     * @returns {Promise}
+     */
     EventManager.prototype.sendUnsentSessions = function () {
         var me = this;
-        return this.getUnsentSessions().then(function (t) {
-            var n = t.map(function (t) {
-                return me.isSessionOutdated(t).then(function (n) {
-                    return n ? me.deleteSession(t) : me.getUnsentOperativeEvents(t).then(function (n) {
-                        return Promise.all(n.map(function (n) {
-                            return me.resendEvent(t, n);
-                        }));
-                    });
+        return this.getUnsentSessions().then(function (sessionIds) {
+            var n = sessionIds.map(function (sessionId) {
+                return me.isSessionOutdated(sessionId).then(function (isOutdated) {
+                    if(isOutdated){
+                        return me.deleteSession(sessionId)
+                    }else{
+                        return me.getUnsentOperativeEvents(sessionId).then(function (events) {
+                            return Promise.all(events.map(function (eventId) {
+                                return me.resendEvent(sessionId, eventId);
+                            }));
+                        });
+                    }
                 });
             });
             return Promise.all(n);
@@ -4813,34 +5041,59 @@ CMD.register("event.EventManager", function (require) {
         return this._nativeBridge.DeviceInfo.getUniqueEventId();
     };
     EventManager.prototype.getUnsentSessions = function () {
-        return this._nativeBridge.Storage.getKeys(StorageType.PRIVATE, "session", !1);
+        return this._nativeBridge.Storage.getKeys(StorageType.PRIVATE, "session", false);
     };
-    EventManager.prototype.isSessionOutdated = function (n) {
-        return this._nativeBridge.Storage.get(StorageType.PRIVATE, EventManager.getSessionTimestampKey(n)).then(function (e) {
-            var t = new Date().getTime() - 6048e5, n = new Date().getTime();
-            return !(e > t && n > e);
+    /**
+     * session是否过期，过期时间为7天
+     * @param sessionId {String}
+     * @returns {Promise} resolve(boolean) | reject(true)
+     */
+    EventManager.prototype.isSessionOutdated = function (sessionId) {
+        return this._nativeBridge.Storage.get(StorageType.PRIVATE, EventManager.getSessionTimestampKey(sessionId)).then(function (timestamp) {
+            var sevenDaysBefore = new Date().getTime() - 6048e5,
+                now = new Date().getTime();
+            return !(timestamp > sevenDaysBefore && now > timestamp);
         })["catch"](function () {
-            return !0;
+            return true;
         });
     };
-    EventManager.prototype.getUnsentOperativeEvents = function (e) {
-        return this._nativeBridge.Storage.getKeys(StorageType.PRIVATE, "session." + e + ".operative", false);
+    /**
+     * 获取所有未发送的事件id
+     * @param sessionId
+     * @returns {Promise} resolve(events:Array)
+     */
+    EventManager.prototype.getUnsentOperativeEvents = function (sessionId) {
+        return this._nativeBridge.Storage.getKeys(StorageType.PRIVATE, "session." + sessionId + ".operative", false);
     };
-    EventManager.prototype.resendEvent = function (n, i) {
+    /**
+     * 发送事件到native，成功后删除Storage的事件记录
+     * @param sessionId {String}
+     * @param eventId   {String}
+     * @returns {Promise} resolve([storageType:String, storageType:String])
+     */
+    EventManager.prototype.resendEvent = function (sessionId, eventId) {
         var me = this;
-        return this.getStoredOperativeEvent(n, i).then(function (e) {
-            var t = e[0], o = e[1];
-            me._nativeBridge.Sdk.logInfo("Unity Ads operative event: resending operative event to " + t + " (session " + n + ", event " + i + ")");
-            return me._request.post(t, o);
+        return this.getStoredOperativeEvent(sessionId, eventId).then(function (res) {
+            var url = res[0], data = res[1];
+            me._nativeBridge.Sdk.logInfo("Unity Ads operative event: resending operative event to " + url + " (session " + sessionId + ", event " + eventId + ")");
+            return me._request.post(url, data);
         }).then(function () {
-            return Promise.all([me._nativeBridge.Storage["delete"](StorageType.PRIVATE, EventManager.getEventKey(n, i)), me._nativeBridge.Storage.write(StorageType.PRIVATE)]);
+            return Promise.all([
+                me._nativeBridge.Storage["delete"](StorageType.PRIVATE, EventManager.getEventKey(sessionId, eventId)),
+                me._nativeBridge.Storage.write(StorageType.PRIVATE)
+            ]);
         });
     };
-    EventManager.prototype.getStoredOperativeEvent = function (n, i) {
-        return Promise.all([this._nativeBridge.Storage.get(StorageType.PRIVATE, EventManager.getUrlKey(n, i)), this._nativeBridge.Storage.get(StorageType.PRIVATE, EventManager.getDataKey(n, i))]);
+    EventManager.prototype.getStoredOperativeEvent = function (sessionId, eventId) {
+        return Promise.all([
+            this._nativeBridge.Storage.get(StorageType.PRIVATE, EventManager.getUrlKey(sessionId, eventId)),
+            this._nativeBridge.Storage.get(StorageType.PRIVATE, EventManager.getDataKey(sessionId, eventId))
+        ]);
     };
-    EventManager.prototype.deleteSession = function (n) {
-        return Promise.all([this._nativeBridge.Storage["delete"](StorageType.PRIVATE, EventManager.getSessionKey(n)), this._nativeBridge.Storage.write(StorageType.PRIVATE)]);
+    EventManager.prototype.deleteSession = function (sessionId) {
+        return Promise.all([
+            this._nativeBridge.Storage["delete"](StorageType.PRIVATE, EventManager.getSessionKey(sessionId)),
+            this._nativeBridge.Storage.write(StorageType.PRIVATE)]);
     };
     return EventManager;
 });
@@ -5135,17 +5388,17 @@ CMD.register("model.Model", function () {
  * Created by duo on 2016/8/31.
  */
 
-CMD.register("placement.Placement", function (require) {
+CMD.register("placement.Placement", function () {
 
-    function Placement(e) {
-        this._id = e.id;
-        this._name = e.name;
-        this._default = e["default"];
-        this._allowSkip = e.allowSkip;
-        this._skipInSeconds = e.skipInSeconds;
-        this._disableBackButton = e.disableBackButton;
-        this._useDeviceOrientationForVideo = e.useDeviceOrientationForVideo;
-        this._muteVideo = e.muteVideo;
+    function Placement(placementData) {
+        this._id = placementData.id;
+        this._name = placementData.name;
+        this._default = placementData["default"];
+        this._allowSkip = placementData.allowSkip;
+        this._skipInSeconds = placementData.skipInSeconds;
+        this._disableBackButton = placementData.disableBackButton;
+        this._useDeviceOrientationForVideo = placementData.useDeviceOrientationForVideo;
+        this._muteVideo = placementData.muteVideo;
     }
     Placement.prototype.getId = function () {
         return this._id;
@@ -5209,28 +5462,35 @@ CMD.register("request.Request", function () {
         var me = this;
         this._nativeBridge = nativeBridge;
         this._wakeUpManager = wakeUpManager;
-        this._nativeBridge.Request.onComplete.subscribe(function (e, t, i, r, o) {
-            return me.onRequestComplete(e, t, i, r, o);
+        this._nativeBridge.Request.onComplete.subscribe(function (callbackId, url, response, responseCode, headers) {
+            return me.onRequestComplete(callbackId, url, response, responseCode, headers);
         });
-        this._nativeBridge.Request.onFailed.subscribe(function (e, t, i) {
-            return me.onRequestFailed(e, t, i);
+        this._nativeBridge.Request.onFailed.subscribe(function (callbackId, url, errorMsg) {
+            return me.onRequestFailed(callbackId, url, errorMsg);
         });
         this._wakeUpManager.onNetworkConnected.subscribe(function () {
             return me.onNetworkConnected();
         });
     }
-    Request.getHeader = function (e, t) {
-        if (e instanceof Array) {
-            for (var n = 0; n < e.length; ++n) {
-                var i = e[n];
-                if (i[0].match(new RegExp(t, "i"))){
-                    return i[1];
+
+    /**
+     * 获取header内容，header不存在，返回null
+     * @param headers   {Object} {Array}  头部对象，可以为对象{headerKey: headerContent}, 或数组[[headerKey, headerContent],...s]
+     * @param key       {String} headerKey
+     * @returns {String}
+     */
+    Request.getHeader = function (headers, key) {
+        if (headers instanceof Array) {
+            for (var i = 0; i < headers.length; ++i) {
+                var header = headers[i];
+                if (header[0].match(new RegExp(key, "i"))){
+                    return header[1];
                 }
             }
         } else {
-            for (var r in e) {
-                if (e.hasOwnProperty(r) && r.match(new RegExp(t, "i"))) {
-                    return e[r].toString();
+            for (var header in headers) {
+                if (headers.hasOwnProperty(header) && header.match(new RegExp(key, "i"))) {
+                    return headers[header].toString();
                 }
             }
         }
@@ -5244,158 +5504,237 @@ CMD.register("request.Request", function () {
             retryWithConnectionEvents: false
         };
     };
-    Request.prototype.get = function (t, n, i) {
-        void 0 === n && (n = []);
-        "undefined" == typeof i && (i = Request.getDefaultRequestOptions());
-        var id = Request._callbackId++,
-            o = this.registerCallback(id);
+    /**
+     * HttpGet
+     * @param url
+     * @param headers
+     * @param options
+     * @returns {Promise} resolve({url:String, response:String, responseCode:Number, headers:Object})
+     */
+    Request.prototype.get = function (url, headers, options) {
+        if(void 0 === headers){
+            headers = [];
+        }
+        if("undefined" == typeof options){
+            options = Request.getDefaultRequestOptions();
+        }
+        var callbackId = Request._callbackId++,
+            promise = this.registerCallback(callbackId);
 
-        this.invokeRequest(id, {
+        this.invokeRequest(callbackId, {
             method: 0,
-            url: t,
-            headers: n,
+            url: url,
+            headers: headers,
             retryCount: 0,
-            options: i
+            options: options
         });
-        return o;
+        return promise;
     };
-    Request.prototype.post = function (t, n, i, r) {
-        void 0 === n && (n = "");
-        void 0 === i && (i = []);
-        "undefined" == typeof r && (r = Request.getDefaultRequestOptions());
-        i.push(["Content-Type", "application/json"]);
-        var id = Request._callbackId++,
-            a = this.registerCallback(id);
+    /**
+     * HttpPost
+     * @param url
+     * @param requestBody
+     * @param headers
+     * @param options
+     * @returns {Promise} resolve({url:String, response:String, responseCode:Number, headers:Object})
+     */
+    Request.prototype.post = function (url, requestBody, headers, options) {
+        if(void 0 === requestBody){
+            requestBody = "";
+        }
+        if(void 0 === headers){
+            headers = [];
+        }
+        if("undefined" == typeof options){
+            options = Request.getDefaultRequestOptions();
+        }
+        headers.push(["Content-Type", "application/json"]);
+        var callbackId = Request._callbackId++,
+            promise = this.registerCallback(callbackId);
 
-        this.invokeRequest(id, {
+        this.invokeRequest(callbackId, {
             method: 1,
-            url: t,
-            data: n,
-            headers: i,
+            url: url,
+            data: requestBody,
+            headers: headers,
             retryCount: 0,
-            options: r
+            options: options
         });
-        return a;
+        return promise;
     };
-    Request.prototype.head = function (t, n, i) {
-        void 0 === n && (n = []);
-        "undefined" == typeof i && (i = Request.getDefaultRequestOptions());
-        var r = Request._callbackId++, o = this.registerCallback(r);
-        this.invokeRequest(r, {
+    /**
+     * HttpHead
+     * @param url
+     * @param headers
+     * @param options
+     * @returns {Promise} resolve({url:String, response:String, responseCode:Number, headers:Object})
+     */
+    Request.prototype.head = function (url, headers, options) {
+        if(void 0 === headers){
+            headers = [];
+        }
+        if("undefined" == typeof options){
+            options = Request.getDefaultRequestOptions();
+        }
+        var callbackId = Request._callbackId++,
+            promise = this.registerCallback(callbackId);
+        this.invokeRequest(callbackId, {
             method: 2,
-            url: t,
-            headers: n,
+            url: url,
+            headers: headers,
             retryCount: 0,
-            options: i
+            options: options
         });
-        return o;
+        return promise;
     };
-    Request.prototype.registerCallback = function (t) {
-        return new Promise(function (n, i) {
-            var r = {};
-            r[0] = n;
-            r[1] = i;
-            Request._callbacks[t] = r;
+    /**
+     * 注册回调方法，用于请求完毕后Native调用
+     * @param callbackId {Number}
+     * @returns {Promise}
+     */
+    Request.prototype.registerCallback = function (callbackId) {
+        return new Promise(function (resolve, reject) {
+            var callback = {};
+            callback[0] = resolve;
+            callback[1] = reject;
+            Request._callbacks[callbackId] = callback;
         });
     };
-    Request.prototype.invokeRequest = function (t, n) {
-        Request._requests[t] = n;
-        switch (n.method) {
+    /**
+     * 执行http请求
+     * @param callbackId    {Number}    回调id
+     * @param requestConfig {Object}    请求配置信息
+     * @returns {Promise}
+     */
+    Request.prototype.invokeRequest = function (callbackId, requestConfig) {
+        Request._requests[callbackId] = requestConfig;
+        switch (requestConfig.method) {
             case 0:
                 return this._nativeBridge.Request.get(
-                    t.toString(),
-                    n.url,
-                    n.headers,
+                    callbackId.toString(),
+                    requestConfig.url,
+                    requestConfig.headers,
                     Request._connectTimeout,
                     Request._readTimeout
                 );
 
             case 1:
                 return this._nativeBridge.Request.post(
-                    t.toString(),
-                    n.url,
-                    n.data,
-                    n.headers,
+                    callbackId.toString(),
+                    requestConfig.url,
+                    requestConfig.data,
+                    requestConfig.headers,
                     Request._connectTimeout,
                     Request._readTimeout
                 );
 
             case 2:
                 return this._nativeBridge.Request.head(
-                    t.toString(),
-                    n.url,
-                    n.headers,
+                    callbackId.toString(),
+                    requestConfig.url,
+                    requestConfig.headers,
                     Request._connectTimeout,
                     Request._readTimeout
                 );
 
             default:
-                throw new Error('Unsupported request method "' + n.method + '"');
+                throw new Error('Unsupported request method "' + requestConfig.method + '"');
         }
     };
-    Request.prototype.finishRequest = function (t, n) {
-        for (var i = [], r = 2; r < arguments.length; r++){
-            i[r - 2] = arguments[r];
+    /**
+     * request完成后执行回调，从第三个参数开始作为回调方法的参数
+     * @param callbackId {Number} 回调id
+     * @param callbackState {Number} 回调状态{0:成功|1:失败}
+     */
+    Request.prototype.finishRequest = function (callbackId, callbackState) {
+        var args = [];
+        for (var i = 2; i < arguments.length; i++){
+            args[i - 2] = arguments[i];
         }
-        var o = Request._callbacks[t];
-        if(o){
-            o[n].apply(o, i);
-            delete Request._callbacks[t];
-            delete Request._requests[t];
+        var callback = Request._callbacks[callbackId];
+        if(callback){
+            callback[callbackState].apply(callback, args);
+            delete Request._callbacks[callbackId];
+            delete Request._requests[callbackId];
         }
     };
-    Request.prototype.handleFailedRequest = function (e, t, n) {
+    /**
+     * 请求失败的处理方法，如果设置有请求重试，则重试
+     * @param callbackId    {Number}
+     * @param requestConfig {Object}
+     * @param errorMsg      {String}
+     */
+    Request.prototype.handleFailedRequest = function (callbackId, requestConfig, errorMsg) {
         var me = this;
-        if(t.retryCount < t.options.retries ){
-            t.retryCount++;
+        if(requestConfig.retryCount < requestConfig.options.retries ){
+            requestConfig.retryCount++;
             setTimeout(function () {
-                me.invokeRequest(e, t);
-            }, t.options.retryDelay)
+                me.invokeRequest(callbackId, requestConfig);
+            }, requestConfig.options.retryDelay)
         }else{
-            t.options.retryWithConnectionEvents || this.finishRequest(e, 1, [t, n]);
+            requestConfig.options.retryWithConnectionEvents || this.finishRequest(callbackId, 1, [requestConfig, errorMsg]);
         }
     };
+    /**
+     * 事件监听器：请求成功
+     * @param id
+     * @param url
+     * @param response
+     * @param responseCode
+     * @param headers
+     */
     Request.prototype.onRequestComplete = function (id, url, response, responseCode, headers) {
-        var key = parseInt(id, 10),
-            s = {
+        var callbackId = parseInt(id, 10),
+            json = {
                 url: url,
                 response: response,
                 responseCode: responseCode,
                 headers: headers
             },
-            req = Request._requests[key];
+            requestConfig = Request._requests[callbackId];
         if (-1 !== Request._allowedResponseCodes.indexOf(responseCode)){
-            if (-1 !== Request._redirectResponseCodes.indexOf(responseCode) && req.options.followRedirects) {
-                var url = req.url = Request.getHeader(headers, "location");
+            //重定向
+            if (-1 !== Request._redirectResponseCodes.indexOf(responseCode) && requestConfig.options.followRedirects) {
+                var url = requestConfig.url = Request.getHeader(headers, "location");
                 if(url && url.match(/^https?/i)){
-                    this.invokeRequest(key, req)
+                    this.invokeRequest(callbackId, requestConfig)
                 }else{
-                    this.finishRequest(key, 0, s);
+                    this.finishRequest(callbackId, 0, json);
                 }
             } else {
-                this.finishRequest(key, 0, s);
+                this.finishRequest(callbackId, 0, json);
             }
         }else{
-            this.handleFailedRequest(key, req, "FAILED_AFTER_RETRIES");
+            this.handleFailedRequest(callbackId, requestConfig, "FAILED_AFTER_RETRIES");
         }
     };
-    Request.prototype.onRequestFailed = function (t, n, i) {
-        var r = parseInt(t, 10), o = Request._requests[r];
-        this.handleFailedRequest(r, o, i);
+    /**
+     * 事件监听器：请求失败
+     * @param id
+     * @param url
+     * @param errorMsg
+     */
+    Request.prototype.onRequestFailed = function (id, url, errorMsg) {
+        var callbackId = parseInt(id, 10),
+            requestConfig = Request._requests[callbackId];
+        this.handleFailedRequest(callbackId, requestConfig, errorMsg);
     };
+    /**
+     * 事件监听器：网络重连
+     */
     Request.prototype.onNetworkConnected = function () {
-        var key;
-        for (key in Request._requests){
-            if (Request._requests.hasOwnProperty(key)) {
-                var n = Request._requests[key];
-                if(n.options.retryWithConnectionEvents && n.options.retries === n.retryCount){
-                    this.invokeRequest(key, n);
+        var callbackId;
+        for (callbackId in Request._requests){
+            if (Request._requests.hasOwnProperty(callbackId)) {
+                var requestConfig = Request._requests[callbackId];
+                if(requestConfig.options.retryWithConnectionEvents && requestConfig.options.retries === requestConfig.retryCount){
+                    this.invokeRequest(callbackId, requestConfig);
                 }
             }
         }
     };
-    Request._connectTimeout = 3e4;
-    Request._readTimeout = 3e4;
+    Request._connectTimeout = 30000;
+    Request._readTimeout = 30000;
     Request._allowedResponseCodes = [200, 501, 300, 301, 302, 303, 304, 305, 306, 307, 308];
     Request._redirectResponseCodes = [300, 301, 302, 303, 304, 305, 306, 307, 308];
     Request._callbackId = 1;
@@ -5422,39 +5761,39 @@ CMD.register("request.RequestEvent", function(){
 CMD.register("resolve.Resolve", function () {
     function Resolve(nativeBridge) {
         this._nativeBridge = nativeBridge;
-        this._nativeBridge.Resolve.onComplete.subscribe(function (t, n, i) {
-            return Resolve.onResolveComplete(t, n, i);
+        this._nativeBridge.Resolve.onComplete.subscribe(function (callbackId, host, address) {
+            return Resolve.onResolveComplete(callbackId, host, address);
         });
-        this._nativeBridge.Resolve.onFailed.subscribe(function (t, n, i, r) {
-            return Resolve.onResolveFailed(t, n, i, r);
+        this._nativeBridge.Resolve.onFailed.subscribe(function (callbackId, host, errorName, errorMsg) {
+            return Resolve.onResolveFailed(callbackId, host, errorName, errorMsg);
         });
     }
-    Resolve.onResolveComplete = function (t, n, i) {
-        var r = Resolve._callbacks[t];
-        if(r){
-            r[0]([n, i]);
-            delete Resolve._callbacks[t];
+    Resolve.onResolveComplete = function (callbackId, host, address) {
+        var callback = Resolve._callbacks[callbackId];
+        if(callback){
+            callback[0]([host, address]);
+            delete Resolve._callbacks[callbackId];
         }
     };
-    Resolve.onResolveFailed = function (t, n, i, r) {
-        var o = Resolve._callbacks[t];
-        if(o){
-            o[1]([i, r]);
-            delete Resolve._callbacks[t];
+    Resolve.onResolveFailed = function (callbackId, host, errorName, errorMsg) {
+        var callback = Resolve._callbacks[callbackId];
+        if(callback){
+            callback[1]([errorName, errorMsg]);
+            delete Resolve._callbacks[callbackId];
         }
     };
-    Resolve.prototype.resolve = function (t) {
-        var n = Resolve._callbackId++,
-            i = this.registerCallback(n);
-        this._nativeBridge.Resolve.resolve(n.toString(), t);
-        return i;
+    Resolve.prototype.resolve = function (host) {
+        var callbackId = Resolve._callbackId++,
+            promise = this.registerCallback(callbackId);
+        this._nativeBridge.Resolve.resolve(callbackId.toString(), host);
+        return promise;
     };
-    Resolve.prototype.registerCallback = function (t) {
-        return new Promise(function (n, i) {
-            var r = {};
-            r[0] = n;
-            r[1] = i;
-            Resolve._callbacks[t] = r;
+    Resolve.prototype.registerCallback = function (callbackId) {
+        return new Promise(function (resolve, reject) {
+            var callback = {};
+            callback[0] = resolve;
+            callback[1] = reject;
+            Resolve._callbacks[callbackId] = callback;
         });
     };
     Resolve._callbackId = 1;
@@ -5516,9 +5855,9 @@ CMD.register("session.SessionManager", function (require) {
     };
     SessionManager.prototype.create = function () {
         var me = this;
-        return this._eventManager.getUniqueEventId().then(function (n) {
-            me._currentSession = new Session(n);
-            return me._eventManager.startNewSession(n);
+        return this._eventManager.getUniqueEventId().then(function (id) {
+            me._currentSession = new Session(id);
+            return me._eventManager.startNewSession(id);
         });
     };
     SessionManager.prototype.getSession = function () {
@@ -5535,21 +5874,21 @@ CMD.register("session.SessionManager", function (require) {
             }
             this._currentSession.showSent = true;
         }
-        var n = function (n) {
-            var i = n[0], r = n[1];
-            me._eventManager.operativeEvent("show", i, r.sessionId, me.createShowEventUrl(adUnit), JSON.stringify(r));
+        var sendEvent = function (res) {
+            var eventId = res[0], metaData = res[1];
+            me._eventManager.operativeEvent("show", eventId, metaData.sessionId, me.createShowEventUrl(adUnit), JSON.stringify(metaData));
         };
-        return this._eventMetadataCreator.createUniqueEventMetadata(adUnit, this._currentSession, this._gamerServerId).then(n);
+        return this._eventMetadataCreator.createUniqueEventMetadata(adUnit, this._currentSession, this._gamerServerId).then(sendEvent);
     };
-    SessionManager.prototype.sendImpressionEvent = function (e) {
+    SessionManager.prototype.sendImpressionEvent = function (adUnit) {
         if (this._currentSession) {
             if (this._currentSession.impressionSent){
                 return;
             }
             this._currentSession.impressionSent = true;
         }
-        e.sendImpressionEvent(this._eventManager, this._currentSession.getId());
-        e.sendTrackingEvent(this._eventManager, "creativeView", this._currentSession.getId());
+        adUnit.sendImpressionEvent(this._eventManager, this._currentSession.getId());
+        adUnit.sendTrackingEvent(this._eventManager, "creativeView", this._currentSession.getId());
     };
     SessionManager.prototype.sendStart = function (adUnit) {
         var me = this;
@@ -5559,12 +5898,12 @@ CMD.register("session.SessionManager", function (require) {
             }
             this._currentSession.startSent = true;
         }
-        var n = function (n) {
-            var i = n[0], r = n[1];
-            me._eventManager.operativeEvent("start", i, r.sessionId, me.createVideoEventUrl(adUnit, "video_start"), JSON.stringify(r));
-            adUnit.sendTrackingEvent(me._eventManager, "start", r.sessionId);
+        var sendVent = function (res) {
+            var eventId = res[0], metaData = res[1];
+            me._eventManager.operativeEvent("start", eventId, metaData.sessionId, me.createVideoEventUrl(adUnit, "video_start"), JSON.stringify(metaData));
+            adUnit.sendTrackingEvent(me._eventManager, "start", metaData.sessionId);
         };
-        return this._eventMetadataCreator.createUniqueEventMetadata(adUnit, this._currentSession, this._gamerServerId).then(n);
+        return this._eventMetadataCreator.createUniqueEventMetadata(adUnit, this._currentSession, this._gamerServerId).then(sendVent);
     };
     SessionManager.prototype.sendProgress = function (adUnit, session, n, position) {
         session && adUnit.sendProgressEvents(this._eventManager, session.getId(), n, position);
@@ -5577,11 +5916,11 @@ CMD.register("session.SessionManager", function (require) {
             }
             this._currentSession.firstQuartileSent = true;
         }
-        var n = function (n) {
-            var i = n[0], r = n[1];
-            me._eventManager.operativeEvent("first_quartile", i, r.sessionId, me.createVideoEventUrl(adUnit, "first_quartile"), JSON.stringify(r));
+        var sendEvent = function (res) {
+            var eventId = res[0], metaData = res[1];
+            me._eventManager.operativeEvent("first_quartile", eventId, metaData.sessionId, me.createVideoEventUrl(adUnit, "first_quartile"), JSON.stringify(metaData));
         };
-        return this._eventMetadataCreator.createUniqueEventMetadata(adUnit, this._currentSession, this._gamerServerId).then(n);
+        return this._eventMetadataCreator.createUniqueEventMetadata(adUnit, this._currentSession, this._gamerServerId).then(sendEvent);
     };
     SessionManager.prototype.sendMidpoint = function (adUnit) {
         var me = this;
@@ -5591,11 +5930,11 @@ CMD.register("session.SessionManager", function (require) {
             }
             this._currentSession.midpointSent = true;
         }
-        var n = function (n) {
-            var i = n[0], r = n[1];
-            me._eventManager.operativeEvent("midpoint", i, r.sessionId, me.createVideoEventUrl(adUnit, "midpoint"), JSON.stringify(r));
+        var sendEvent = function (res) {
+            var eventId = res[0], metaData = res[1];
+            me._eventManager.operativeEvent("midpoint", eventId, metaData.sessionId, me.createVideoEventUrl(adUnit, "midpoint"), JSON.stringify(metaData));
         };
-        return this._eventMetadataCreator.createUniqueEventMetadata(adUnit, this._currentSession, this._gamerServerId).then(n);
+        return this._eventMetadataCreator.createUniqueEventMetadata(adUnit, this._currentSession, this._gamerServerId).then(sendEvent);
     };
     SessionManager.prototype.sendThirdQuartile = function (adUnit) {
         var me = this;
@@ -5605,11 +5944,11 @@ CMD.register("session.SessionManager", function (require) {
             }
             this._currentSession.thirdQuartileSent = true;
         }
-        var n = function (n) {
-            var i = n[0], r = n[1];
-            me._eventManager.operativeEvent("third_quartile", i, r.sessionId, me.createVideoEventUrl(adUnit, "third_quartile"), JSON.stringify(r));
+        var sendEvent = function (res) {
+            var eventId = res[0], metaData = res[1];
+            me._eventManager.operativeEvent("third_quartile", eventId, metaData.sessionId, me.createVideoEventUrl(adUnit, "third_quartile"), JSON.stringify(metaData));
         };
-        return this._eventMetadataCreator.createUniqueEventMetadata(adUnit, this._currentSession, this._gamerServerId).then(n);
+        return this._eventMetadataCreator.createUniqueEventMetadata(adUnit, this._currentSession, this._gamerServerId).then(sendEvent);
     };
     SessionManager.prototype.sendSkip = function (adUnit, position) {
         var me = this;
@@ -5619,14 +5958,17 @@ CMD.register("session.SessionManager", function (require) {
             }
             this._currentSession.skipSent = true;
         }
-        var i = function (i) {
-            var r = i[0], o = i[1];
-            position && (o.skippedAt = position);
-            me._eventManager.operativeEvent("skip", r, me._currentSession.getId(), me.createVideoEventUrl(adUnit, "video_skip"), JSON.stringify(o));
+        var sendEvent = function (res) {
+            var eventId = res[0], metaData = res[1];
+            //跳过时的进度
+            if(position){
+                metaData.skippedAt = position;
+            }
+            me._eventManager.operativeEvent("skip", eventId, me._currentSession.getId(), me.createVideoEventUrl(adUnit, "video_skip"), JSON.stringify(metaData));
         };
-        this._eventMetadataCreator.createUniqueEventMetadata(adUnit, this._currentSession, this._gamerServerId).then(i);
+        this._eventMetadataCreator.createUniqueEventMetadata(adUnit, this._currentSession, this._gamerServerId).then(sendEvent);
     };
-    SessionManager.prototype.sendView = function (e) {
+    SessionManager.prototype.sendView = function (adUnit) {
         var me = this;
         if (this._currentSession) {
             if (this._currentSession.viewSent) {
@@ -5634,29 +5976,29 @@ CMD.register("session.SessionManager", function (require) {
             }
             this._currentSession.viewSent = true;
         }
-        var n = function (n) {
-            var i = n[0], r = n[1];
-            me._eventManager.operativeEvent("view", i, r.sessionId, me.createVideoEventUrl(e, "video_end"), JSON.stringify(r));
-            e.sendTrackingEvent(me._eventManager, "complete", r.sessionId);
+        var sendEvent = function (res) {
+            var eventId = res[0], metaData = res[1];
+            me._eventManager.operativeEvent("view", eventId, metaData.sessionId, me.createVideoEventUrl(adUnit, "video_end"), JSON.stringify(metaData));
+            adUnit.sendTrackingEvent(me._eventManager, "complete", metaData.sessionId);
         };
-        return this._eventMetadataCreator.createUniqueEventMetadata(e, this._currentSession, this._gamerServerId).then(n);
+        return this._eventMetadataCreator.createUniqueEventMetadata(adUnit, this._currentSession, this._gamerServerId).then(sendEvent);
     };
     SessionManager.prototype.sendClick = function (adUnit) {
-        var t = this,
-            n = adUnit.getCampaign(),
-            i = function (n) {
-                var i = n[0], r = n[1];
-                t._eventManager.operativeEvent("click", i, t._currentSession.getId(), t.createClickEventUrl(adUnit), JSON.stringify(r));
+        var me = this,
+            campaign = adUnit.getCampaign(),
+            sendEvent = function (res) {
+                var eventId = res[0], metaData = res[1];
+                me._eventManager.operativeEvent("click", eventId, me._currentSession.getId(), me.createClickEventUrl(adUnit), JSON.stringify(metaData));
             };
-        this._eventMetadataCreator.createUniqueEventMetadata(adUnit, this._currentSession, this._gamerServerId).then(i);
-        if(n.getClickAttributionUrl()){
-            return this._eventManager.clickAttributionEvent(this._currentSession.getId(), n.getClickAttributionUrl(), n.getClickAttributionUrlFollowsRedirects())
+        this._eventMetadataCreator.createUniqueEventMetadata(adUnit, this._currentSession, this._gamerServerId).then(sendEvent);
+        if(campaign.getClickAttributionUrl()){
+            return this._eventManager.clickAttributionEvent(this._currentSession.getId(), campaign.getClickAttributionUrl(), campaign.getClickAttributionUrlFollowsRedirects())
         }else{
             return Promise.reject("Missing click attribution url");
         }
     };
-    SessionManager.prototype.sendMute = function (adUnit, session, n) {
-        if(n){
+    SessionManager.prototype.sendMute = function (adUnit, session, isMute) {
+        if(isMute){
             adUnit.sendTrackingEvent(this._eventManager, "mute", session.getId())
         }else{
             adUnit.sendTrackingEvent(this._eventManager, "unmute", session.getId());
@@ -5672,16 +6014,16 @@ CMD.register("session.SessionManager", function (require) {
         var campaign = adUnit.getCampaign();
         return [SessionManager.VideoEventBaseUrl, campaign.getGamerId(), "show", campaign.getId(), this._clientInfo.getGameId()].join("/");
     };
-    SessionManager.prototype.createVideoEventUrl = function (adUnit, n) {
+    SessionManager.prototype.createVideoEventUrl = function (adUnit, eventName) {
         var campaign = adUnit.getCampaign();
-        return [SessionManager.VideoEventBaseUrl, campaign.getGamerId(), "video", n, campaign.getId(), this._clientInfo.getGameId()].join("/");
+        return [SessionManager.VideoEventBaseUrl, campaign.getGamerId(), "video", eventName, campaign.getId(), this._clientInfo.getGameId()].join("/");
     };
     SessionManager.prototype.createClickEventUrl = function (adUnit) {
         var campaign = adUnit.getCampaign(),
             r = [SessionManager.ClickEventBaseUrl, campaign.getId(), "click", campaign.getGamerId()].join("/");
         return Url.addParameters(r, {
             gameId: this._clientInfo.getGameId(),
-            redirect: !1
+            redirect: false
         });
     };
     SessionManager.VideoEventBaseUrl = "https://adserver.unityads.unity3d.com/mobile/gamers";
@@ -5703,15 +6045,15 @@ CMD.register("session.SessionManagerEventMetadataCreator", function (require) {
     }
     SessionManagerEventMetadataCreator.prototype.createUniqueEventMetadata = function (adUnit, session, gamerServerId) {
         var me = this;
-        return this._eventManager.getUniqueEventId().then(function (e) {
-            return me.getInfoJson(adUnit, e, session, gamerServerId);
+        return this._eventManager.getUniqueEventId().then(function (eventId) {
+            return me.getInfoJson(adUnit, eventId, session, gamerServerId);
         });
     };
-    SessionManagerEventMetadataCreator.prototype.getInfoJson = function (adUnit, eventId, n, sid) {
+    SessionManagerEventMetadataCreator.prototype.getInfoJson = function (adUnit, eventId, session, sid) {
         var me = this;
-        var a = {
+        var metaData = {
             eventId: eventId,
-            sessionId: n.getId(),
+            sessionId: session.getId(),
             gamerId: adUnit.getCampaign().getGamerId(),
             campaignId: adUnit.getCampaign().getId(),
             placementId: adUnit.getPlacement().getId(),
@@ -5724,20 +6066,20 @@ CMD.register("session.SessionManagerEventMetadataCreator", function (require) {
             deviceMake: this._deviceInfo.getManufacturer(),
             deviceModel: this._deviceInfo.getModel()
         };
-        var s = [];
-        s.push(this._deviceInfo.getNetworkType());
-        s.push(this._deviceInfo.getConnectionType());
+        var tasks = [];
+        tasks.push(this._deviceInfo.getNetworkType());
+        tasks.push(this._deviceInfo.getConnectionType());
 
-        return Promise.all(s).then(function (e) {
-            a.networkType = e[0];
-            a.connectionType = e[1];
-            return MetaDataManager.fetchMediationMetaData(me._nativeBridge).then(function (e) {
-                if(e){
-                    a.mediationName = e.getName();
-                    a.mediationVersion = e.getVersion();
-                    a.mediationOrdinal = e.getOrdinal();
+        return Promise.all(tasks).then(function (res) {
+            metaData.networkType = res[0];
+            metaData.connectionType = res[1];
+            return MetaDataManager.fetchMediationMetaData(me._nativeBridge).then(function (mediation) {
+                if(mediation){
+                    metaData.mediationName = mediation.getName();
+                    metaData.mediationVersion = mediation.getVersion();
+                    metaData.mediationOrdinal = mediation.getOrdinal();
                 }
-                return [eventId, a];
+                return [eventId, metaData];
             });
         });
     };
@@ -5802,7 +6144,7 @@ CMD.register("util.Diagnostics", function () {
             return deviceInfo.getDTO().then(function (deviceDto) {
                 o.device = deviceDto;
                 return o;
-            })["catch"](function (e) {
+            })["catch"](function () {
                 return o;
             });
         }else{
@@ -7048,6 +7390,12 @@ CMD.register("util.JsonParser", function () {
 
     function JsonParser() {}
 
+    /**
+     * 将JSON格式的字符串解释为JSON对象
+     * @param text      {String}    JSON字符串
+     * @param reviver   {Function}  optional, 对象值处理函数
+     * @returns {Object}
+     */
     JsonParser.parse = function (text, reviver) {
         try {
             return JSON.parse(text, reviver);
@@ -7112,6 +7460,13 @@ CMD.register("util.Observable", function(){
 
 CMD.register("util.Url", function (){
     function Url() {}
+
+    /**
+     *
+     * @param baseUrl   {String}    url
+     * @param params    {Object}    query string object
+     * @returns {string}
+     */
     Url.addParameters = function (baseUrl, params) {
         var url = baseUrl.toString();
         url += -1 !== url.indexOf("?") ? "&" : "?";
@@ -7126,6 +7481,12 @@ CMD.register("util.Url", function (){
         }
         return url + paramArr.join("&");
     };
+    /**
+     * 在给定的url中查询参数值
+     * @param url       {String}    url
+     * @param paramName {String}    要查询的参数名
+     * @returns {*}     {Unknown} or {null}
+     */
     Url.getQueryParameter = function (url, paramName) {
         var params = url.split("?")[1].split("&");
         for (var i = 0; i < params.length; i++) {
@@ -7178,15 +7539,15 @@ CMD.register("util.VastParser", function (require) {
         if ("VAST" !== vastXml.documentElement.nodeName) {
             throw new Error("VAST xml is invalid - document element must be VAST but was " + vastXml.documentElement.nodeName);
         }
-        var nodes = vastXml.documentElement.childNodes;
-        for (var i = 0; i < nodes.length; i++) {
-            var node = nodes[i];
+        var nodes = vastXml.documentElement.childNodes, i, node;
+        for (i = 0; i < nodes.length; i++) {
+            node = nodes[i];
             if("Error" === node.nodeName ){
                 errorTags.push(this.parseNodeText(node));
             }
         }
-        for (var i = 0; i < nodes.length; i++) {
-            var node = nodes[i];
+        for (i = 0; i < nodes.length; i++) {
+            node = nodes[i];
             if (0 === adTags.length && "Ad" === node.nodeName) {
                 var adTag = this.parseAdElement(node);
                 if(null != adTag){
@@ -7199,65 +7560,69 @@ CMD.register("util.VastParser", function (require) {
         }
         return new Vast(adTags, errorTags, vastData.tracking);
     };
-    VastParser.prototype.retrieveVast = function (vastData, nativeBridge, request, i, r) {
+    VastParser.prototype.retrieveVast = function (vastData, nativeBridge, request, parentVast, level) {
         var me = this;
-        if(void 0 === r ){
-            r = 0;
+        if(void 0 === level ){
+            level = 0;
         }
         var vast = this.parseVast(vastData);
-        this.applyParentURLs(vast, i);
+        this.applyParentURLs(vast, parentVast);
         var url = vast.getWrapperURL();
         if (!url){
             return Promise.resolve(vast);
         }
-        if (r >= this._maxWrapperDepth){
+        if (level >= this._maxWrapperDepth){
             throw new Error("VAST wrapper depth exceeded");
         }
         nativeBridge.Sdk.logInfo("Unity Ads is requesting VAST ad unit from " + url);
         return request.get(url, [], {
             retries: 5,
             retryDelay: 5e3,
-            followRedirects: !0,
-            retryWithConnectionEvents: !1
+            followRedirects: true,
+            retryWithConnectionEvents: false
         }).then(function (e) {
             return me.retrieveVast({
                 data: e.response,
                 tracking: {}
-            }, nativeBridge, request, vast, r + 1);
+            }, nativeBridge, request, vast, level + 1);
         });
     };
-    VastParser.prototype.applyParentURLs = function (e, vast) {
-        if (vast) {
-            var urlTemplates = vast.getAd().getErrorURLTemplates();
-            for (var n = 0; n < urlTemplates.length; n++) {
-                var tpl = urlTemplates[n];
-                e.getAd().addErrorURLTemplate(tpl);
+    VastParser.prototype.applyParentURLs = function (vast, parentVast) {
+        if (parentVast) {
+            var errorURLTemplates = parentVast.getAd().getErrorURLTemplates(), i, tpl;
+            for (i = 0; i < errorURLTemplates.length; i++) {
+                tpl = errorURLTemplates[i];
+                vast.getAd().addErrorURLTemplate(tpl);
             }
 
-            var a = vast.getAd().getImpressionURLTemplates();
-            for (var o = 0; o < a.length; o++) {
-                var s = a[o];
-                e.getAd().addImpressionURLTemplate(s);
+            var impressionURLTemplates = parentVast.getAd().getImpressionURLTemplates();
+            for (i = 0; i < impressionURLTemplates.length; i++) {
+                tpl = impressionURLTemplates[i];
+                vast.getAd().addImpressionURLTemplate(tpl);
             }
 
-            var u = vast.getAd().getVideoClickTrackingURLTemplates();
-            for (var c = 0; c < u.length; c++) {
-                var l = u[c];
-                e.getAd().addVideoClickTrackingURLTemplate(l);
+            var videoClickTrackingURLTemplates = parentVast.getAd().getVideoClickTrackingURLTemplates();
+            for (i = 0; i < videoClickTrackingURLTemplates.length; i++) {
+                tpl = videoClickTrackingURLTemplates[i];
+                vast.getAd().addVideoClickTrackingURLTemplate(tpl);
             }
 
-            var p = ["creativeView", "start", "firstQuartile", "midpoint", "thirdQuartile", "complete", "mute", "unmute"];
-            for (var h = 0; h < p.length; h++) for (var d = p[h], f = 0, v = vast.getTrackingEventUrls(d); f < v.length; f++) {
-                var g = v[f];
-                e.addTrackingEventUrl(d, g);
+            var trackingEvents = ["creativeView", "start", "firstQuartile", "midpoint", "thirdQuartile", "complete", "mute", "unmute"];
+            for (i = 0; i < trackingEvents.length; i++) {
+                var trackingEvent = trackingEvents[i],
+                    trackingEventUrl = parentVast.getTrackingEventUrls(trackingEvent);
+                for (var j = 0; j < trackingEventUrl.length; j++) {
+                    var url = trackingEventUrl[j];
+                    vast.addTrackingEventUrl(trackingEvent, url);
+                }
             }
         }
     };
     VastParser.prototype.parseNodeText = function (node) {
         return node && (node.textContent || node.text);
     };
-    VastParser.prototype.parseAdElement = function (e) {
-        for (var el, nodes = e.childNodes, i = 0; i < nodes.length; i++) {
+    VastParser.prototype.parseAdElement = function (adElement) {
+        for (var el, nodes = adElement.childNodes, i = 0; i < nodes.length; i++) {
             var node = nodes[i];
             if ("Wrapper" === node.nodeName) {
                 el = this.parseWrapperElement(node);
@@ -7268,15 +7633,15 @@ CMD.register("util.VastParser", function (require) {
                 break;
             }
         }
-        el && el.setId(e.getAttribute("id"));
+        el && el.setId(adElement.getAttribute("id"));
         return el;
     };
-    VastParser.prototype.parseWrapperElement = function (e) {
-        return this.parseInLineElement(e);
+    VastParser.prototype.parseWrapperElement = function (wrapperElement) {
+        return this.parseInLineElement(wrapperElement);
     };
-    VastParser.prototype.parseInLineElement = function (e) {
+    VastParser.prototype.parseInLineElement = function (inlineElement) {
         var ad = new VastAd();
-        for (var nodes = e.childNodes, i = 0; i < nodes.length; i++) {
+        for (var nodes = inlineElement.childNodes, i = 0; i < nodes.length; i++) {
             var node = nodes[i],
                 txt = this.parseNodeText(node);
             switch (node.nodeName) {
@@ -7289,15 +7654,19 @@ CMD.register("util.VastParser", function (require) {
                     break;
 
                 case "Creatives":
-                    var s = this.childsByName(node, "Creative");
-                    for (var c = 0; c < s.length; c++) {
-                        for (var u = s[c], l = u.childNodes, h = 0; h < l.length; h++) {
-                            var p = l[h], d = void 0;
-                            switch (p.nodeName) {
+                    var creativeNodes = this.childsByName(node, "Creative");
+                    for (var j = 0; j < creativeNodes.length; j++) {
+                        var creativeNode = creativeNodes[j],
+                            childNodes = creativeNode.childNodes;
+                        for (var k = 0; k < childNodes.length; k++) {
+                            var childNode = childNodes[k], linear = void 0;
+                            switch (childNode.nodeName) {
                                 case "Linear":
                                     if(0 === ad.getCreatives().length){
-                                        d = this.parseCreativeLinearElement(p);
-                                        d && ad.addCreative(d);
+                                        linear = this.parseCreativeLinearElement(childNode);
+                                        if(linear){
+                                            ad.addCreative(linear);
+                                        }
                                     }
                             }
                         }
@@ -7310,76 +7679,103 @@ CMD.register("util.VastParser", function (require) {
         }
         return ad;
     };
-    VastParser.prototype.parseCreativeLinearElement = function (e) {
+    VastParser.prototype.parseCreativeLinearElement = function (linearElement) {
         var linear = new VastCreativeLinear();
-        linear.setDuration(this.parseDuration(this.parseNodeText(this.childByName(e, "Duration"))));
-        if (-1 === linear.getDuration() && "Wrapper" !== e.parentNode.parentNode.parentNode.nodeName) {
+        linear.setDuration(this.parseDuration(this.parseNodeText(this.childByName(linearElement, "Duration"))));
+        if (-1 === linear.getDuration() && "Wrapper" !== linearElement.parentNode.parentNode.parentNode.nodeName) {
             return null;
         }
-        var n = e.getAttribute("skipoffset");
-        if (null == n) {
+        var skipOffset = linearElement.getAttribute("skipoffset");
+        if (null == skipOffset) {
             linear.setSkipDelay(null);
-        } else if ("%" === n.charAt(n.length - 1)) {
-            var o = parseInt(n, 10);
-            linear.setSkipDelay(linear.getDuration() * (o / 100));
+        } else if ("%" === skipOffset.charAt(skipOffset.length - 1)) {
+            var offset = parseInt(skipOffset, 10);
+            linear.setSkipDelay(linear.getDuration() * (offset / 100));
         } else {
-            linear.setSkipDelay(this.parseDuration(n));
+            linear.setSkipDelay(this.parseDuration(skipOffset));
         }
-        var a = this.childByName(e, "VideoClicks");
-        if (null != a) {
-            linear.setVideoClickThroughURLTemplate(this.parseNodeText(this.childByName(a, "ClickThrough")));
-            for (var s = this.childsByName(a, "ClickTracking"), c = 0; c < s.length; c++) {
-                var u = s[c], l = this.parseNodeText(u);
-                null != l && linear.addVideoClickTrackingURLTemplate(l);
+        var videoClicksElement = this.childByName(linearElement, "VideoClicks"), i;
+        if (null != videoClicksElement) {
+            linear.setVideoClickThroughURLTemplate(this.parseNodeText(this.childByName(videoClicksElement, "ClickThrough")));
+            var clickTrackingElements = this.childsByName(videoClicksElement, "ClickTracking");
+            for (i = 0; i < clickTrackingElements.length; i++) {
+                var clickTrackingElement = clickTrackingElements[i],
+                    tpl = this.parseNodeText(clickTrackingElement);
+                if(null != tpl){
+                    linear.addVideoClickTrackingURLTemplate(tpl);
+                }
             }
         }
-        for (var h = this.childsByName(e, "TrackingEvents"), c = 0; c < h.length; c++) {
-            for (var p = h[c], d = this.childsByName(p, "Tracking"), f = 0; f < d.length; f++) {
-                var v = d[f], g = v.getAttribute("event"), _ = this.parseNodeText(v);
-                null != g && null != _ && linear.addTrackingEvent(g, _);
+        var trackingEventsElements = this.childsByName(linearElement, "TrackingEvents");
+        for (i = 0; i < trackingEventsElements.length; i++) {
+            var trackingEventsElement = trackingEventsElements[i],
+                trackingElements = this.childsByName(trackingEventsElement, "Tracking");
+            for (var j = 0; j < trackingElements.length; j++) {
+                var trackingElement = trackingElements[j],
+                    event = trackingElement.getAttribute("event"),
+                    handler = this.parseNodeText(trackingElement);
+                if(null != event && null != handler){
+                    linear.addTrackingEvent(event, handler);
+                }
             }
         }
-        var m = this.childsByName(e, "MediaFiles");
-        if (m.length > 0){
-            for (var y = m[0], E = this.childsByName(y, "MediaFile"), c = 0; c < E.length; c++) {
-                var S = E[c],
-                    I = new VastMediaFile(
-                        this.parseNodeText(S).trim(),
-                        S.getAttribute("delivery"),
-                        S.getAttribute("codec"),
-                        S.getAttribute("type"),
-                        parseInt(S.getAttribute("bitrate") || 0, 10),
-                        parseInt(S.getAttribute("minBitrate") || 0, 10),
-                        parseInt(S.getAttribute("maxBitrate") || 0, 10),
-                        parseInt(S.getAttribute("width") || 0, 10),
-                        parseInt(S.getAttribute("height") || 0, 10)
+        var mediaFilesElements = this.childsByName(linearElement, "MediaFiles");
+        if (mediaFilesElements.length > 0){
+            var mediaFilesElement = mediaFilesElements[0],
+                mediaFileElements = this.childsByName(mediaFilesElement, "MediaFile");
+            for (i = 0; i < mediaFileElements.length; i++) {
+                var mediaFileElement = mediaFileElements[i],
+                    mediaFile = new VastMediaFile(
+                        this.parseNodeText(mediaFileElement).trim(),
+                        mediaFileElement.getAttribute("delivery"),
+                        mediaFileElement.getAttribute("codec"),
+                        mediaFileElement.getAttribute("type"),
+                        parseInt(mediaFileElement.getAttribute("bitrate") || 0, 10),
+                        parseInt(mediaFileElement.getAttribute("minBitrate") || 0, 10),
+                        parseInt(mediaFileElement.getAttribute("maxBitrate") || 0, 10),
+                        parseInt(mediaFileElement.getAttribute("width") || 0, 10),
+                        parseInt(mediaFileElement.getAttribute("height") || 0, 10)
                     );
-                linear.addMediaFile(I);
+                linear.addMediaFile(mediaFile);
             }
         }
         return linear;
     };
-    VastParser.prototype.parseDuration = function (e) {
-        if (null == e) return -1;
-        var t = e.split(":");
-        if (3 !== t.length) return -1;
-        var n = t[2].split("."), i = parseInt(n[0], 10);
-        2 === n.length && (i += parseFloat("0." + n[1]));
-        var r = 60 * parseInt(t[1], 10), o = 60 * parseInt(t[0], 10) * 60;
-        return isNaN(o) || isNaN(r) || isNaN(i) || r > 3600 || i > 60 ? -1 : o + r + i;
-    };
-    VastParser.prototype.childByName = function (e, t) {
-        for (var n = e.childNodes, i = 0; i < n.length; i++) {
-            var r = n[i];
-            if (r.nodeName === t) return r;
+    VastParser.prototype.parseDuration = function (durationText) {
+        if (null == durationText){
+            return -1;
+        }
+        var t = durationText.split(":");
+        if (3 !== t.length){
+            return -1;
+        }
+        var n = t[2].split("."),
+            i = parseInt(n[0], 10);
+        if(2 === n.length){
+            i += parseFloat("0." + n[1]);
+        }
+        var r = 60 * parseInt(t[1], 10),
+            o = 60 * parseInt(t[0], 10) * 60;
+        if(isNaN(o) || isNaN(r) || isNaN(i) || r > 3600 || i > 60){
+            return -1
+        }else{
+            return o + r + i;
         }
     };
-    VastParser.prototype.childsByName = function (e, t) {
-        for (var n = [], i = e.childNodes, r = 0; r < i.length; r++) {
-            var o = i[r];
-            o.nodeName === t && n.push(o);
+    VastParser.prototype.childByName = function (parentNode, name) {
+        for (var nodes = parentNode.childNodes, i = 0; i < nodes.length; i++) {
+            var node = nodes[i];
+            if (node.nodeName === name){
+                return node;
+            }
         }
-        return n;
+    };
+    VastParser.prototype.childsByName = function (parentNode, name) {
+        for (var childs = [], nodes = parentNode.childNodes, i = 0; i < nodes.length; i++) {
+            var node = nodes[i];
+            node.nodeName === name && childs.push(node);
+        }
+        return childs;
     };
     VastParser.DEFAULT_MAX_WRAPPER_DEPTH = 8;
     return VastParser;
@@ -7396,61 +7792,65 @@ CMD.register("wakeup.WakeUpManager", function (require) {
         this.onNetworkConnected = new Observable();
         this.onScreenOn = new Observable();
         this.onScreenOff = new Observable();
+        //for iOS
         this.onAppForeground = new Observable();
+
         this._screenListener = "screenListener";
-        this.ACTION_SCREEN_ON = "android.intent.action.SCREEN_ON";
-        this.ACTION_SCREEN_OFF = "android.intent.action.SCREEN_OFF";
         this._nativeBridge = nativeBridge;
         this._lastConnected = Date.now();
-        this._nativeBridge.Connectivity.onConnected.subscribe(function (e, t) {
-            return me.onConnected(e, t);
+        this._nativeBridge.Connectivity.onConnected.subscribe(function (wifi, networkType) {
+            return me.onConnected(wifi, networkType);
         });
-        this._nativeBridge.Broadcast.onBroadcastAction.subscribe(function (e, t, i, r) {
-            return me.onBroadcastAction(e, t, i, r);
+        // Android
+        this._nativeBridge.Broadcast.onBroadcastAction.subscribe(function (name, action, data, extra) {
+            return me.onBroadcastAction(name, action, data, extra);
         });
-        this._nativeBridge.Notification.onNotification.subscribe(function (e, t) {
-            return me.onNotification(e, t);
+        // iOS
+        this._nativeBridge.Notification.onNotification.subscribe(function (name, data) {
+            return me.onNotification(name, data);
         });
     }
     WakeUpManager.prototype.setListenConnectivity = function (status) {
         return this._nativeBridge.Connectivity.setListeningStatus(status);
     };
-    WakeUpManager.prototype.setListenScreen = function (e) {
-        if(e){
-            return this._nativeBridge.Broadcast.addBroadcastListener(this._screenListener, [this.ACTION_SCREEN_ON, this.ACTION_SCREEN_OFF]);
+    WakeUpManager.prototype.setListenScreen = function (enable) {
+        if(enable){
+            return this._nativeBridge.Broadcast.addBroadcastListener(this._screenListener, [WakeUpManager._actionScreenOn, WakeUpManager._actionScreenOff]);
         }else{
             return this._nativeBridge.Broadcast.removeBroadcastListener(this._screenListener);
         }
     };
-    WakeUpManager.prototype.setListenAppForeground = function (t) {
-        if(t){
+    WakeUpManager.prototype.setListenAppForeground = function (enable) {
+        if(enable){
             return this._nativeBridge.Notification.addNotificationObserver(WakeUpManager._appForegroundNotification, []);
         }else{
             return this._nativeBridge.Notification.removeNotificationObserver(WakeUpManager._appForegroundNotification);
         }
     };
-    WakeUpManager.prototype.onConnected = function (e, t) {
+    WakeUpManager.prototype.onConnected = function (wifi, networkType) {
         var n = 9e5;
         if(this._lastConnected + n < Date.now()){
             this._lastConnected = Date.now();
             this.onNetworkConnected.trigger();
         }
     };
-    WakeUpManager.prototype.onBroadcastAction = function (e, t, n, i) {
-        if (e === this._screenListener) {
-            switch (t) {
-                case this.ACTION_SCREEN_ON:
+    WakeUpManager.prototype.onBroadcastAction = function (listenerName, action, data, extra) {
+        if (listenerName === this._screenListener) {
+            switch (action) {
+                case WakeUpManager._actionScreenOn:
                     this.onScreenOn.trigger();
                     break;
 
-                case this.ACTION_SCREEN_OFF:
+                case WakeUpManager._actionScreenOff:
                     this.onScreenOff.trigger();
             }
         }
     };
-    WakeUpManager.prototype.onNotification = function (t, n) {
-        t === WakeUpManager._appForegroundNotification && this.onAppForeground.trigger();
+    WakeUpManager.prototype.onNotification = function (name, data) {
+        name === WakeUpManager._appForegroundNotification && this.onAppForeground.trigger();
     };
+    WakeUpManager._actionScreenOn = "android.intent.action.SCREEN_ON";
+    WakeUpManager._actionScreenOff = "android.intent.action.SCREEN_OFF";
     WakeUpManager._appForegroundNotification = "UIApplicationDidBecomeActiveNotification";
     return WakeUpManager;
 
@@ -7464,6 +7864,7 @@ CMD.register("webview.WebView", function (require) {
     var DeviceInfo = require("device.DeviceInfo");
     var ConfigManager = require("configuration.ConfigManager");
     var CacheMode = require("cache.CacheMode");
+    var CacheStatus = require("cache.CacheStatus");
     var CampaignManager = require("campaign.CampaignManager");
     var CacheManager = require("cache.CacheManager");
     var PlacementState = require("placement.PlacementState");
@@ -7482,6 +7883,7 @@ CMD.register("webview.WebView", function (require) {
     var VastParser = require("util.VastParser");
     var JsonParser = require("util.JsonParser");
     var StorageType = require("storage.StorageType");
+    var StorageError = require("storage.StorageError");
 
     /**
      * @param bridge
@@ -7504,9 +7906,7 @@ CMD.register("webview.WebView", function (require) {
         var me = this;
         return this._nativeBridge.Sdk.loadComplete()
             .then(function (nativeClientInfo) {
-                me._nativeBridge.Sdk.logError("=====+===+========new DeviceInfo before");
                 me._deviceInfo = new DeviceInfo(me._nativeBridge);
-                me._nativeBridge.Sdk.logError("=====+===+========new DeviceInfo after");
                 me._wakeUpManager = new WakeUpManager(me._nativeBridge);
                 me._cacheManager = new CacheManager(me._nativeBridge, me._wakeUpManager);
                 me._request = new Request(me._nativeBridge, me._wakeUpManager);
@@ -7519,14 +7919,16 @@ CMD.register("webview.WebView", function (require) {
                 if (me._clientInfo.getPlatform() === Platform.ANDROID) {
                     document.body.classList.add("android");
                     me._nativeBridge.setApiLevel(me._deviceInfo.getApiLevel());
+
                 }else if (me._clientInfo.getPlatform() === Platform.IOS) {
-                    var t = me._deviceInfo.getModel();
-                    if( t.match(/iphone/i) || t.match(/ipod/i) ){
+                    var model = me._deviceInfo.getModel();
+                    if( model.match(/iphone/i) || model.match(/ipod/i) ){
                         document.body.classList.add("iphone")
-                    }else if( t.match(/ipad/i) ){
+                    }else if( model.match(/ipad/i) ){
                         document.body.classList.add("ipad");
                     }
                 }
+
                 me._sessionManager = new SessionManager(me._nativeBridge, me._clientInfo, me._deviceInfo, me._eventManager);
                 me._initializedAt = me._configJsonCheckedAt = Date.now();
                 me._nativeBridge.Sdk.initComplete();
@@ -7567,8 +7969,8 @@ CMD.register("webview.WebView", function (require) {
                 me._campaignManager.onVastCampaign.subscribe(function (campaign) {
                     return me.onVastCampaign(campaign);
                 });
-                me._campaignManager.onNoFill.subscribe(function (t) {
-                    return me.onNoFill(t);
+                me._campaignManager.onNoFill.subscribe(function (seconds) {
+                    return me.onNoFill(seconds);
                 });
                 me._campaignManager.onError.subscribe(function (e) {
                     return me.onCampaignError(e);
@@ -7681,161 +8083,174 @@ CMD.register("webview.WebView", function (require) {
         var me = this;
         this._campaign = campaign;
         var mode = this._configuration.getCacheMode();
-        var cache = function (fileUrl) {
+        var cacheFile = function (fileUrl) {
             return me._cacheManager.cache(fileUrl, {
                 retries: 5
-            }).then(function (e) {
-                var n = e[0], i = e[1];
-                if (n === a.CacheStatus.OK) {
-                    return me._cacheManager.getFileUrl(i);
+            }).then(function (res) {
+                var cacheStatus = res[0],
+                    fileId = res[1];
+
+                if (cacheStatus === CacheStatus.OK) {
+                    return me._cacheManager.getFileUrl(fileId);
                 }
-                throw n;
+                throw cacheStatus;
+
             }).catch(function (e) {
-                if (e !== a.CacheStatus.STOPPED){
+                if (e !== CacheStatus.STOPPED){
                     me.onError(e);
                     return e;
                 }
                 throw e;
             });
         };
-        var o = function () {
-            return cache(campaign.getVideoUrl())
+        var cacheAllFiles = function () {
+            return cacheFile(campaign.getVideoUrl())
                 .then(function (t) {
                     campaign.setVideoUrl(t);
                     campaign.setVideoCached(true);
                 })
                 .then(function () {
-                    return cache(campaign.getLandscapeUrl());
+                    return cacheFile(campaign.getLandscapeUrl());
                 })
                 .then(function (t) {
                     return campaign.setLandscapeUrl(t);
                 })
                 .then(function () {
-                    return cache(campaign.getPortraitUrl());
+                    return cacheFile(campaign.getPortraitUrl());
                 })
                 .then(function (t) {
                     return campaign.setPortraitUrl(t);
                 })
                 .then(function () {
-                    return cache(campaign.getGameIcon());
+                    return cacheFile(campaign.getGameIcon());
                 })
                 .then(function (t) {
                     return campaign.setGameIcon(t);
                 })
                 .catch(function (e) {
-                    if(e === a.CacheStatus.STOPPED){
+                    if(e === CacheStatus.STOPPED){
                         me._nativeBridge.Sdk.logInfo("Caching was stopped, using streaming instead");
                     }
                 });
         };
-        var c = function () {
+        var setPlacementReady = function () {
             me.setPlacementStates(PlacementState.READY);
         };
 
         if (mode === CacheMode.FORCED) {
-            o().then(function () {
+            cacheAllFiles().then(function () {
                 if (me._showing){
-                    var e = me._adUnit.onClose.subscribe(function () {
-                        me._adUnit.onClose.unsubscribe(e);
-                        c();
+                    var fn = me._adUnit.onClose.subscribe(function () {
+                        me._adUnit.onClose.unsubscribe(fn);
+                        setPlacementReady();
                     });
                 }else {
-                    c();
+                    setPlacementReady();
                 }
             });
         }else if (mode === CacheMode.ALLOWED) {
             if (this._showing) {
-                var u = this._adUnit.onClose.subscribe(function () {
-                    me._adUnit.onClose.unsubscribe(u);
-                    o();
-                    c();
+                var fn = this._adUnit.onClose.subscribe(function () {
+                    me._adUnit.onClose.unsubscribe(fn);
+                    cacheAllFiles();
+                    setPlacementReady();
                 });
             }else {
-                o();
-                c();
+                cacheAllFiles();
+                setPlacementReady();
             }
         }else{
-            c();
+            setPlacementReady();
         }
     };
 
     WebView.prototype.onVastCampaign = function (campaign) {
         var me = this;
         this._campaign = campaign;
-        var n = this._configuration.getCacheMode();
-        var i = function (e) {
-            return me._cacheManager.cache(e, {
+        var cacheMode = this._configuration.getCacheMode();
+        var cacheFile = function (fileUrl) {
+            return me._cacheManager.cache(fileUrl, {
                 retries: 5
-            }).then(function (e) {
-                var n = e[0], i = e[1];
-                if (n === a.CacheStatus.OK) return me._cacheManager.getFileUrl(i);
-                throw n;
-            })["catch"](function (n) {
-                if (n !== a.CacheStatus.STOPPED) return me.onError(n), e;
-                throw n;
+            }).then(function (res) {
+                var cacheStatus = res[0], fileId = res[1];
+                if (cacheStatus === CacheStatus.OK){
+                    return me._cacheManager.getFileUrl(fileId);
+                }
+                throw cacheStatus;
+
+            })["catch"](function (e) {
+                if (e !== CacheStatus.STOPPED) {
+                    me.onError(e);
+                    return fileUrl;
+                }
+                throw e;
             });
         };
-        var o = function () {
-            var n = campaign.getVideoUrl();
-            return me._request.head(n, [], {
+        var cacheAllFiles = function () {
+            var videoUrl = campaign.getVideoUrl();
+            return me._request.head(videoUrl, [], {
                 retries: 5,
                 retryDelay: 1e3,
-                followRedirects: !0,
-                retryWithConnectionEvents: !1
-            }).then(function (r) {
-                var o = r.url || n;
-                i(o).then(function (t) {
-                    campaign.setVideoUrl(t);
-                    campaign.setVideoCached(!0);
+                followRedirects: true,
+                retryWithConnectionEvents: false
+            }).then(function (response) {
+                var url = response.url || videoUrl;
+                cacheFile(url).then(function (cachedFileUrl) {
+                    campaign.setVideoUrl(cachedFileUrl);
+                    campaign.setVideoCached(true);
                 })["catch"](function (e) {
-                    e === a.CacheStatus.STOPPED && me._nativeBridge.Sdk.logInfo("Caching was stopped, using streaming instead");
+                    if(e === CacheStatus.STOPPED){
+                        me._nativeBridge.Sdk.logInfo("Caching was stopped, using streaming instead");
+                    }
                 });
             })["catch"](function (e) {
                 me._nativeBridge.Sdk.logError("Caching failed to get VAST video URL location: " + e);
             });
         };
-        var c = function () {
+        var setPlacementReady = function () {
             me.setPlacementStates(PlacementState.READY);
         };
 
-        if (n === CacheMode.FORCED) {
-            o().then(function () {
+        if (cacheMode === CacheMode.FORCED) {
+            cacheAllFiles().then(function () {
                 if (me._showing){
-                    var e = me._adUnit.onClose.subscribe(function () {
-                        me._adUnit.onClose.unsubscribe(e);
-                        c();
+                    var fn = me._adUnit.onClose.subscribe(function () {
+                        me._adUnit.onClose.unsubscribe(fn);
+                        setPlacementReady();
                     });
 
                 }else{
-                    c();
+                    setPlacementReady();
                 }
             });
-        }else if (n === CacheMode.ALLOWED) {
+        }else if (cacheMode === CacheMode.ALLOWED) {
             if (this._showing){
-                var u = this._adUnit.onClose.subscribe(function () {
-                    me._adUnit.onClose.unsubscribe(u);
-                    o();
-                    c();
+                var fn = this._adUnit.onClose.subscribe(function () {
+                    me._adUnit.onClose.unsubscribe(fn);
+                    cacheAllFiles();
+                    setPlacementReady();
                 });
             }else{
-                o();
-                c();
+                cacheAllFiles();
+                setPlacementReady();
             }
         }else{
-            c();
+            setPlacementReady();
         }
     };
-    WebView.prototype.onNoFill = function (e) {
-        this._refillTimestamp = Date.now() + 1000 * e;
+    WebView.prototype.onNoFill = function (seconds) {
+        this._refillTimestamp = Date.now() + 1000 * seconds;
         this._nativeBridge.Sdk.logInfo("Unity Ads server returned no fill, no ads to show");
         this.setPlacementStates(PlacementState.NO_FILL);
     };
     WebView.prototype.onCampaignError = function (e) {
-        e instanceof Error && (e = {
-            message: e.message,
-            name: e.name,
-            stack: e.stack
-        });
+        if(e instanceof Error){
+            e = {
+                message: e.message,
+                name: e.name,
+                stack: e.stack
+            };
+        }
         this._nativeBridge.Sdk.logError(JSON.stringify(e));
         Diagnostics.trigger(
             this._eventManager,
@@ -7874,8 +8289,8 @@ CMD.register("webview.WebView", function (require) {
     WebView.prototype.onNetworkConnected = function () {
         var me = this;
         if(!this.isShowing() && this._initialized ){
-            this.shouldReinitialize().then(function (t) {
-                if(t){
+            this.shouldReinitialize().then(function (isShouldReInit) {
+                if(isShouldReInit){
                     if(me.isShowing()){
                         me._mustReinitialize = true
                     }else{
@@ -7943,39 +8358,39 @@ CMD.register("webview.WebView", function (require) {
     };
     WebView.prototype.setupTestEnvironment = function () {
         var me = this;
-        this._nativeBridge.Storage.get(StorageType.PUBLIC, "test.serverUrl.value").then(function (t) {
-            if(t){
-                ConfigManager.setTestBaseUrl(t);
-                CampaignManager.setTestBaseUrl(t);
-                SessionManager.setTestBaseUrl(t);
+        this._nativeBridge.Storage.get(StorageType.PUBLIC, "test.serverUrl.value").then(function (testUrl) {
+            if(testUrl){
+                ConfigManager.setTestBaseUrl(testUrl);
+                CampaignManager.setTestBaseUrl(testUrl);
+                SessionManager.setTestBaseUrl(testUrl);
                 me._nativeBridge.Storage["delete"](StorageType.PUBLIC, "test.serverUrl");
                 me._nativeBridge.Storage.write(StorageType.PUBLIC)
             }
         }).catch(function (e) {
-            var t = e[0];
-            switch (t) {
-                case S.StorageError[S.StorageError.COULDNT_GET_VALUE]:
+            var errorState = e[0];
+            switch (errorState) {
+                case StorageError[StorageError.COULDNT_GET_VALUE]:
                     break;
 
                 default:
-                    throw new Error(t);
+                    throw new Error(errorState);
             }
         });
 
-        this._nativeBridge.Storage.get(StorageType.PUBLIC, "test.kafkaUrl.value").then(function (t) {
-            if(t){
-                Diagnostics.setTestBaseUrl(t);
+        this._nativeBridge.Storage.get(StorageType.PUBLIC, "test.kafkaUrl.value").then(function (testUrl) {
+            if(testUrl){
+                Diagnostics.setTestBaseUrl(testUrl);
                 me._nativeBridge.Storage["delete"](StorageType.PUBLIC, "test.kafkaUrl");
                 me._nativeBridge.Storage.write(StorageType.PUBLIC)
             }
         }).catch(function (e) {
-            var t = e[0];
-            switch (t) {
-                case S.StorageError[S.StorageError.COULDNT_GET_VALUE]:
+            var errorState = e[0];
+            switch (errorState) {
+                case StorageError[StorageError.COULDNT_GET_VALUE]:
                     break;
 
                 default:
-                    throw new Error(t);
+                    throw new Error(errorState);
             }
         });
     };
