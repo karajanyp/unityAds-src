@@ -1,4 +1,4 @@
-/**
+ï»¿/**
  * Created by duo on 2016/8/31.
  */
 
@@ -95,9 +95,9 @@ CMD.register("webview.bridge.NativeBridge", function(require){
     /**
      * JS Call Native
      *
-     * @param nativeClass {String} NativeÀàµÄÀàÃû£¬Èç"Broadcast"
-     * @param nativeMethod {String} Native·½·¨Ãû£¬Èç"addBroadcastListener"
-     * @param parameters {Array} Native·½·¨µÄÊµ²ÎÁĞ±í£¬Èç[]
+     * @param nativeClass {String} Nativeç±»çš„ç±»åï¼Œå¦‚"Broadcast"
+     * @param nativeMethod {String} Nativeæ–¹æ³•åï¼Œå¦‚"addBroadcastListener"
+     * @param parameters {Array} Nativeæ–¹æ³•çš„å®å‚åˆ—è¡¨ï¼Œå¦‚[]
      */
     NativeBridge.prototype.invoke = function (nativeClass, nativeMethod, parameters) {
         var me = this;
@@ -126,9 +126,9 @@ CMD.register("webview.bridge.NativeBridge", function(require){
     /**
      * JS Call Native
      *
-     * @param nativeFullPathClass {String} NativeÀàµÄÈ«Â·¾¶ÀàÃû£¬Èç"com.unity3d.ads.api.Broadcast"
-     * @param nativeMethod {String} Native·½·¨Ãû£¬Èç"addBroadcastListener"
-     * @param parameters {Array} Native·½·¨µÄÊµ²ÎÁĞ±í£¬Èç[]
+     * @param nativeFullPathClass {String} Nativeç±»çš„å…¨è·¯å¾„ç±»åï¼Œå¦‚"com.unity3d.ads.api.Broadcast"
+     * @param nativeMethod {String} Nativeæ–¹æ³•åï¼Œå¦‚"addBroadcastListener"
+     * @param parameters {Array} Nativeæ–¹æ³•çš„å®å‚åˆ—è¡¨ï¼Œå¦‚[]
      *
      * batch.batch = [[nativeFullPathClass, nativeMethod, parameters, callbackId]]
      */
@@ -141,23 +141,23 @@ CMD.register("webview.bridge.NativeBridge", function(require){
 
     /**
      * JS Call Native
-     * JS¶ËÅúÁ¿µ÷ÓÃJava¶Ë½Ó¿Ú className.methodName(parameters)¡£
-     * µ÷ÓÃÍê±ÏºóNative¶Ë»áµ÷ÓÃWebViewµÄ½Ó¿Ú£ºwindow.nativeBridge.handleCallback(jsCallbackId, callbackStatus, paramList);
+     * JSç«¯æ‰¹é‡è°ƒç”¨Javaç«¯æ¥å£ className.methodName(parameters)ã€‚
+     * è°ƒç”¨å®Œæ¯•åNativeç«¯ä¼šè°ƒç”¨WebViewçš„æ¥å£ï¼šwindow.nativeBridge.handleCallback(jsCallbackId, callbackStatus, paramList);
      *
-     * @param batch {Array} ÅúÁ¿²ÎÊı£¬½á¹¹Îª£º[[nativeClassName, nativeMethodName, nativeParamList, jsCallbackId]]
+     * @param batch {Array} æ‰¹é‡å‚æ•°ï¼Œç»“æ„ä¸ºï¼š[[nativeClassName, nativeMethodName, nativeParamList, jsCallbackId]]
      */
     NativeBridge.prototype.invokeBatch = function (batch) {
         this._backend.handleInvocation(JSON.stringify(batch.getBatch()).replace(NativeBridge._doubleRegExp, "$1"));
     };
 
     /**
-     * JS Call Native. JS¶Ëµ÷ÓÃNative¶Ë½Ó¿Ú
-     * JSÖ´ĞĞNativeµÄ½Ó¿Ú¡£ÔÚAndroid»·¾³ÖĞ£¬»áµ÷ÓÃÒÔÏÂ½Ó¿Ú:
+     * JS Call Native. JSç«¯è°ƒç”¨Nativeç«¯æ¥å£
+     * JSæ‰§è¡ŒNativeçš„æ¥å£ã€‚åœ¨Androidç¯å¢ƒä¸­ï¼Œä¼šè°ƒç”¨ä»¥ä¸‹æ¥å£:
      *
      * WebViewBridgeInterface.handleCallback(nativeCallbackId, callbackStatus)
      *
-     * @param nativeCallbackId {String} Java»Øµ÷·½·¨id
-     * @param callbackStatus {String} »Øµ÷×´Ì¬£¬×÷ÎªÊµ²Î´«ÈënativeCallbackIdËù±íÊ¾µÄ·½·¨ÖĞ
+     * @param nativeCallbackId {String} Javaå›è°ƒæ–¹æ³•id
+     * @param callbackStatus {String} å›è°ƒçŠ¶æ€ï¼Œä½œä¸ºå®å‚ä¼ å…¥nativeCallbackIdæ‰€è¡¨ç¤ºçš„æ–¹æ³•ä¸­
      */
     NativeBridge.prototype.invokeCallback = function (nativeCallbackId, callbackStatus) {
         var parameters = [];
@@ -168,9 +168,9 @@ CMD.register("webview.bridge.NativeBridge", function(require){
     };
 
     /**
-     * Native call JS. Native¶Ëµ÷ÓÃJS¶Ë½Ó¿Ú
-     * ´Ë·½·¨ÓÃÓÚNative¶Ëµ÷ÓÃJS¶Ë½Ó¿Ú: window.jsClassName.jsMethodName(jsParams).
-     * µ÷ÓÃÍê±ÏºóJS¶Ë»áÔÙ´Îµ÷ÓÃNative¶ËµÄ½Ó¿Ú¡£ÔÚAndroid»·¾³ÖĞ£¬»áµ÷ÓÃÒÔÏÂ½Ó¿Ú:
+     * Native call JS. Nativeç«¯è°ƒç”¨JSç«¯æ¥å£
+     * æ­¤æ–¹æ³•ç”¨äºNativeç«¯è°ƒç”¨JSç«¯æ¥å£: window.jsClassName.jsMethodName(jsParams).
+     * è°ƒç”¨å®Œæ¯•åJSç«¯ä¼šå†æ¬¡è°ƒç”¨Nativeç«¯çš„æ¥å£ã€‚åœ¨Androidç¯å¢ƒä¸­ï¼Œä¼šè°ƒç”¨ä»¥ä¸‹æ¥å£:
      *
      * WebViewBridgeInterface.handleCallback
      *
@@ -193,7 +193,7 @@ CMD.register("webview.bridge.NativeBridge", function(require){
         window[jsClassName][jsMethodName].apply(window[jsClassName], args);
     };
     /**
-     * ´Ë·½·¨ÓÃÓÚNative¶Ëµ÷ÓÃJS¶Ë½Ó¿Ú(Native call JS)
+     * æ­¤æ–¹æ³•ç”¨äºNativeç«¯è°ƒç”¨JSç«¯æ¥å£(Native call JS)
      * @param callbackGroup [[jsCallbackId, callbackStatus, callbackData]]
      */
     NativeBridge.prototype.handleCallback = function (callbackGroup) {
@@ -207,7 +207,7 @@ CMD.register("webview.bridge.NativeBridge", function(require){
             if (!callbackContainer) {
                 throw new Error("Unable to find matching callback object from callback id " + jsCallbackId);
             }
-            //Ö»ÓĞÒ»¸ö²ÎÊıÊ±²»Ê¹ÓÃÊı×é
+            //åªæœ‰ä¸€ä¸ªå‚æ•°æ—¶ä¸ä½¿ç”¨æ•°ç»„
             if(1 === callbackData.length){
                 callbackData = callbackData[0];
             }
@@ -224,7 +224,7 @@ CMD.register("webview.bridge.NativeBridge", function(require){
     };
 
     /**
-     * ´Ë·½·¨ÓÃÓÚNative¶Ëµ÷ÓÃJS¶Ë½Ó¿Ú(Native call JS)
+     * æ­¤æ–¹æ³•ç”¨äºNativeç«¯è°ƒç”¨JSç«¯æ¥å£(Native call JS)
      * @param parameters [eventCategoryName, eventName, param1, param2...]
      */
     NativeBridge.prototype.handleEvent = function (parameters) {

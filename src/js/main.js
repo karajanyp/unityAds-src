@@ -1,4 +1,4 @@
-/**
+ï»¿/**
  * Created by duo on 2016/8/31.
  */
 
@@ -34,7 +34,7 @@ CMD.register("main", function(require){
     var nativeBridge = null;
     switch (Url.getQueryParameter(location.search, "platform")) {
         case "android":
-            //JS µ÷ÓÃ Android API: Ìá¹©webviewbridge½Ó¿Ú
+            //JS è°ƒç”¨ Android API: æä¾›webviewbridgeæ¥å£
             nativeBridge = new NativeBridge(window.webviewbridge, Platform.ANDROID);
             break;
 

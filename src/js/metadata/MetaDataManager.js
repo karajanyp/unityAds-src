@@ -1,4 +1,4 @@
-/**
+ï»¿/**
  * Created by duo on 2016/9/1.
  */
 CMD.register("metadata.MetaDataManager", function (require) {
@@ -12,9 +12,9 @@ CMD.register("metadata.MetaDataManager", function (require) {
     }
 
     /**
-     * ´Ó±¾µØ´æ´¢Àï»ñÈ¡Ö¸¶¨ÀàĞÍµÄ¶à¸öÔªÊı¾İÖµ¡£
-     * @param category      {String}        ÔªÊı¾İÀàĞÍ
-     * @param keys          {Array}         ÔªÊı¾İ¼üÖµÃûÁĞ±í
+     * ä»æœ¬åœ°å­˜å‚¨é‡Œè·å–æŒ‡å®šç±»å‹çš„å¤šä¸ªå…ƒæ•°æ®å€¼ã€‚
+     * @param category      {String}        å…ƒæ•°æ®ç±»å‹
+     * @param keys          {Array}         å…ƒæ•°æ®é”®å€¼ååˆ—è¡¨
      * @param nativeBridge  {NativeBridge}  Native Api
      * @returns Promise A+  {Promise}       {Array:values | undefined}
      */
@@ -66,11 +66,11 @@ CMD.register("metadata.MetaDataManager", function (require) {
         });
     };
     /**
-     * Í¨ÓÃ½Ó¿Ú£º»ñÈ¡ÔªÊı¾İ
-     * @param category      {String}        ÔªÊı¾İÀàĞÍ
-     * @param keys          {Array}         ÔªÊı¾İ¼üÖµÃûÁĞ±í
+     * é€šç”¨æ¥å£ï¼šè·å–å…ƒæ•°æ®
+     * @param category      {String}        å…ƒæ•°æ®ç±»å‹
+     * @param keys          {Array}         å…ƒæ•°æ®é”®å€¼ååˆ—è¡¨
      * @param nativeBridge  {NativeBridge}  Native Api
-     * @param useCache      {Boolean}       ÊÇ·ñÊ¹ÓÃ»º´æ£¬Èç¹ûÎªtrue, ÓÅÏÈÊ¹ÓÃ»º´æÊı¾İ£¬²¢ÔÚµÚÒ»´Î»ñÈ¡ÔªÊı¾İµÄÍ¬Ê±»º´æÆğÀ´¡£
+     * @param useCache      {Boolean}       æ˜¯å¦ä½¿ç”¨ç¼“å­˜ï¼Œå¦‚æœä¸ºtrue, ä¼˜å…ˆä½¿ç”¨ç¼“å­˜æ•°æ®ï¼Œå¹¶åœ¨ç¬¬ä¸€æ¬¡è·å–å…ƒæ•°æ®çš„åŒæ—¶ç¼“å­˜èµ·æ¥ã€‚
      * @returns Promise A+  {Promise}       {MetaData | undefined}
      */
     MetaDataManager.fetch = function (category, keys, nativeBridge, useCache) {

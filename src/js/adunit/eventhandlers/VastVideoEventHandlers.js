@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Created by duo on 2016/9/1.
  */
 CMD.register("adunit.eventhandlers.VastVideoEventHandlers", function (require) {

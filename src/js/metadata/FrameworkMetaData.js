@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Created by duo on 2016/9/1.
  */
 CMD.register("metadata.FrameworkMetaData", function (require) {

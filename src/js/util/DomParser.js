@@ -1,4 +1,4 @@
-/**
+ï»¿/**
  * Created by duo on 2016/9/1.
  */
 CMD.register("util.DOMParser", function () {
@@ -1052,7 +1052,7 @@ CMD.register("util.DOMParser", function () {
             }
 
             var p = /[A-Z_a-z\xC0-\xD6\xD8-\xF6\u00F8-\u02FF\u0370-\u037D\u037F-\u1FFF\u200C-\u200D\u2070-\u218F\u2C00-\u2FEF\u3001-\uD7FF\uF900-\uFDCF\uFDF0-\uFFFD]/;
-            var d = new RegExp("[\\-\\.0-9" + p.source.slice(1, -1) + "¡¤?\\-?\\u203F\\-?]");
+            var d = new RegExp("[\\-\\.0-9" + p.source.slice(1, -1) + "Â·?\\-?\\u203F\\-?]");
             var f = new RegExp("^" + p.source + d.source + "*(?::" + p.source + d.source + "*)?$");
             v = 0, g = 1, _ = 2, m = 3, y = 4, E = 5, S = 6, I = 7, C = function () {
             };

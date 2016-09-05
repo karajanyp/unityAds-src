@@ -1,4 +1,4 @@
-/**
+ï»¿/**
  * Created by duo on 2016/9/1.
  */
 CMD.register("adunit.vast.Vast", function () {
@@ -61,7 +61,7 @@ CMD.register("adunit.vast.Vast", function () {
         }
         return null;
     };
-    //Âß¼­ÓĞµãÎÊÌâ ÖØÖÃÁË?
+    //é€»è¾‘æœ‰ç‚¹é—®é¢˜ é‡ç½®äº†?
     Vast.prototype.addTrackingEventUrl = function (event, url) {
         if(!this._additionalTrackingEvents){
             this._additionalTrackingEvents = {};

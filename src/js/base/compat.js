@@ -1,4 +1,4 @@
-/**
+ï»¿/**
  * Created by duo on 2016/8/24.
  */
 var extend = this && this.extend || function (constructor, superClass) {
@@ -19,9 +19,9 @@ var extend = this && this.extend || function (constructor, superClass) {
     }
 };
 /**
- * ±éÀúÊı×éÏî
- * @param fn {Function} ±éÀú»Øµ÷·½·¨
- * @param context {Object} optional. ¿ÉÑ¡£¬»Øµ÷·½·¨µÄÉÏÏÂÎÄ
+ * éå†æ•°ç»„é¡¹
+ * @param fn {Function} éå†å›è°ƒæ–¹æ³•
+ * @param context {Object} optional. å¯é€‰ï¼Œå›è°ƒæ–¹æ³•çš„ä¸Šä¸‹æ–‡
  */
 Array.prototype.forEach || (Array.prototype.forEach = function (fn, context) {
     if ("function" != typeof fn){
@@ -33,7 +33,7 @@ Array.prototype.forEach || (Array.prototype.forEach = function (fn, context) {
 });
 
 /**
- * ÎªDOMElementÌí¼Ó¼æÈİµÄclassListÊôĞÔ
+ * ä¸ºDOMElementæ·»åŠ å…¼å®¹çš„classListå±æ€§
  * DOMElement.classList.add(className);
  * DOMElement.classList.remove(className);
  * DOMElement.classList.toggle(className);

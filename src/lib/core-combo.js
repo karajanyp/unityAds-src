@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Created by duo on 2016/9/2.
  */
 !(function(exports){
@@ -69,9 +69,9 @@ var extend = this && this.extend || function (constructor, superClass) {
     }
 };
 /**
- * ����������
- * @param fn {Function} �����ص�����
- * @param context {Object} optional. ��ѡ���ص�������������
+ * 遍历数组项
+ * @param fn {Function} 遍历回调方法
+ * @param context {Object} optional. 可选，回调方法的上下文
  */
 Array.prototype.forEach || (Array.prototype.forEach = function (fn, context) {
     if ("function" != typeof fn){
@@ -83,7 +83,7 @@ Array.prototype.forEach || (Array.prototype.forEach = function (fn, context) {
 });
 
 /**
- * ΪDOMElement���Ӽ��ݵ�classList����
+ * 为DOMElement添加兼容的classList属性
  * DOMElement.classList.add(className);
  * DOMElement.classList.remove(className);
  * DOMElement.classList.toggle(className);
@@ -139,7 +139,7 @@ Array.prototype.forEach || (Array.prototype.forEach = function (fn, context) {
     "use strict";
 
     /**
-     * �ж���������Ƿ�ΪObject
+     * 判断入参类型是否为Object
      * @grammer isObject
      * @param o
      * @returns {boolean}
@@ -149,7 +149,7 @@ Array.prototype.forEach || (Array.prototype.forEach = function (fn, context) {
     }
 
     /**
-     * �ж���������Ƿ�ΪFunction
+     * 判断入参类型是否为Function
      * @param o
      * @returns {boolean}
      */
@@ -911,8 +911,8 @@ CMD.register("adunit.VastAdUnit", function (require) {
         eventManager.thirdPartyEvent(eventName, sessionId, eventUrl);
     };
     /**
-     * 根据事件名称返回对应的跟踪链接
-     * @param event {String} 事件名称
+     * 鏍规嵁浜嬩欢鍚嶇О杩斿洖瀵瑰簲鐨勮窡韪摼鎺?
+     * @param event {String} 浜嬩欢鍚嶇О
      * @returns {String}
      */
     VastAdUnit.prototype.getTrackingEventUrls = function (event) {
@@ -1492,9 +1492,9 @@ CMD.register("adunit.view.Privacy", function (require) {
         '<% if(!data.isCoppaCompliant) { %>\n' +
         '<div class="privacy-text">\n' +
         'This advertisement has been served by OneWay SDK.\n' +
-        'OneWay SDK collects and uses information gathered through your use of your apps in order to create an individualized and more relevant user experience, to predict your preferences, and to show you ads that are more likely to interest you (��personalized ads��).\n' +
+        'OneWay SDK collects and uses information gathered through your use of your apps in order to create an individualized and more relevant user experience, to predict your preferences, and to show you ads that are more likely to interest you (锟斤拷personalized ads锟斤拷).\n' +
         'Please read our <a href="https://unity3d.com/legal/privacy-policy">Privacy Policy</a> for a full description of our data practices.\n' +
-        'You may be able to opt-out of OneWay SDK�� collection and use of your mobile app data for personalized ads through your device settings.\n' +
+        'You may be able to opt-out of OneWay SDK锟斤拷 collection and use of your mobile app data for personalized ads through your device settings.\n' +
         '</div>\n' +
         '<% } else { %>\n' +
         '<div class="privacy-simple-text">\n' +
@@ -2017,7 +2017,7 @@ CMD.register("adunit.vast.Vast", function () {
         }
         return null;
     };
-    //�߼��е����� ������?
+    //逻辑有点问题 重置了?
     Vast.prototype.addTrackingEventUrl = function (event, url) {
         if(!this._additionalTrackingEvents){
             this._additionalTrackingEvents = {};
@@ -3725,7 +3725,7 @@ CMD.register("cache.CacheManager", function (require) {
     };
 
     /**
-     * ɾ������(21��ǰ)�Ļ��棬����֤�����С������512Kb
+     * 删锟斤拷锟斤拷锟斤拷(21锟斤拷前)锟侥伙拷锟芥，锟斤拷锟斤拷证锟斤拷锟斤拷锟叫★拷锟斤拷锟斤拷锟?12Kb
      * @returns {Promise}
      */
     CacheManager.prototype.cleanCache = function () {
@@ -3764,10 +3764,10 @@ CMD.register("cache.CacheManager", function (require) {
         });
     };
     /**
-     * �����ļ�·����ȡ�ļ�id, ����ļ�id�����ڣ��������ļ�id�����档
-     * �ļ�id�ṹ���ļ�·���Ĺ�ϣ��[.�ļ���׺��]
+     * 锟斤拷锟斤拷锟侥硷拷路锟斤拷锟斤拷取锟侥硷拷id, 锟斤拷锟斤拷募锟絠d锟斤拷锟斤拷锟节ｏ拷锟斤拷锟斤拷锟斤拷锟侥硷拷id锟斤拷锟斤拷锟芥。
+     * 锟侥硷拷id锟结构锟斤拷锟侥硷拷路锟斤拷锟侥癸拷希锟斤拷[.锟侥硷拷锟斤拷缀锟斤拷]
      *
-     * @param fileUrl {String} �ļ�·��
+     * @param fileUrl {String} 锟侥硷拷路锟斤拷
      * @returns {Promise}
      */
     CacheManager.prototype.getFileId = function (fileUrl) {
@@ -3859,9 +3859,9 @@ CMD.register("cache.CacheManager", function (require) {
         };
     };
     /**
-     * ���ļ�������Ϣд�뱾�ش洢��
-     * @param fileUrl       {String} �ļ�·��
-     * @param cacheResponse {Object} �ļ�������Ϣ
+     * 锟斤拷锟侥硷拷锟斤拷锟斤拷锟斤拷息写锟诫本锟截存储锟斤拷
+     * @param fileUrl       {String} 锟侥硷拷路锟斤拷
+     * @param cacheResponse {Object} 锟侥硷拷锟斤拷锟斤拷锟斤拷息
      */
     CacheManager.prototype.writeCacheResponse = function (fileUrl, cacheResponse) {
         this._nativeBridge.Storage.set(StorageType.PRIVATE, "cache." + this._fileIds[fileUrl], JSON.stringify(cacheResponse));
@@ -5020,7 +5020,7 @@ CMD.register("event.EventManager", function (require) {
         return Promise.all([this._nativeBridge.Storage.set(StorageType.PRIVATE, EventManager.getSessionTimestampKey(id), Date.now()), this._nativeBridge.Storage.write(StorageType.PRIVATE)]);
     };
     /**
-     * 发送所有未发送过的session信息，成功后删除Storage信息
+     * 鍙戦€佹墍鏈夋湭鍙戦€佽繃鐨剆ession淇℃伅锛屾垚鍔熷悗鍒犻櫎Storage淇℃伅
      * @returns {Promise}
      */
     EventManager.prototype.sendUnsentSessions = function () {
@@ -5049,7 +5049,7 @@ CMD.register("event.EventManager", function (require) {
         return this._nativeBridge.Storage.getKeys(StorageType.PRIVATE, "session", false);
     };
     /**
-     * session是否过期，过期时间为7天
+     * session鏄惁杩囨湡锛岃繃鏈熸椂闂翠负7澶?
      * @param sessionId {String}
      * @returns {Promise} resolve(boolean) | reject(true)
      */
@@ -5063,7 +5063,7 @@ CMD.register("event.EventManager", function (require) {
         });
     };
     /**
-     * 获取所有未发送的事件id
+     * 鑾峰彇鎵€鏈夋湭鍙戦€佺殑浜嬩欢id
      * @param sessionId
      * @returns {Promise} resolve(events:Array)
      */
@@ -5071,7 +5071,7 @@ CMD.register("event.EventManager", function (require) {
         return this._nativeBridge.Storage.getKeys(StorageType.PRIVATE, "session." + sessionId + ".operative", false);
     };
     /**
-     * 发送事件到native，成功后删除Storage的事件记录
+     * 鍙戦€佷簨浠跺埌native锛屾垚鍔熷悗鍒犻櫎Storage鐨勪簨浠惰褰?
      * @param sessionId {String}
      * @param eventId   {String}
      * @returns {Promise} resolve([storageType:String, storageType:String])
@@ -5255,9 +5255,9 @@ CMD.register("metadata.MetaDataManager", function (require) {
     }
 
     /**
-     * �ӱ��ش洢���ȡָ�����͵Ķ��Ԫ����ֵ��
-     * @param category      {String}        Ԫ��������
-     * @param keys          {Array}         Ԫ���ݼ�ֵ���б�
+     * 从本地存储里获取指定类型的多个元数据值。
+     * @param category      {String}        元数据类型
+     * @param keys          {Array}         元数据键值名列表
      * @param nativeBridge  {NativeBridge}  Native Api
      * @returns Promise A+  {Promise}       {Array:values | undefined}
      */
@@ -5309,11 +5309,11 @@ CMD.register("metadata.MetaDataManager", function (require) {
         });
     };
     /**
-     * ͨ�ýӿڣ���ȡԪ����
-     * @param category      {String}        Ԫ��������
-     * @param keys          {Array}         Ԫ���ݼ�ֵ���б�
+     * 通用接口：获取元数据
+     * @param category      {String}        元数据类型
+     * @param keys          {Array}         元数据键值名列表
      * @param nativeBridge  {NativeBridge}  Native Api
-     * @param useCache      {Boolean}       �Ƿ�ʹ�û��棬���Ϊtrue, ����ʹ�û������ݣ����ڵ�һ�λ�ȡԪ���ݵ�ͬʱ����������
+     * @param useCache      {Boolean}       是否使用缓存，如果为true, 优先使用缓存数据，并在第一次获取元数据的同时缓存起来。
      * @returns Promise A+  {Promise}       {MetaData | undefined}
      */
     MetaDataManager.fetch = function (category, keys, nativeBridge, useCache) {
@@ -5479,8 +5479,8 @@ CMD.register("request.Request", function () {
     }
 
     /**
-     * 获取header内容，header不存在，返回null
-     * @param headers   {Object} {Array}  头部对象，可以为对象{headerKey: headerContent}, 或数组[[headerKey, headerContent],...s]
+     * 鑾峰彇header鍐呭锛宧eader涓嶅瓨鍦紝杩斿洖null
+     * @param headers   {Object} {Array}  澶撮儴瀵硅薄锛屽彲浠ヤ负瀵硅薄{headerKey: headerContent}, 鎴栨暟缁刐[headerKey, headerContent],...s]
      * @param key       {String} headerKey
      * @returns {String}
      */
@@ -5593,7 +5593,7 @@ CMD.register("request.Request", function () {
         return promise;
     };
     /**
-     * 注册回调方法，用于请求完毕后Native调用
+     * 娉ㄥ唽鍥炶皟鏂规硶锛岀敤浜庤姹傚畬姣曞悗Native璋冪敤
      * @param callbackId {Number}
      * @returns {Promise}
      */
@@ -5606,9 +5606,9 @@ CMD.register("request.Request", function () {
         });
     };
     /**
-     * 执行http请求
-     * @param callbackId    {Number}    回调id
-     * @param requestConfig {Object}    请求配置信息
+     * 鎵цhttp璇锋眰
+     * @param callbackId    {Number}    鍥炶皟id
+     * @param requestConfig {Object}    璇锋眰閰嶇疆淇℃伅
      * @returns {Promise}
      */
     Request.prototype.invokeRequest = function (callbackId, requestConfig) {
@@ -5647,9 +5647,9 @@ CMD.register("request.Request", function () {
         }
     };
     /**
-     * request完成后执行回调，从第三个参数开始作为回调方法的参数
-     * @param callbackId {Number} 回调id
-     * @param callbackState {Number} 回调状态{0:成功|1:失败}
+     * request瀹屾垚鍚庢墽琛屽洖璋冿紝浠庣涓変釜鍙傛暟寮€濮嬩綔涓哄洖璋冩柟娉曠殑鍙傛暟
+     * @param callbackId {Number} 鍥炶皟id
+     * @param callbackState {Number} 鍥炶皟鐘舵€亄0:鎴愬姛|1:澶辫触}
      */
     Request.prototype.finishRequest = function (callbackId, callbackState) {
         var args = [];
@@ -5664,7 +5664,7 @@ CMD.register("request.Request", function () {
         }
     };
     /**
-     * 请求失败的处理方法，如果设置有请求重试，则重试
+     * 璇锋眰澶辫触鐨勫鐞嗘柟娉曪紝濡傛灉璁剧疆鏈夎姹傞噸璇曪紝鍒欓噸璇?
      * @param callbackId    {Number}
      * @param requestConfig {Object}
      * @param errorMsg      {String}
@@ -5681,7 +5681,7 @@ CMD.register("request.Request", function () {
         }
     };
     /**
-     * 事件监听器：请求成功
+     * 浜嬩欢鐩戝惉鍣細璇锋眰鎴愬姛
      * @param id
      * @param url
      * @param response
@@ -5698,7 +5698,7 @@ CMD.register("request.Request", function () {
             },
             requestConfig = Request._requests[callbackId];
         if (-1 !== Request._allowedResponseCodes.indexOf(responseCode)){
-            //重定向
+            //閲嶅畾鍚?
             if (-1 !== Request._redirectResponseCodes.indexOf(responseCode) && requestConfig.options.followRedirects) {
                 var url = requestConfig.url = Request.getHeader(headers, "location");
                 if(url && url.match(/^https?/i)){
@@ -5714,7 +5714,7 @@ CMD.register("request.Request", function () {
         }
     };
     /**
-     * 事件监听器：请求失败
+     * 浜嬩欢鐩戝惉鍣細璇锋眰澶辫触
      * @param id
      * @param url
      * @param errorMsg
@@ -5725,7 +5725,7 @@ CMD.register("request.Request", function () {
         this.handleFailedRequest(callbackId, requestConfig, errorMsg);
     };
     /**
-     * 事件监听器：网络重连
+     * 浜嬩欢鐩戝惉鍣細缃戠粶閲嶈繛
      */
     Request.prototype.onNetworkConnected = function () {
         var callbackId;
@@ -5966,7 +5966,7 @@ CMD.register("session.SessionManager", function (require) {
         }
         var sendEvent = function (res) {
             var eventId = res[0], metaData = res[1];
-            //跳过时的进度
+            //璺宠繃鏃剁殑杩涘害
             if(position){
                 metaData.skippedAt = position;
             }
@@ -7219,7 +7219,7 @@ CMD.register("util.DOMParser", function () {
             }
 
             var p = /[A-Z_a-z\xC0-\xD6\xD8-\xF6\u00F8-\u02FF\u0370-\u037D\u037F-\u1FFF\u200C-\u200D\u2070-\u218F\u2C00-\u2FEF\u3001-\uD7FF\uF900-\uFDCF\uFDF0-\uFFFD]/;
-            var d = new RegExp("[\\-\\.0-9" + p.source.slice(1, -1) + "��?\\-?\\u203F\\-?]");
+            var d = new RegExp("[\\-\\.0-9" + p.source.slice(1, -1) + "·?\\-?\\u203F\\-?]");
             var f = new RegExp("^" + p.source + d.source + "*(?::" + p.source + d.source + "*)?$");
             v = 0, g = 1, _ = 2, m = 3, y = 4, E = 5, S = 6, I = 7, C = function () {
             };
@@ -7398,9 +7398,9 @@ CMD.register("util.JsonParser", function () {
     function JsonParser() {}
 
     /**
-     * 将JSON格式的字符串解释为JSON对象
-     * @param text      {String}    JSON字符串
-     * @param reviver   {Function}  optional, 对象值处理函数
+     * 灏咼SON鏍煎紡鐨勫瓧绗︿覆瑙ｉ噴涓篔SON瀵硅薄
+     * @param text      {String}    JSON瀛楃涓?
+     * @param reviver   {Function}  optional, 瀵硅薄鍊煎鐞嗗嚱鏁?
      * @returns {Object}
      */
     JsonParser.parse = function (text, reviver) {
@@ -7425,7 +7425,7 @@ CMD.register("util.Observable", function(){
         this._observers = [];
     }
     /**
-     * ���Ӷ�����
+     * 添加订阅者
      * @param fn
      * @returns {*}
      */
@@ -7434,7 +7434,7 @@ CMD.register("util.Observable", function(){
         return fn;
     };
     /**
-     * ȡ��ָ�������ߣ�����������������������ж�����
+     * 取消指定订阅者，如果不传入参数，则清空所有订阅者
      * @param fn
      */
     Observable.prototype.unsubscribe = function (fn) {
@@ -7450,7 +7450,7 @@ CMD.register("util.Observable", function(){
         }
     };
     /**
-     * ����
+     * 发布
      */
     Observable.prototype.trigger = function () {
         var args = arguments;
@@ -7489,9 +7489,9 @@ CMD.register("util.Url", function (){
         return url + paramArr.join("&");
     };
     /**
-     * 在给定的url中查询参数值
+     * 鍦ㄧ粰瀹氱殑url涓煡璇㈠弬鏁板€?
      * @param url       {String}    url
-     * @param paramName {String}    要查询的参数名
+     * @param paramName {String}    瑕佹煡璇㈢殑鍙傛暟鍚?
      * @returns {*}     {Unknown} or {null}
      */
     Url.getQueryParameter = function (url, paramName) {
@@ -8607,9 +8607,9 @@ CMD.register("webview.bridge.NativeBridge", function(require){
     /**
      * JS Call Native
      *
-     * @param nativeClass {String} Native�����������"Broadcast"
-     * @param nativeMethod {String} Native����������"addBroadcastListener"
-     * @param parameters {Array} Native������ʵ���б�����[]
+     * @param nativeClass {String} Native类的类名，如"Broadcast"
+     * @param nativeMethod {String} Native方法名，如"addBroadcastListener"
+     * @param parameters {Array} Native方法的实参列表，如[]
      */
     NativeBridge.prototype.invoke = function (nativeClass, nativeMethod, parameters) {
         var me = this;
@@ -8638,9 +8638,9 @@ CMD.register("webview.bridge.NativeBridge", function(require){
     /**
      * JS Call Native
      *
-     * @param nativeFullPathClass {String} Native���ȫ·����������"com.unity3d.ads.api.Broadcast"
-     * @param nativeMethod {String} Native����������"addBroadcastListener"
-     * @param parameters {Array} Native������ʵ���б�����[]
+     * @param nativeFullPathClass {String} Native类的全路径类名，如"com.unity3d.ads.api.Broadcast"
+     * @param nativeMethod {String} Native方法名，如"addBroadcastListener"
+     * @param parameters {Array} Native方法的实参列表，如[]
      *
      * batch.batch = [[nativeFullPathClass, nativeMethod, parameters, callbackId]]
      */
@@ -8653,23 +8653,23 @@ CMD.register("webview.bridge.NativeBridge", function(require){
 
     /**
      * JS Call Native
-     * JS����������Java�˽ӿ� className.methodName(parameters)��
-     * ������Ϻ�Native�˻����WebView�Ľӿڣ�window.nativeBridge.handleCallback(jsCallbackId, callbackStatus, paramList);
+     * JS端批量调用Java端接口 className.methodName(parameters)。
+     * 调用完毕后Native端会调用WebView的接口：window.nativeBridge.handleCallback(jsCallbackId, callbackStatus, paramList);
      *
-     * @param batch {Array} �����������ṹΪ��[[nativeClassName, nativeMethodName, nativeParamList, jsCallbackId]]
+     * @param batch {Array} 批量参数，结构为：[[nativeClassName, nativeMethodName, nativeParamList, jsCallbackId]]
      */
     NativeBridge.prototype.invokeBatch = function (batch) {
         this._backend.handleInvocation(JSON.stringify(batch.getBatch()).replace(NativeBridge._doubleRegExp, "$1"));
     };
 
     /**
-     * JS Call Native. JS�˵���Native�˽ӿ�
-     * JSִ��Native�Ľӿڡ���Android�����У���������½ӿ�:
+     * JS Call Native. JS端调用Native端接口
+     * JS执行Native的接口。在Android环境中，会调用以下接口:
      *
      * WebViewBridgeInterface.handleCallback(nativeCallbackId, callbackStatus)
      *
-     * @param nativeCallbackId {String} Java�ص�����id
-     * @param callbackStatus {String} �ص�״̬����Ϊʵ�δ���nativeCallbackId����ʾ�ķ�����
+     * @param nativeCallbackId {String} Java回调方法id
+     * @param callbackStatus {String} 回调状态，作为实参传入nativeCallbackId所表示的方法中
      */
     NativeBridge.prototype.invokeCallback = function (nativeCallbackId, callbackStatus) {
         var parameters = [];
@@ -8680,9 +8680,9 @@ CMD.register("webview.bridge.NativeBridge", function(require){
     };
 
     /**
-     * Native call JS. Native�˵���JS�˽ӿ�
-     * �˷�������Native�˵���JS�˽ӿ�: window.jsClassName.jsMethodName(jsParams).
-     * ������Ϻ�JS�˻��ٴε���Native�˵Ľӿڡ���Android�����У���������½ӿ�:
+     * Native call JS. Native端调用JS端接口
+     * 此方法用于Native端调用JS端接口: window.jsClassName.jsMethodName(jsParams).
+     * 调用完毕后JS端会再次调用Native端的接口。在Android环境中，会调用以下接口:
      *
      * WebViewBridgeInterface.handleCallback
      *
@@ -8705,7 +8705,7 @@ CMD.register("webview.bridge.NativeBridge", function(require){
         window[jsClassName][jsMethodName].apply(window[jsClassName], args);
     };
     /**
-     * �˷�������Native�˵���JS�˽ӿ�(Native call JS)
+     * 此方法用于Native端调用JS端接口(Native call JS)
      * @param callbackGroup [[jsCallbackId, callbackStatus, callbackData]]
      */
     NativeBridge.prototype.handleCallback = function (callbackGroup) {
@@ -8719,7 +8719,7 @@ CMD.register("webview.bridge.NativeBridge", function(require){
             if (!callbackContainer) {
                 throw new Error("Unable to find matching callback object from callback id " + jsCallbackId);
             }
-            //ֻ��һ������ʱ��ʹ������
+            //只有一个参数时不使用数组
             if(1 === callbackData.length){
                 callbackData = callbackData[0];
             }
@@ -8736,7 +8736,7 @@ CMD.register("webview.bridge.NativeBridge", function(require){
     };
 
     /**
-     * �˷�������Native�˵���JS�˽ӿ�(Native call JS)
+     * 此方法用于Native端调用JS端接口(Native call JS)
      * @param parameters [eventCategoryName, eventName, param1, param2...]
      */
     NativeBridge.prototype.handleEvent = function (parameters) {
@@ -8899,7 +8899,7 @@ CMD.register("main", function(require){
     var nativeBridge = null;
     switch (Url.getQueryParameter(location.search, "platform")) {
         case "android":
-            //JS ���� Android API: �ṩwebviewbridge�ӿ�
+            //JS 调用 Android API: 提供webviewbridge接口
             nativeBridge = new NativeBridge(window.webviewbridge, Platform.ANDROID);
             break;
 

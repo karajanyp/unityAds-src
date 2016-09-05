@@ -1,4 +1,4 @@
-/**
+ï»¿/**
  * Created by duo on 2016/8/31.
  */
 CMD.register("util.Observable", function(){
@@ -7,7 +7,7 @@ CMD.register("util.Observable", function(){
         this._observers = [];
     }
     /**
-     * Ìí¼Ó¶©ÔÄÕß
+     * æ·»åŠ è®¢é˜…è€…
      * @param fn
      * @returns {*}
      */
@@ -16,7 +16,7 @@ CMD.register("util.Observable", function(){
         return fn;
     };
     /**
-     * È¡ÏûÖ¸¶¨¶©ÔÄÕß£¬Èç¹û²»´«Èë²ÎÊı£¬ÔòÇå¿ÕËùÓĞ¶©ÔÄÕß
+     * å–æ¶ˆæŒ‡å®šè®¢é˜…è€…ï¼Œå¦‚æœä¸ä¼ å…¥å‚æ•°ï¼Œåˆ™æ¸…ç©ºæ‰€æœ‰è®¢é˜…è€…
      * @param fn
      */
     Observable.prototype.unsubscribe = function (fn) {
@@ -32,7 +32,7 @@ CMD.register("util.Observable", function(){
         }
     };
     /**
-     * ·¢²¼
+     * å‘å¸ƒ
      */
     Observable.prototype.trigger = function () {
         var args = arguments;
