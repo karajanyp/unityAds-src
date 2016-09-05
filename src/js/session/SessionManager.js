@@ -4,6 +4,7 @@
 CMD.register("session.SessionManager", function (require) {
     var Session = require("session.Session");
     var SessionManagerEventMetadataCreator = require("session.SessionManagerEventMetadataCreator");
+    var sessionProperties = require("Properties").session;
     var Url = require("util.Url");
 
     function SessionManager(nativeBridge, clientInfo, deviceInfo, eventManager, eventMetadataCreator) {
@@ -190,8 +191,8 @@ CMD.register("session.SessionManager", function (require) {
             redirect: false
         });
     };
-    SessionManager.VideoEventBaseUrl = "https://adserver.unityads.unity3d.com/mobile/gamers";
-    SessionManager.ClickEventBaseUrl = "https://adserver.unityads.unity3d.com/mobile/campaigns";
+    SessionManager.VideoEventBaseUrl = sessionProperties.VIDEO_EVENT_BASE_URL;
+    SessionManager.ClickEventBaseUrl = sessionProperties.CLICK_EVENT_BASE_URL;
 
     return SessionManager;
 });

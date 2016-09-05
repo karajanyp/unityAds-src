@@ -1107,7 +1107,7 @@ CMD.register("adunit.VideoAdUnit", function (require) {
         switch (e) {
             case VideoAdUnit._appDidBecomeActive:
                 if(this._showing && this.isVideoActive()){
-                    this._nativeBridge.Sdk.logInfo("Resuming Unity Ads video playback, app is active");
+                    this._nativeBridge.Sdk.logInfo("Resuming OneWay SDK video playback, app is active");
                     this._nativeBridge.VideoPlayer.play();
                 }
                 break;
@@ -1115,14 +1115,14 @@ CMD.register("adunit.VideoAdUnit", function (require) {
             case VideoAdUnit._audioSessionInterrupt:
                 var n = t;
                 if(0 === n.AVAudioSessionInterruptionTypeKey && 1 === n.AVAudioSessionInterruptionOptionKey && this._showing && this.isVideoActive()){
-                    this._nativeBridge.Sdk.logInfo("Resuming Unity Ads video playback after audio interrupt");
+                    this._nativeBridge.Sdk.logInfo("Resuming OneWay SDK video playback after audio interrupt");
                     this._nativeBridge.VideoPlayer.play();
                 }
                 break;
 
             case VideoAdUnit._audioSessionRouteChange:
                 if(this._showing && this.isVideoActive()){
-                    this._nativeBridge.Sdk.logInfo("Continuing Unity Ads video playback after audio session route change");
+                    this._nativeBridge.Sdk.logInfo("Continuing OneWay SDK video playback after audio session route change");
                     this._nativeBridge.VideoPlayer.play();
                 }
         }
@@ -1322,6 +1322,7 @@ CMD.register("adunit.eventhandlers.VideoEventHandlers", function (require) {
     var FinishState = require("FinishState");
     var StorageType = require("storage.StorageType");
     var Double = require("util.Double");
+    var adUnitProperties = require("Properties").adUnit;
 
     function VideoEventHandlers() {
     }
@@ -1404,9 +1405,9 @@ CMD.register("adunit.eventhandlers.VideoEventHandlers", function (require) {
         nativeBridge.Storage.get(StorageType.PUBLIC, "integration_test.value").then(function (t) {
             if(t){
                 if(nativeBridge.getPlatform() === Platform.ANDROID){
-                    nativeBridge.rawInvoke("com.unity3d.ads.test.integration.IntegrationTest", "onVideoCompleted", [adUnit.getPlacement().getId()])
+                    nativeBridge.rawInvoke(adUnitProperties.ANDROID_INTEGRATION_TEST_CLASS, "onVideoCompleted", [adUnit.getPlacement().getId()])
                 }else{
-                    nativeBridge.rawInvoke("UADSIntegrationTest", "onVideoCompleted", [adUnit.getPlacement().getId()]);
+                    nativeBridge.rawInvoke(adUnitProperties.IOS_INTEGRATION_TEST_CLASS, "onVideoCompleted", [adUnit.getPlacement().getId()]);
                 }
             }
         });
@@ -1416,10 +1417,10 @@ CMD.register("adunit.eventhandlers.VideoEventHandlers", function (require) {
         adUnit.setFinishState(FinishState.ERROR);
         nativeBridge.Listener.sendErrorEvent(AdsError[AdsError.VIDEO_PLAYER_ERROR], "Video player error");
         if(nativeBridge.getPlatform() === Platform.IOS ){
-            nativeBridge.Sdk.logError("Unity Ads video player error");
+            nativeBridge.Sdk.logError("SDK video player error");
             nativeBridge.IosAdUnit.setViews(["webview"]);
         }else{
-            nativeBridge.Sdk.logError("Unity Ads video player error " + i + " " + a);
+            nativeBridge.Sdk.logError("video player error " + i + " " + a);
             nativeBridge.AndroidAdUnit.setViews(["webview"]);
         }
         adUnit.getOverlay().hide();
@@ -1490,14 +1491,14 @@ CMD.register("adunit.view.Privacy", function (require) {
         '<div class="pop-up">\n' +
         '<% if(!data.isCoppaCompliant) { %>\n' +
         '<div class="privacy-text">\n' +
-        'This advertisement has been served by Unity Ads.\n' +
-        'Unity Ads collects and uses information gathered through your use of your apps in order to create an individualized and more relevant user experience, to predict your preferences, and to show you ads that are more likely to interest you (¡°personalized ads¡±).\n' +
+        'This advertisement has been served by OneWay SDK.\n' +
+        'OneWay SDK collects and uses information gathered through your use of your apps in order to create an individualized and more relevant user experience, to predict your preferences, and to show you ads that are more likely to interest you (ï¿½ï¿½personalized adsï¿½ï¿½).\n' +
         'Please read our <a href="https://unity3d.com/legal/privacy-policy">Privacy Policy</a> for a full description of our data practices.\n' +
-        'You may be able to opt-out of Unity Ads¡¯ collection and use of your mobile app data for personalized ads through your device settings.\n' +
+        'You may be able to opt-out of OneWay SDKï¿½ï¿½ collection and use of your mobile app data for personalized ads through your device settings.\n' +
         '</div>\n' +
         '<% } else { %>\n' +
         '<div class="privacy-simple-text">\n' +
-        'This advertisement has been served by Unity Ads. Please read our <a href="https://unity3d.com/legal/privacy-policy">Privacy Policy</a> for a full description of our data practices.\n' +
+        'This advertisement has been served by OneWay SDK. Please read our <a href="https://unity3d.com/legal/privacy-policy">Privacy Policy</a> for a full description of our data practices.\n' +
         '</div>\n' +
         '<% } %>\n' +
         '<div class="ok-button">Ok</div>\n' +
@@ -1771,13 +1772,13 @@ CMD.register("adunit.view.EndScreen", function (require) {
         this._gameName = campaign.getGameName();
         this._template = new Template(tpl);
         if (campaign) {
-            var s = 20 * campaign.getRating();
+            var width = 20 * campaign.getRating();
             this._templateData = {
                 gameName: campaign.getGameName(),
                 gameIcon: campaign.getGameIcon(),
                 endScreenLandscape: campaign.getLandscapeUrl(),
                 endScreenPortrait: campaign.getPortraitUrl(),
-                rating: s.toString(),
+                rating: width.toString(),
                 ratingCount: campaign.getRatingCount().toString()
             };
         }
@@ -3724,7 +3725,7 @@ CMD.register("cache.CacheManager", function (require) {
     };
 
     /**
-     * É¾³ý¹ýÆÚ(21ÌìÇ°)µÄ»º´æ£¬²¢±£Ö¤»º´æ´óÐ¡²»³¬¹ý512Kb
+     * É¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½(21ï¿½ï¿½Ç°)ï¿½Ä»ï¿½ï¿½æ£¬ï¿½ï¿½ï¿½ï¿½Ö¤ï¿½ï¿½ï¿½ï¿½ï¿½Ð¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½512Kb
      * @returns {Promise}
      */
     CacheManager.prototype.cleanCache = function () {
@@ -3752,7 +3753,7 @@ CMD.register("cache.CacheManager", function (require) {
             if (0 === oldFiles.length){
                 return Promise.resolve();
             }
-            me._nativeBridge.Sdk.logInfo("Unity Ads cache: Deleting " + oldFiles.length + " old files");
+            me._nativeBridge.Sdk.logInfo("OneWay SDK cache: Deleting " + oldFiles.length + " old files");
             var tasks = [];
             oldFiles.map(function (file) {
                 tasks.push(me._nativeBridge.Storage["delete"](StorageType.PRIVATE, "cache." + file));
@@ -3763,10 +3764,10 @@ CMD.register("cache.CacheManager", function (require) {
         });
     };
     /**
-     * ¸ù¾ÝÎÄ¼þÂ·¾¶»ñÈ¡ÎÄ¼þid, Èç¹ûÎÄ¼þid²»´æÔÚ£¬ÔòÉú³ÉÎÄ¼þid²¢»º´æ¡£
-     * ÎÄ¼þid½á¹¹£ºÎÄ¼þÂ·¾¶µÄ¹þÏ£Âë[.ÎÄ¼þºó×ºÃû]
+     * ï¿½ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½Â·ï¿½ï¿½ï¿½ï¿½È¡ï¿½Ä¼ï¿½id, ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½idï¿½ï¿½ï¿½ï¿½ï¿½Ú£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½idï¿½ï¿½ï¿½ï¿½ï¿½æ¡£
+     * ï¿½Ä¼ï¿½idï¿½á¹¹ï¿½ï¿½ï¿½Ä¼ï¿½Â·ï¿½ï¿½ï¿½Ä¹ï¿½Ï£ï¿½ï¿½[.ï¿½Ä¼ï¿½ï¿½ï¿½×ºï¿½ï¿½]
      *
-     * @param fileUrl {String} ÎÄ¼þÂ·¾¶
+     * @param fileUrl {String} ï¿½Ä¼ï¿½Â·ï¿½ï¿½
      * @returns {Promise}
      */
     CacheManager.prototype.getFileId = function (fileUrl) {
@@ -3817,7 +3818,7 @@ CMD.register("cache.CacheManager", function (require) {
             if (callbackConfig) {
                 switch (errorState) {
                     case CacheError[CacheError.FILE_ALREADY_CACHING]:
-                        me._nativeBridge.Sdk.logError("Unity Ads cache error: attempted to add second download from " + fileUrl + " to " + fileId);
+                        me._nativeBridge.Sdk.logError("OneWay SDK cache error: attempted to add second download from " + fileUrl + " to " + fileId);
                         callbackConfig.reject(errorState);
                         return;
 
@@ -3858,9 +3859,9 @@ CMD.register("cache.CacheManager", function (require) {
         };
     };
     /**
-     * ½«ÎÄ¼þ»º´æÐÅÏ¢Ð´Èë±¾µØ´æ´¢ÖÐ
-     * @param fileUrl       {String} ÎÄ¼þÂ·¾¶
-     * @param cacheResponse {Object} ÎÄ¼þ»º´æÐÅÏ¢
+     * ï¿½ï¿½ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï¢Ð´ï¿½ë±¾ï¿½Ø´æ´¢ï¿½ï¿½
+     * @param fileUrl       {String} ï¿½Ä¼ï¿½Â·ï¿½ï¿½
+     * @param cacheResponse {Object} ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï¢
      */
     CacheManager.prototype.writeCacheResponse = function (fileUrl, cacheResponse) {
         this._nativeBridge.Storage.set(StorageType.PRIVATE, "cache." + this._fileIds[fileUrl], JSON.stringify(cacheResponse));
@@ -4034,6 +4035,7 @@ CMD.register("campaign.CampaignManager", function (require) {
     var Platform = require("platform.Platform");
     var Url = require("util.Url");
     var Observable = require("util.Observable");
+    var campaignProperties = require("Properties").campaign;
 
     function CampaignManager(nativeBridge, request, clientInfo, deviceInfo, vastParser) {
         this.onCampaign = new Observable();
@@ -4063,15 +4065,15 @@ CMD.register("campaign.CampaignManager", function (require) {
             }).then(function (data) {
                 var response = JsonParser.parse(data.response);
                 if (response.campaign) {
-                    me._nativeBridge.Sdk.logInfo("Unity Ads server returned game advertisement");
+                    me._nativeBridge.Sdk.logInfo("OneWay SDK server returned game advertisement");
                     var campaign = new Campaign(response.campaign, response.gamerId, response.abGroup);
                     me.onCampaign.trigger(campaign);
                 } else if("vast" in response ){
                     if(null === response.vast){
-                        me._nativeBridge.Sdk.logInfo("Unity Ads server returned no fill");
+                        me._nativeBridge.Sdk.logInfo("OneWay SDK server returned no fill");
                         me.onNoFill.trigger(3600)
                     }else{
-                        me._nativeBridge.Sdk.logInfo("Unity Ads server returned VAST advertisement");
+                        me._nativeBridge.Sdk.logInfo("OneWay SDK server returned VAST advertisement");
                         me._vastParser.retrieveVast(response.vast, me._nativeBridge, me._request).then(function (vastData) {
                             var campaignId = void 0;
                             if(me._nativeBridge.getPlatform() === Platform.IOS){
@@ -4101,7 +4103,7 @@ CMD.register("campaign.CampaignManager", function (require) {
                         })
                     }
                 }else{
-                    me._nativeBridge.Sdk.logInfo("Unity Ads server returned no fill");
+                    me._nativeBridge.Sdk.logInfo("OneWay SDK server returned no fill");
                     me.onNoFill.trigger(3600);
                 }
             });
@@ -4173,7 +4175,9 @@ CMD.register("campaign.CampaignManager", function (require) {
             timeZone: this._deviceInfo.getTimeZone()
         };
         return Promise.all(tasks).then(function (res) {
-            var deviceFreeSpace = res[0], networkOperator = res[1], networkOperatorName = res[2];
+            var deviceFreeSpace = res[0],
+                networkOperator = res[1],
+                networkOperatorName = res[2];
             params.deviceFreeSpace = deviceFreeSpace;
             params.networkOperator = networkOperator;
             params.networkOperatorName = networkOperatorName;
@@ -4183,7 +4187,7 @@ CMD.register("campaign.CampaignManager", function (require) {
             });
         });
     };
-    CampaignManager.CampaignBaseUrl = "https://adserver.unityads.unity3d.com/games";
+    CampaignManager.CampaignBaseUrl = campaignProperties.CAMPAIGN_BASE_URL;
     return CampaignManager;
 });
 
@@ -4297,6 +4301,7 @@ CMD.register("configuration.Configuration", function (require){
 CMD.register("configuration.ConfigManager", function (require) {
     var MetaDataManager = require("metadata.MetaDataManager");
     var Configuration = require("configuration.Configuration");
+    var configurationProperties = require("Properties").configuration;
     var Url = require("util.Url");
     var JsonParser = require("util.JsonParser");
 
@@ -4339,7 +4344,7 @@ CMD.register("configuration.ConfigManager", function (require) {
         }
         return configUrl;
     };
-    ConfigManager.ConfigBaseUrl = "https://adserver.unityads.unity3d.com/games";
+    ConfigManager.ConfigBaseUrl = configurationProperties.CONFIG_BASE_URL;
 
     return ConfigManager;
 });
@@ -4971,7 +4976,7 @@ CMD.register("event.EventManager", function (require) {
     };
     EventManager.prototype.operativeEvent = function (eventName, eventId, sessionId, eventUrl, metaDataStr) {
         var me = this;
-        this._nativeBridge.Sdk.logInfo("Unity Ads event: sending " + eventName + " event to " + eventUrl);
+        this._nativeBridge.Sdk.logInfo("OneWay SDK event: sending " + eventName + " event to " + eventUrl);
         this._nativeBridge.Storage.set(StorageType.PRIVATE, EventManager.getUrlKey(sessionId, eventId), eventUrl);
         this._nativeBridge.Storage.set(StorageType.PRIVATE, EventManager.getDataKey(sessionId, eventId), metaDataStr);
         this._nativeBridge.Storage.write(StorageType.PRIVATE);
@@ -5000,7 +5005,7 @@ CMD.register("event.EventManager", function (require) {
         }
     };
     EventManager.prototype.thirdPartyEvent = function (eventName, sessionId, eventUrl) {
-        this._nativeBridge.Sdk.logInfo("Unity Ads third party event: sending " + eventName + " event to " + eventUrl + " (session " + sessionId + ")");
+        this._nativeBridge.Sdk.logInfo("OneWay SDK third party event: sending " + eventName + " event to " + eventUrl + " (session " + sessionId + ")");
         return this._request.get(eventUrl, [], {
             retries: 0,
             retryDelay: 0,
@@ -5075,7 +5080,7 @@ CMD.register("event.EventManager", function (require) {
         var me = this;
         return this.getStoredOperativeEvent(sessionId, eventId).then(function (res) {
             var url = res[0], data = res[1];
-            me._nativeBridge.Sdk.logInfo("Unity Ads operative event: resending operative event to " + url + " (session " + sessionId + ", event " + eventId + ")");
+            me._nativeBridge.Sdk.logInfo("OneWay SDK operative event: resending operative event to " + url + " (session " + sessionId + ", event " + eventId + ")");
             return me._request.post(url, data);
         }).then(function () {
             return Promise.all([
@@ -5840,6 +5845,7 @@ CMD.register("session.Session", function () {
 CMD.register("session.SessionManager", function (require) {
     var Session = require("session.Session");
     var SessionManagerEventMetadataCreator = require("session.SessionManagerEventMetadataCreator");
+    var sessionProperties = require("Properties").session;
     var Url = require("util.Url");
 
     function SessionManager(nativeBridge, clientInfo, deviceInfo, eventManager, eventMetadataCreator) {
@@ -6026,8 +6032,8 @@ CMD.register("session.SessionManager", function (require) {
             redirect: false
         });
     };
-    SessionManager.VideoEventBaseUrl = "https://adserver.unityads.unity3d.com/mobile/gamers";
-    SessionManager.ClickEventBaseUrl = "https://adserver.unityads.unity3d.com/mobile/campaigns";
+    SessionManager.VideoEventBaseUrl = sessionProperties.VIDEO_EVENT_BASE_URL;
+    SessionManager.ClickEventBaseUrl = sessionProperties.CLICK_EVENT_BASE_URL;
 
     return SessionManager;
 });
@@ -6116,7 +6122,8 @@ CMD.register("storage.StorageType", function () {
 /**
  * Created by duo on 2016/9/1.
  */
-CMD.register("util.Diagnostics", function () {
+CMD.register("util.Diagnostics", function (require) {
+    var diagnosticsProperties = require("Properties").diagnostics;
     function Diagnostics() {
     }
     Diagnostics.trigger = function (eventManager, error, clientInfo, deviceInfo) {
@@ -6154,7 +6161,7 @@ CMD.register("util.Diagnostics", function () {
     Diagnostics.setTestBaseUrl = function (baseUrl) {
         Diagnostics.DiagnosticsBaseUrl = baseUrl + "/v1/events";
     };
-    Diagnostics.DiagnosticsBaseUrl = "https://httpkafka.unityads.unity3d.com/v1/events";
+    Diagnostics.DiagnosticsBaseUrl = diagnosticsProperties.DIAGNOSTICS_BASE_URL;
     return Diagnostics;
 });
 
@@ -7574,7 +7581,7 @@ CMD.register("util.VastParser", function (require) {
         if (level >= this._maxWrapperDepth){
             throw new Error("VAST wrapper depth exceeded");
         }
-        nativeBridge.Sdk.logInfo("Unity Ads is requesting VAST ad unit from " + url);
+        nativeBridge.Sdk.logInfo("OneWay SDK is requesting VAST ad unit from " + url);
         return request.get(url, [], {
             retries: 5,
             retryDelay: 5e3,
@@ -8240,7 +8247,7 @@ CMD.register("webview.WebView", function (require) {
     };
     WebView.prototype.onNoFill = function (seconds) {
         this._refillTimestamp = Date.now() + 1000 * seconds;
-        this._nativeBridge.Sdk.logInfo("Unity Ads server returned no fill, no ads to show");
+        this._nativeBridge.Sdk.logInfo("OneWay SDK server returned no fill, no ads to show");
         this.setPlacementStates(PlacementState.NO_FILL);
     };
     WebView.prototype.onCampaignError = function (e) {
@@ -8270,10 +8277,10 @@ CMD.register("webview.WebView", function (require) {
         }
     };
     WebView.prototype.onClose = function () {
-        this._nativeBridge.Sdk.logInfo("Closing Unity Ads ad unit");
+        this._nativeBridge.Sdk.logInfo("Closing OneWay SDK ad unit");
         this._showing = false;
         if(this._mustReinitialize){
-            this._nativeBridge.Sdk.logInfo("Unity Ads webapp has been updated, reinitializing Unity Ads");
+            this._nativeBridge.Sdk.logInfo("OneWay SDK webapp has been updated, reinitializing OneWay SDK");
             this.reinitialize();
         }else{
             if(this._mustRefill ){
@@ -8294,7 +8301,7 @@ CMD.register("webview.WebView", function (require) {
                     if(me.isShowing()){
                         me._mustReinitialize = true
                     }else{
-                        me._nativeBridge.Sdk.logInfo("Unity Ads webapp has been updated, reinitializing Unity Ads");
+                        me._nativeBridge.Sdk.logInfo("OneWay SDK webapp has been updated, reinitializing OneWay SDK");
                         me.reinitialize()
                     }
                 }else{
@@ -8482,7 +8489,8 @@ CMD.register("webview.bridge.CallbackStatus", function(){
 /**
  * Created by duo on 2016/8/31.
  */
-CMD.register("webview.bridge.IosWebViewBridge", function(){
+CMD.register("webview.bridge.IosWebViewBridge", function(require){
+    var webViewBridgeProperties = require("Properties").webViewBridge;
 
     function IosWebViewBridge() {}
 
@@ -8496,7 +8504,7 @@ CMD.register("webview.bridge.IosWebViewBridge", function(){
         xhr.open("POST", IosWebViewBridge._nativeUrl + "/handleCallback", false);
         xhr.send('{"id":"' + id + '","status":"' + callbackStatus + '","parameters":' + parameters + "}");
     };
-    IosWebViewBridge._nativeUrl = "https://webviewbridge.unityads.unity3d.com";
+    IosWebViewBridge._nativeUrl = webViewBridgeProperties.IOS_NATIVE_URL;
 
     return IosWebViewBridge;
 });
@@ -8798,6 +8806,30 @@ CMD.register("webview.bridge.NativeBridge", function(require){
     NativeBridge._doubleRegExp = /"(\d+\.\d+)=double"/g; //version:"1.2=double" => version:1.2
 
     return NativeBridge;
+});
+/**
+ * Created by duo on 2016/9/5.
+ */
+CMD.register("Properties", function(require, exports){
+    exports.adUnit = {};
+    exports.adUnit.ANDROID_INTEGRATION_TEST_CLASS = "com.unity3d.ads.test.integration.IntegrationTest";
+    exports.adUnit.IOS_INTEGRATION_TEST_CLASS = "UADSIntegrationTest";
+
+    exports.campaign = {};
+    exports.campaign.CAMPAIGN_BASE_URL = "https://adserver.unityads.unity3d.com/games";
+
+    exports.configuration = {};
+    exports.configuration.CONFIG_BASE_URL = "https://adserver.unityads.unity3d.com/games";
+
+    exports.session = {};
+    exports.session.VIDEO_EVENT_BASE_URL = "https://adserver.unityads.unity3d.com/mobile/gamers";
+    exports.session.CLICK_EVENT_BASE_URL = "https://adserver.unityads.unity3d.com/mobile/campaigns";
+
+    exports.diagnostics = {};
+    exports.diagnostics.DIAGNOSTICS_BASE_URL = "https://httpkafka.unityads.unity3d.com/v1/events";
+
+    exports.webViewBridge = {};
+    exports.webViewBridge.IOS_NATIVE_URL = "https://webviewbridge.unityads.unity3d.com";
 });
 /**
  * Created by duo on 2016/9/1.

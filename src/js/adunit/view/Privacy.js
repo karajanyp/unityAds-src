@@ -10,14 +10,14 @@ CMD.register("adunit.view.Privacy", function (require) {
         '<div class="pop-up">\n' +
         '<% if(!data.isCoppaCompliant) { %>\n' +
         '<div class="privacy-text">\n' +
-        'This advertisement has been served by Unity Ads.\n' +
-        'Unity Ads collects and uses information gathered through your use of your apps in order to create an individualized and more relevant user experience, to predict your preferences, and to show you ads that are more likely to interest you (¡°personalized ads¡±).\n' +
+        'This advertisement has been served by OneWay SDK.\n' +
+        'OneWay SDK collects and uses information gathered through your use of your apps in order to create an individualized and more relevant user experience, to predict your preferences, and to show you ads that are more likely to interest you (ï¿½ï¿½personalized adsï¿½ï¿½).\n' +
         'Please read our <a href="https://unity3d.com/legal/privacy-policy">Privacy Policy</a> for a full description of our data practices.\n' +
-        'You may be able to opt-out of Unity Ads¡¯ collection and use of your mobile app data for personalized ads through your device settings.\n' +
+        'You may be able to opt-out of OneWay SDKï¿½ï¿½ collection and use of your mobile app data for personalized ads through your device settings.\n' +
         '</div>\n' +
         '<% } else { %>\n' +
         '<div class="privacy-simple-text">\n' +
-        'This advertisement has been served by Unity Ads. Please read our <a href="https://unity3d.com/legal/privacy-policy">Privacy Policy</a> for a full description of our data practices.\n' +
+        'This advertisement has been served by OneWay SDK. Please read our <a href="https://unity3d.com/legal/privacy-policy">Privacy Policy</a> for a full description of our data practices.\n' +
         '</div>\n' +
         '<% } %>\n' +
         '<div class="ok-button">Ok</div>\n' +

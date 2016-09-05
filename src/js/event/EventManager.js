@@ -25,7 +25,7 @@ CMD.register("event.EventManager", function (require) {
     };
     EventManager.prototype.operativeEvent = function (eventName, eventId, sessionId, eventUrl, metaDataStr) {
         var me = this;
-        this._nativeBridge.Sdk.logInfo("Unity Ads event: sending " + eventName + " event to " + eventUrl);
+        this._nativeBridge.Sdk.logInfo("OneWay SDK event: sending " + eventName + " event to " + eventUrl);
         this._nativeBridge.Storage.set(StorageType.PRIVATE, EventManager.getUrlKey(sessionId, eventId), eventUrl);
         this._nativeBridge.Storage.set(StorageType.PRIVATE, EventManager.getDataKey(sessionId, eventId), metaDataStr);
         this._nativeBridge.Storage.write(StorageType.PRIVATE);
@@ -54,7 +54,7 @@ CMD.register("event.EventManager", function (require) {
         }
     };
     EventManager.prototype.thirdPartyEvent = function (eventName, sessionId, eventUrl) {
-        this._nativeBridge.Sdk.logInfo("Unity Ads third party event: sending " + eventName + " event to " + eventUrl + " (session " + sessionId + ")");
+        this._nativeBridge.Sdk.logInfo("OneWay SDK third party event: sending " + eventName + " event to " + eventUrl + " (session " + sessionId + ")");
         return this._request.get(eventUrl, [], {
             retries: 0,
             retryDelay: 0,
@@ -129,7 +129,7 @@ CMD.register("event.EventManager", function (require) {
         var me = this;
         return this.getStoredOperativeEvent(sessionId, eventId).then(function (res) {
             var url = res[0], data = res[1];
-            me._nativeBridge.Sdk.logInfo("Unity Ads operative event: resending operative event to " + url + " (session " + sessionId + ", event " + eventId + ")");
+            me._nativeBridge.Sdk.logInfo("OneWay SDK operative event: resending operative event to " + url + " (session " + sessionId + ", event " + eventId + ")");
             return me._request.post(url, data);
         }).then(function () {
             return Promise.all([

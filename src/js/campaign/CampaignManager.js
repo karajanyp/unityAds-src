@@ -9,6 +9,7 @@ CMD.register("campaign.CampaignManager", function (require) {
     var Platform = require("platform.Platform");
     var Url = require("util.Url");
     var Observable = require("util.Observable");
+    var campaignProperties = require("Properties").campaign;
 
     function CampaignManager(nativeBridge, request, clientInfo, deviceInfo, vastParser) {
         this.onCampaign = new Observable();
@@ -38,15 +39,15 @@ CMD.register("campaign.CampaignManager", function (require) {
             }).then(function (data) {
                 var response = JsonParser.parse(data.response);
                 if (response.campaign) {
-                    me._nativeBridge.Sdk.logInfo("Unity Ads server returned game advertisement");
+                    me._nativeBridge.Sdk.logInfo("OneWay SDK server returned game advertisement");
                     var campaign = new Campaign(response.campaign, response.gamerId, response.abGroup);
                     me.onCampaign.trigger(campaign);
                 } else if("vast" in response ){
                     if(null === response.vast){
-                        me._nativeBridge.Sdk.logInfo("Unity Ads server returned no fill");
+                        me._nativeBridge.Sdk.logInfo("OneWay SDK server returned no fill");
                         me.onNoFill.trigger(3600)
                     }else{
-                        me._nativeBridge.Sdk.logInfo("Unity Ads server returned VAST advertisement");
+                        me._nativeBridge.Sdk.logInfo("OneWay SDK server returned VAST advertisement");
                         me._vastParser.retrieveVast(response.vast, me._nativeBridge, me._request).then(function (vastData) {
                             var campaignId = void 0;
                             if(me._nativeBridge.getPlatform() === Platform.IOS){
@@ -76,7 +77,7 @@ CMD.register("campaign.CampaignManager", function (require) {
                         })
                     }
                 }else{
-                    me._nativeBridge.Sdk.logInfo("Unity Ads server returned no fill");
+                    me._nativeBridge.Sdk.logInfo("OneWay SDK server returned no fill");
                     me.onNoFill.trigger(3600);
                 }
             });
@@ -148,7 +149,9 @@ CMD.register("campaign.CampaignManager", function (require) {
             timeZone: this._deviceInfo.getTimeZone()
         };
         return Promise.all(tasks).then(function (res) {
-            var deviceFreeSpace = res[0], networkOperator = res[1], networkOperatorName = res[2];
+            var deviceFreeSpace = res[0],
+                networkOperator = res[1],
+                networkOperatorName = res[2];
             params.deviceFreeSpace = deviceFreeSpace;
             params.networkOperator = networkOperator;
             params.networkOperatorName = networkOperatorName;
@@ -158,6 +161,6 @@ CMD.register("campaign.CampaignManager", function (require) {
             });
         });
     };
-    CampaignManager.CampaignBaseUrl = "https://adserver.unityads.unity3d.com/games";
+    CampaignManager.CampaignBaseUrl = campaignProperties.CAMPAIGN_BASE_URL;
     return CampaignManager;
 });

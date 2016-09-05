@@ -67,13 +67,13 @@ CMD.register("adunit.view.EndScreen", function (require) {
         this._gameName = campaign.getGameName();
         this._template = new Template(tpl);
         if (campaign) {
-            var s = 20 * campaign.getRating();
+            var width = 20 * campaign.getRating();
             this._templateData = {
                 gameName: campaign.getGameName(),
                 gameIcon: campaign.getGameIcon(),
                 endScreenLandscape: campaign.getLandscapeUrl(),
                 endScreenPortrait: campaign.getPortraitUrl(),
-                rating: s.toString(),
+                rating: width.toString(),
                 ratingCount: campaign.getRatingCount().toString()
             };
         }

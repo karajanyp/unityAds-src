@@ -1,7 +1,8 @@
 /**
  * Created by duo on 2016/8/31.
  */
-CMD.register("webview.bridge.IosWebViewBridge", function(){
+CMD.register("webview.bridge.IosWebViewBridge", function(require){
+    var webViewBridgeProperties = require("Properties").webViewBridge;
 
     function IosWebViewBridge() {}
 
@@ -15,7 +16,7 @@ CMD.register("webview.bridge.IosWebViewBridge", function(){
         xhr.open("POST", IosWebViewBridge._nativeUrl + "/handleCallback", false);
         xhr.send('{"id":"' + id + '","status":"' + callbackStatus + '","parameters":' + parameters + "}");
     };
-    IosWebViewBridge._nativeUrl = "https://webviewbridge.unityads.unity3d.com";
+    IosWebViewBridge._nativeUrl = webViewBridgeProperties.IOS_NATIVE_URL;
 
     return IosWebViewBridge;
 });

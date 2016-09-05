@@ -1,7 +1,8 @@
 /**
  * Created by duo on 2016/9/1.
  */
-CMD.register("util.Diagnostics", function () {
+CMD.register("util.Diagnostics", function (require) {
+    var diagnosticsProperties = require("Properties").diagnostics;
     function Diagnostics() {
     }
     Diagnostics.trigger = function (eventManager, error, clientInfo, deviceInfo) {
@@ -39,6 +40,6 @@ CMD.register("util.Diagnostics", function () {
     Diagnostics.setTestBaseUrl = function (baseUrl) {
         Diagnostics.DiagnosticsBaseUrl = baseUrl + "/v1/events";
     };
-    Diagnostics.DiagnosticsBaseUrl = "https://httpkafka.unityads.unity3d.com/v1/events";
+    Diagnostics.DiagnosticsBaseUrl = diagnosticsProperties.DIAGNOSTICS_BASE_URL;
     return Diagnostics;
 });

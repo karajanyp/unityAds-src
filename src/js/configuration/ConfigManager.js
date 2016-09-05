@@ -4,6 +4,7 @@
 CMD.register("configuration.ConfigManager", function (require) {
     var MetaDataManager = require("metadata.MetaDataManager");
     var Configuration = require("configuration.Configuration");
+    var configurationProperties = require("Properties").configuration;
     var Url = require("util.Url");
     var JsonParser = require("util.JsonParser");
 
@@ -46,7 +47,7 @@ CMD.register("configuration.ConfigManager", function (require) {
         }
         return configUrl;
     };
-    ConfigManager.ConfigBaseUrl = "https://adserver.unityads.unity3d.com/games";
+    ConfigManager.ConfigBaseUrl = configurationProperties.CONFIG_BASE_URL;
 
     return ConfigManager;
 });

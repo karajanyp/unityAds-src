@@ -9,6 +9,7 @@ CMD.register("adunit.eventhandlers.VideoEventHandlers", function (require) {
     var FinishState = require("FinishState");
     var StorageType = require("storage.StorageType");
     var Double = require("util.Double");
+    var adUnitProperties = require("Properties").adUnit;
 
     function VideoEventHandlers() {
     }
@@ -91,9 +92,9 @@ CMD.register("adunit.eventhandlers.VideoEventHandlers", function (require) {
         nativeBridge.Storage.get(StorageType.PUBLIC, "integration_test.value").then(function (t) {
             if(t){
                 if(nativeBridge.getPlatform() === Platform.ANDROID){
-                    nativeBridge.rawInvoke("com.unity3d.ads.test.integration.IntegrationTest", "onVideoCompleted", [adUnit.getPlacement().getId()])
+                    nativeBridge.rawInvoke(adUnitProperties.ANDROID_INTEGRATION_TEST_CLASS, "onVideoCompleted", [adUnit.getPlacement().getId()])
                 }else{
-                    nativeBridge.rawInvoke("UADSIntegrationTest", "onVideoCompleted", [adUnit.getPlacement().getId()]);
+                    nativeBridge.rawInvoke(adUnitProperties.IOS_INTEGRATION_TEST_CLASS, "onVideoCompleted", [adUnit.getPlacement().getId()]);
                 }
             }
         });
@@ -103,10 +104,10 @@ CMD.register("adunit.eventhandlers.VideoEventHandlers", function (require) {
         adUnit.setFinishState(FinishState.ERROR);
         nativeBridge.Listener.sendErrorEvent(AdsError[AdsError.VIDEO_PLAYER_ERROR], "Video player error");
         if(nativeBridge.getPlatform() === Platform.IOS ){
-            nativeBridge.Sdk.logError("Unity Ads video player error");
+            nativeBridge.Sdk.logError("SDK video player error");
             nativeBridge.IosAdUnit.setViews(["webview"]);
         }else{
-            nativeBridge.Sdk.logError("Unity Ads video player error " + i + " " + a);
+            nativeBridge.Sdk.logError("video player error " + i + " " + a);
             nativeBridge.AndroidAdUnit.setViews(["webview"]);
         }
         adUnit.getOverlay().hide();

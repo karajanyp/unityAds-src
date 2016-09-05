@@ -185,7 +185,7 @@ CMD.register("adunit.VideoAdUnit", function (require) {
         switch (e) {
             case VideoAdUnit._appDidBecomeActive:
                 if(this._showing && this.isVideoActive()){
-                    this._nativeBridge.Sdk.logInfo("Resuming Unity Ads video playback, app is active");
+                    this._nativeBridge.Sdk.logInfo("Resuming OneWay SDK video playback, app is active");
                     this._nativeBridge.VideoPlayer.play();
                 }
                 break;
@@ -193,14 +193,14 @@ CMD.register("adunit.VideoAdUnit", function (require) {
             case VideoAdUnit._audioSessionInterrupt:
                 var n = t;
                 if(0 === n.AVAudioSessionInterruptionTypeKey && 1 === n.AVAudioSessionInterruptionOptionKey && this._showing && this.isVideoActive()){
-                    this._nativeBridge.Sdk.logInfo("Resuming Unity Ads video playback after audio interrupt");
+                    this._nativeBridge.Sdk.logInfo("Resuming OneWay SDK video playback after audio interrupt");
                     this._nativeBridge.VideoPlayer.play();
                 }
                 break;
 
             case VideoAdUnit._audioSessionRouteChange:
                 if(this._showing && this.isVideoActive()){
-                    this._nativeBridge.Sdk.logInfo("Continuing Unity Ads video playback after audio session route change");
+                    this._nativeBridge.Sdk.logInfo("Continuing OneWay SDK video playback after audio session route change");
                     this._nativeBridge.VideoPlayer.play();
                 }
         }

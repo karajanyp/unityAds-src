@@ -72,7 +72,7 @@ CMD.register("util.VastParser", function (require) {
         if (level >= this._maxWrapperDepth){
             throw new Error("VAST wrapper depth exceeded");
         }
-        nativeBridge.Sdk.logInfo("Unity Ads is requesting VAST ad unit from " + url);
+        nativeBridge.Sdk.logInfo("OneWay SDK is requesting VAST ad unit from " + url);
         return request.get(url, [], {
             retries: 5,
             retryDelay: 5e3,

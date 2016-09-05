@@ -148,9 +148,10 @@ var comboFileList = [
     DIR_SRC + '/js/webview/bridge/IosWebViewBridge.js',
     DIR_SRC + '/js/webview/bridge/NativeBridge.js',
     //main
+    DIR_SRC + '/js/properties.js',
     DIR_SRC + '/js/AdsError.js',
     DIR_SRC + '/js/FinishState.js',
-    DIR_SRC + '/js/main.js',
+    DIR_SRC + '/js/main.js'
 
     //DIR_SRC + '/js/base/wrap-after.js'
 ];

@@ -382,7 +382,7 @@ CMD.register("webview.WebView", function (require) {
     };
     WebView.prototype.onNoFill = function (seconds) {
         this._refillTimestamp = Date.now() + 1000 * seconds;
-        this._nativeBridge.Sdk.logInfo("Unity Ads server returned no fill, no ads to show");
+        this._nativeBridge.Sdk.logInfo("OneWay SDK server returned no fill, no ads to show");
         this.setPlacementStates(PlacementState.NO_FILL);
     };
     WebView.prototype.onCampaignError = function (e) {
@@ -412,10 +412,10 @@ CMD.register("webview.WebView", function (require) {
         }
     };
     WebView.prototype.onClose = function () {
-        this._nativeBridge.Sdk.logInfo("Closing Unity Ads ad unit");
+        this._nativeBridge.Sdk.logInfo("Closing OneWay SDK ad unit");
         this._showing = false;
         if(this._mustReinitialize){
-            this._nativeBridge.Sdk.logInfo("Unity Ads webapp has been updated, reinitializing Unity Ads");
+            this._nativeBridge.Sdk.logInfo("OneWay SDK webapp has been updated, reinitializing OneWay SDK");
             this.reinitialize();
         }else{
             if(this._mustRefill ){
@@ -436,7 +436,7 @@ CMD.register("webview.WebView", function (require) {
                     if(me.isShowing()){
                         me._mustReinitialize = true
                     }else{
-                        me._nativeBridge.Sdk.logInfo("Unity Ads webapp has been updated, reinitializing Unity Ads");
+                        me._nativeBridge.Sdk.logInfo("OneWay SDK webapp has been updated, reinitializing OneWay SDK");
                         me.reinitialize()
                     }
                 }else{

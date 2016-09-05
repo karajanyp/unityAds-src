@@ -78,7 +78,7 @@ CMD.register("cache.CacheManager", function (require) {
     };
 
     /**
-     * É¾³ý¹ýÆÚ(21ÌìÇ°)µÄ»º´æ£¬²¢±£Ö¤»º´æ´óÐ¡²»³¬¹ý512Kb
+     * É¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½(21ï¿½ï¿½Ç°)ï¿½Ä»ï¿½ï¿½æ£¬ï¿½ï¿½ï¿½ï¿½Ö¤ï¿½ï¿½ï¿½ï¿½ï¿½Ð¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½512Kb
      * @returns {Promise}
      */
     CacheManager.prototype.cleanCache = function () {
@@ -106,7 +106,7 @@ CMD.register("cache.CacheManager", function (require) {
             if (0 === oldFiles.length){
                 return Promise.resolve();
             }
-            me._nativeBridge.Sdk.logInfo("Unity Ads cache: Deleting " + oldFiles.length + " old files");
+            me._nativeBridge.Sdk.logInfo("OneWay SDK cache: Deleting " + oldFiles.length + " old files");
             var tasks = [];
             oldFiles.map(function (file) {
                 tasks.push(me._nativeBridge.Storage["delete"](StorageType.PRIVATE, "cache." + file));
@@ -117,10 +117,10 @@ CMD.register("cache.CacheManager", function (require) {
         });
     };
     /**
-     * ¸ù¾ÝÎÄ¼þÂ·¾¶»ñÈ¡ÎÄ¼þid, Èç¹ûÎÄ¼þid²»´æÔÚ£¬ÔòÉú³ÉÎÄ¼þid²¢»º´æ¡£
-     * ÎÄ¼þid½á¹¹£ºÎÄ¼þÂ·¾¶µÄ¹þÏ£Âë[.ÎÄ¼þºó×ºÃû]
+     * ï¿½ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½Â·ï¿½ï¿½ï¿½ï¿½È¡ï¿½Ä¼ï¿½id, ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½idï¿½ï¿½ï¿½ï¿½ï¿½Ú£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½idï¿½ï¿½ï¿½ï¿½ï¿½æ¡£
+     * ï¿½Ä¼ï¿½idï¿½á¹¹ï¿½ï¿½ï¿½Ä¼ï¿½Â·ï¿½ï¿½ï¿½Ä¹ï¿½Ï£ï¿½ï¿½[.ï¿½Ä¼ï¿½ï¿½ï¿½×ºï¿½ï¿½]
      *
-     * @param fileUrl {String} ÎÄ¼þÂ·¾¶
+     * @param fileUrl {String} ï¿½Ä¼ï¿½Â·ï¿½ï¿½
      * @returns {Promise}
      */
     CacheManager.prototype.getFileId = function (fileUrl) {
@@ -171,7 +171,7 @@ CMD.register("cache.CacheManager", function (require) {
             if (callbackConfig) {
                 switch (errorState) {
                     case CacheError[CacheError.FILE_ALREADY_CACHING]:
-                        me._nativeBridge.Sdk.logError("Unity Ads cache error: attempted to add second download from " + fileUrl + " to " + fileId);
+                        me._nativeBridge.Sdk.logError("OneWay SDK cache error: attempted to add second download from " + fileUrl + " to " + fileId);
                         callbackConfig.reject(errorState);
                         return;
 
@@ -212,9 +212,9 @@ CMD.register("cache.CacheManager", function (require) {
         };
     };
     /**
-     * ½«ÎÄ¼þ»º´æÐÅÏ¢Ð´Èë±¾µØ´æ´¢ÖÐ
-     * @param fileUrl       {String} ÎÄ¼þÂ·¾¶
-     * @param cacheResponse {Object} ÎÄ¼þ»º´æÐÅÏ¢
+     * ï¿½ï¿½ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï¢Ð´ï¿½ë±¾ï¿½Ø´æ´¢ï¿½ï¿½
+     * @param fileUrl       {String} ï¿½Ä¼ï¿½Â·ï¿½ï¿½
+     * @param cacheResponse {Object} ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï¢
      */
     CacheManager.prototype.writeCacheResponse = function (fileUrl, cacheResponse) {
         this._nativeBridge.Storage.set(StorageType.PRIVATE, "cache." + this._fileIds[fileUrl], JSON.stringify(cacheResponse));
